@@ -50,6 +50,7 @@ const processSteps = [
     title: "Школа приєднується до платформи",
     description:
       "Школа реєструється, приймає умови мережевої форми освіти та відкриває можливість партнерства з гуртками.",
+    highlight: "Організаційний старт",
   },
   {
     number: "02",
@@ -57,6 +58,7 @@ const processSteps = [
     title: "Батьки обирають гурток",
     description:
       "Батьки знаходять перевірену програму для дитини та подають заявку на заміну предмета.",
+    highlight: "Запуск маршруту",
   },
   {
     number: "03",
@@ -64,6 +66,7 @@ const processSteps = [
     title: "AI порівнює програми",
     description:
       "Система аналізує відповідність програми гуртка державним або затвердженим шкільним стандартам.",
+    highlight: "Ключова перевага",
   },
   {
     number: "04",
@@ -71,6 +74,7 @@ const processSteps = [
     title: "Школа розглядає та схвалює",
     description:
       "Адміністрація бачить висновок AI, прогалини в темах та ухвалює рішення щодо погодження заміни.",
+    highlight: "Рішення школи",
   },
   {
     number: "05",
@@ -78,6 +82,7 @@ const processSteps = [
     title: "Підписується цифрова угода",
     description:
       "Школа й гурток укладають формальну угоду про співпрацю, відповідальність та перенесення оцінок.",
+    highlight: "Ключова перевага",
   },
   {
     number: "06",
@@ -85,6 +90,7 @@ const processSteps = [
     title: "Оцінки та звіти передаються",
     description:
       "Гурток веде відвідуваність, виставляє оцінки й надсилає результати безпосередньо в шкільну систему.",
+    highlight: "Результат",
   },
 ];
 
@@ -119,6 +125,8 @@ const aiFeatures = [
 const userCards = [
   {
     icon: Building2,
+    badge: "Адміністративний кабінет",
+    cardClass: "school-role",
     title: "Для шкіл",
     description:
       "Керуйте мережевою формою освіти з повною прозорістю та контролем за погодженням заміни предметів.",
@@ -129,9 +137,12 @@ const userCards = [
       "Контроль освітніх маршрутів учнів",
       "Підписання цифрових договорів",
     ],
+    note: "Структурований процес погодження, офіційні записи та робота з партнерами.",
   },
   {
     icon: HeartHandshake,
+    badge: "Підтримка родини",
+    cardClass: "parent-role",
     title: "Для батьків",
     description:
       "Знаходьте відповідні програми для дитини, отримуйте рекомендації AI та відстежуйте прогрес.",
@@ -142,9 +153,12 @@ const userCards = [
       "Перегляд оцінок і прогресу",
       "Доступ до документів і статусів",
     ],
+    note: "Зрозумілий маршрут дитини, менше бюрократії та більше ясності в рішеннях школи.",
   },
   {
     icon: GraduationCap,
+    badge: "Партнерський кабінет",
+    cardClass: "provider-role",
     title: "Для гуртків",
     description:
       "Розвивайте партнерства зі школами, публікуйте програми та ведіть звітність у єдиному форматі.",
@@ -155,45 +169,60 @@ const userCards = [
       "Ведення відвідуваності й оцінювання",
       "Формування офіційних звітів",
     ],
+    note: "Інструменти для партнерств, звітності та впевненого представлення програми школам.",
   },
 ];
 
-const trustCards = [
+const trustGroups = [
   {
-    icon: BadgeCheck,
-    title: "Перевірені програми",
+    title: "Юридична та інституційна довіра",
     description:
-      "Усі освітні програми проходять перевірку й зіставляються з офіційними стандартами.",
+      "Сигнали, які підтверджують формальність процесу та зрозумілу відповідальність усіх сторін.",
+    cards: [
+      {
+        icon: BadgeCheck,
+        title: "Перевірені програми",
+        description:
+          "Усі освітні програми проходять перевірку й зіставляються з офіційними стандартами.",
+      },
+      {
+        icon: FileText,
+        title: "Цифрові договори",
+        description:
+          "Угода між школою та провайдером фіксує правила співпраці, оцінювання та передачу результатів.",
+      },
+      {
+        icon: Users,
+        title: "Зрозуміла відповідальність",
+        description:
+          "Ролі школи, батьків і гуртка визначені на кожному етапі освітнього маршруту.",
+      },
+    ],
   },
   {
-    icon: ArrowLeftRight,
-    title: "Прозоре перенесення оцінок",
+    title: "Технічна безпека та захист даних",
     description:
-      "Чіткий, контрольований процес передачі результатів навчання від гуртків до шкіл.",
-  },
-  {
-    icon: FileText,
-    title: "Цифрові договори",
-    description:
-      "Юридично значимі угоди про співпрацю та перенесення оцінок, підписані в електронному форматі.",
-  },
-  {
-    icon: Users,
-    title: "Зрозуміла відповідальність",
-    description:
-      "Ролі та зони відповідальності школи, батьків і гуртка визначені на кожному етапі маршруту.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Безпечний документообіг",
-    description:
-      "Захищене зберігання, передавання та архівування всіх документів і погоджень.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Захист даних",
-    description:
-      "Платформа підтримує вимоги до конфіденційності освітніх даних та персональної інформації.",
+      "Механізми, які забезпечують безпечну роботу з документами, оцінками та персональною інформацією.",
+    cards: [
+      {
+        icon: ArrowLeftRight,
+        title: "Прозоре перенесення оцінок",
+        description:
+          "Передача результатів навчання від гуртків до шкіл відбувається в контрольованому цифровому ланцюжку.",
+      },
+      {
+        icon: ShieldCheck,
+        title: "Безпечний документообіг",
+        description:
+          "Захищене зберігання, передавання та архівування всіх документів і погоджень.",
+      },
+      {
+        icon: LockKeyhole,
+        title: "Захист даних",
+        description:
+          "Платформа враховує вимоги до конфіденційності освітніх даних та персональної інформації.",
+      },
+    ],
   },
 ];
 
@@ -203,18 +232,24 @@ const testimonials = [
       "AI-порівняння програм дало нам упевненість у погодженні заміни предметів. Прозорість процесу справді вражає.",
     name: "Марія Соколова",
     role: "Директорка, школа №127",
+    organization: "Ліцей №127",
+    initials: "МС",
   },
   {
     quote:
       "Нарешті є платформа, де я бачу прогрес дитини і в школі, і в гуртку в одному місці. Перенесення оцінок працює без хаосу.",
     name: "Олексій Петров",
     role: "Батько двох учнів",
+    organization: "Батьківська спільнота",
+    initials: "ОП",
   },
   {
     quote:
       "Ми співпрацюємо вже з 15 школами, а платформа автоматизувала і звітність, і документи. Це реально змінило процес.",
     name: "Олена Іванова",
     role: "Директорка мовного центру",
+    organization: "Мовний центр «Горизонт»",
+    initials: "ОІ",
   },
 ];
 
@@ -249,10 +284,10 @@ const footerColumns = [
   {
     title: "Юридичне",
     links: [
-      { href: "#footer", label: "Privacy Policy" },
-      { href: "#footer", label: "Terms of Use" },
-      { href: "#footer", label: "Documents" },
-      { href: "#footer", label: "Compliance" },
+      { href: "#footer", label: "Політика конфіденційності" },
+      { href: "#footer", label: "Умови використання" },
+      { href: "#footer", label: "Документи" },
+      { href: "#footer", label: "Відповідність вимогам" },
     ],
   },
 ];
@@ -262,6 +297,7 @@ const registerRoles = [
     role: "school",
     tone: "blue",
     icon: School,
+    eyebrow: "Адміністративний профіль",
     title: "Для шкіл",
     description: "Керуйте мережевим навчанням і погоджуйте заміну предметів.",
     features: [
@@ -272,11 +308,13 @@ const registerRoles = [
     ],
     actionLabel: "Продовжити як школа",
     guestLabel: "Увійти як гість",
+    note: "Підійде адміністрації, координаторам та педагогічним командам.",
   },
   {
     role: "parent",
     tone: "purple",
     icon: UsersRound,
+    eyebrow: "Підтримка для родини",
     title: "Для батьків та учнів",
     description:
       "Знаходьте перевірені програми та відстежуйте освітній маршрут дитини.",
@@ -288,11 +326,13 @@ const registerRoles = [
     ],
     actionLabel: "Продовжити як родина",
     guestLabel: "Увійти як гість",
+    note: "Для батьків, які хочуть швидко оцінити маршрут дитини та подати заявку.",
   },
   {
     role: "club",
     tone: "green",
     icon: GraduationCap,
+    eyebrow: "Партнерський профіль",
     title: "Для гуртків",
     description:
       "Розширюйте співпрацю зі школами та передавайте результати навчання в стандартизованому форматі.",
@@ -304,6 +344,7 @@ const registerRoles = [
     ],
     actionLabel: "Продовжити як гурток",
     guestLabel: "Увійти як гість",
+    note: "Для провайдерів, які будують партнерства зі школами та ведуть цифрову звітність.",
   },
 ];
 
@@ -311,6 +352,7 @@ const dashboardData = {
   school: {
     title: "Шкільний дашборд",
     description: "Керуйте мережевим навчанням, погодженнями та партнерствами.",
+    chips: ["7 заявок із високим AI-збігом", "2 угоди очікують підпису"],
     metrics: [
       { icon: UsersRound, label: "Активні учні", value: "847", color: "#2563ff", border: "#bfd8ff" },
       { icon: ClipboardList, label: "Запити на розгляді", value: "24", color: "#9333ea", border: "#ead5ff" },
@@ -319,19 +361,19 @@ const dashboardData = {
     rows: [
       {
         title: "Анна Петрова",
-        description: "Англійська мова → Мовний центр International",
+        description: "Англійська мова → Мовний центр «Горизонт»",
         badge: "Очікує",
         badgeClass: "pending",
       },
       {
         title: "Іван Сидоров",
-        description: "Музичне мистецтво → City Music Academy",
+        description: "Музичне мистецтво → Міська музична академія",
         badge: "Схвалено",
         badgeClass: "approved",
       },
       {
         title: "Марія Іванова",
-        description: "Фізична культура → Sports Complex Olymp",
+        description: "Фізична культура → Спортивний центр «Олімп»",
         badge: "Розгляд",
         badgeClass: "reviewing",
       },
@@ -340,6 +382,7 @@ const dashboardData = {
   parent: {
     title: "Батьківський дашборд",
     description: "Відстежуйте заявки, прогрес дитини та освітні маршрути.",
+    chips: ["1 новий звіт за тиждень", "2 маршрути синхронізовано"],
     metrics: [
       { icon: UserRound, label: "Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
       { icon: BrainCircuit, label: "AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
@@ -369,6 +412,7 @@ const dashboardData = {
   club: {
     title: "Дашборд гуртка",
     description: "Публікуйте програми, працюйте зі школами та ведіть офіційну звітність.",
+    chips: ["3 школи чекають оновлення програми", "5 звітів готові до відправлення"],
     metrics: [
       { icon: BookOpenCheck, label: "Опубліковані програми", value: "18", color: "#2563ff", border: "#bfd8ff" },
       { icon: School, label: "Партнерські школи", value: "15", color: "#9333ea", border: "#ead5ff" },
@@ -376,7 +420,7 @@ const dashboardData = {
     ],
     rows: [
       {
-        title: "Програма English Intensive",
+        title: "Програма «Поглиблена англійська»",
         description: "Відповідність 92% · готова до подання в школу",
         badge: "Перевірено",
         badgeClass: "approved",
@@ -513,42 +557,93 @@ export default function SiteHomePage() {
               <div className="window-card">
                 <div className="window-top">
                   <span className="dot"></span>
-                  Platform Dashboard
+                  Кабінет EduSync
                 </div>
 
                 <div className="dashboard-preview">
                   <div className="preview-header">
                     <div>
-                      <h3>Спільний освітній маршрут</h3>
+                      <span className="preview-kicker">Запит на зарахування №241</span>
+                      <h3>Заміна предмета «Англійська мова» для 9-Б класу</h3>
                       <p>
-                        Школа, батьки та гурток бачать одну й ту саму узгоджену
-                        картину.
+                        Ліцей №127, мовний центр «Горизонт» та родина учня працюють у
+                        спільному цифровому маршруті без дублювання документів.
                       </p>
                     </div>
                     <div className="preview-pill">
                       <i></i>
-                      Curriculum match verified
+                      AI-порівняння завершено
                     </div>
                   </div>
 
                   <div className="preview-body">
-                    <div className="mini-card">
-                      <h4>Для шкіл</h4>
-                      <p>
-                        Погодження заміни предметів, перегляд журналів,
-                        партнерські гуртки та документи.
-                      </p>
-                      <ul className="check-list">
-                        <li>Перевірка заявок батьків</li>
-                        <li>Контроль перенесення оцінок</li>
-                        <li>Підписання договорів</li>
-                      </ul>
+                    <div className="preview-stack">
+                      <div className="mini-card request-card">
+                        <div className="mini-card-head">
+                          <div>
+                            <span className="mini-kicker">Картка запиту</span>
+                            <h4>Заявка від батьків</h4>
+                          </div>
+                          <span className="mini-badge reviewing">На розгляді</span>
+                        </div>
+                        <div className="request-rows">
+                          <div className="request-row">
+                            <span>Учениця</span>
+                            <strong>Анна Петрова</strong>
+                          </div>
+                          <div className="request-row">
+                            <span>Провайдер</span>
+                            <strong>Мовний центр «Горизонт»</strong>
+                          </div>
+                          <div className="request-row">
+                            <span>Предмет</span>
+                            <strong>Англійська мова</strong>
+                          </div>
+                        </div>
+                        <ul className="check-list">
+                          <li>AI-збіг програми: 92%</li>
+                          <li>Школа бачить прогалини до погодження</li>
+                          <li>Батьки відстежують статус без дзвінків і листів</li>
+                        </ul>
+                      </div>
+
+                      <div className="mini-card agreement-card">
+                        <div className="mini-card-head">
+                          <div>
+                            <span className="mini-kicker">Після погодження</span>
+                            <h4>Цифрова угода та перенесення оцінок</h4>
+                          </div>
+                        </div>
+                        <div className="flow-list">
+                          <div className="flow-step done">
+                            <span className="flow-dot"></span>
+                            <div>
+                              <strong>Підпис договору</strong>
+                              <p>Школа та провайдер погоджують відповідальність.</p>
+                            </div>
+                          </div>
+                          <div className="flow-step active">
+                            <span className="flow-dot"></span>
+                            <div>
+                              <strong>Поточний етап</strong>
+                              <p>Верифікація навчальних результатів за модулем письма.</p>
+                            </div>
+                          </div>
+                          <div className="flow-step">
+                            <span className="flow-dot"></span>
+                            <div>
+                              <strong>Передача оцінок</strong>
+                              <p>Після завершення періоду оцінки підтягуються до школи.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="mini-card compare-card">
                       <div className="score-box">
                         <div>
-                          <div>Загальна відповідність</div>
+                          <div>Загальний збіг</div>
                           <strong>92%</strong>
                         </div>
                         <div className="ring"></div>
@@ -592,6 +687,21 @@ export default function SiteHomePage() {
                           </div>
                         </div>
                       </div>
+
+                      <div className="compare-notes">
+                        <div className="compare-note positive">
+                          <span>Чому рекомендовано</span>
+                          <strong>Сильний збіг за мовними компетентностями та практичними завданнями.</strong>
+                        </div>
+                        <div className="compare-note warning">
+                          <span>Що ще відсутнє</span>
+                          <strong>Потрібно перевірити письмові контрольні критерії та підсумкову роботу.</strong>
+                        </div>
+                        <div className="compare-note neutral">
+                          <span>Формат заміни</span>
+                          <strong>Повна заміна можлива після підтвердження школи.</strong>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -616,8 +726,12 @@ export default function SiteHomePage() {
                 const Icon = item.icon;
 
                 return (
-                  <article key={item.number} className="step-card">
+                  <article
+                    key={item.number}
+                    className={`step-card ${item.highlight === "Ключова перевага" ? "key-step" : ""}`}
+                  >
                     <div className="num">{item.number}</div>
+                    <div className="step-label">{item.highlight}</div>
                     <div className="icon-box">
                       <Icon strokeWidth={2.1} />
                     </div>
@@ -665,13 +779,13 @@ export default function SiteHomePage() {
 
             <div className="report-card">
               <div className="report-head">
-                <h3>AI Comparison Report</h3>
-                <div className="verified">✔ Verified</div>
+                <h3>AI-звіт зіставлення програми</h3>
+                <div className="verified">Підтверджено</div>
               </div>
 
               <div className="score-box">
                 <div>
-                  <div>Overall Match</div>
+                  <div>Загальний збіг</div>
                   <strong>92%</strong>
                 </div>
                 <div className="ring"></div>
@@ -680,7 +794,7 @@ export default function SiteHomePage() {
               <div className="bar-list report-bars">
                 <div className="bar-row">
                   <span>
-                    <b>Grammar &amp; Syntax</b>
+                    <b>Граматика та синтаксис</b>
                     <b className="text-green">98%</b>
                   </span>
                   <div className="bar">
@@ -689,7 +803,7 @@ export default function SiteHomePage() {
                 </div>
                 <div className="bar-row">
                   <span>
-                    <b>Speaking Skills</b>
+                    <b>Усне мовлення</b>
                     <b className="text-green">95%</b>
                   </span>
                   <div className="bar">
@@ -698,7 +812,7 @@ export default function SiteHomePage() {
                 </div>
                 <div className="bar-row">
                   <span>
-                    <b>Reading Comprehension</b>
+                    <b>Читання та розуміння</b>
                     <b className="text-blue">88%</b>
                   </span>
                   <div className="bar">
@@ -707,7 +821,7 @@ export default function SiteHomePage() {
                 </div>
                 <div className="bar-row">
                   <span>
-                    <b>Writing</b>
+                    <b>Письмо</b>
                     <b className="text-yellow">85%</b>
                   </span>
                   <div className="bar">
@@ -723,6 +837,21 @@ export default function SiteHomePage() {
                   Програма відповідає ключовим компетентностям шкільного курсу
                   англійської мови для 9 класу.
                 </p>
+              </div>
+
+              <div className="explain-grid">
+                <div className="explain-card">
+                  <span>Чому рекомендовано</span>
+                  <strong>Покрито основні мовні компетентності, регулярне оцінювання та практика.</strong>
+                </div>
+                <div className="explain-card warning">
+                  <span>Що відсутнє</span>
+                  <strong>Потрібна перевірка письмових робіт та відповідності шкільним критеріям оцінювання.</strong>
+                </div>
+                <div className="explain-card neutral">
+                  <span>Формат заміни</span>
+                  <strong>AI рекомендує повну заміну, якщо школа підтвердить модуль письма.</strong>
+                </div>
               </div>
             </div>
           </div>
@@ -744,7 +873,8 @@ export default function SiteHomePage() {
                 const Icon = item.icon;
 
                 return (
-                  <article key={item.title} className="user-card">
+                  <article key={item.title} className={`user-card ${item.cardClass}`}>
+                    <div className="role-badge">{item.badge}</div>
                     <div className="icon-box">
                       <Icon strokeWidth={2.1} />
                     </div>
@@ -758,6 +888,7 @@ export default function SiteHomePage() {
                     <a className="btn btn-primary" href="#dashboards">
                       Дізнатися більше
                     </a>
+                    <div className="role-note">{item.note}</div>
                   </article>
                 );
               })}
@@ -816,6 +947,13 @@ export default function SiteHomePage() {
                   <div className="panel-top">
                     <h3>{panel.title}</h3>
                     <p>{panel.description}</p>
+                    <div className="panel-chips">
+                      {panel.chips.map((chip) => (
+                        <span key={chip} className="panel-chip">
+                          {chip}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <div className="panel-body">
                     <div className="metrics">
@@ -868,20 +1006,31 @@ export default function SiteHomePage() {
               </p>
             </div>
 
-            <div className="trust-grid">
-              {trustCards.map((item) => {
-                const Icon = item.icon;
+            <div className="trust-groups">
+              {trustGroups.map((group) => (
+                <div key={group.title} className="trust-group">
+                  <div className="trust-group-head">
+                    <h3>{group.title}</h3>
+                    <p>{group.description}</p>
+                  </div>
 
-                return (
-                  <article key={item.title} className="trust-card">
-                    <div className="icon-box">
-                      <Icon strokeWidth={2.1} />
-                    </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </article>
-                );
-              })}
+                  <div className="trust-grid trust-grid-group">
+                    {group.cards.map((item) => {
+                      const Icon = item.icon;
+
+                      return (
+                        <article key={item.title} className="trust-card">
+                          <div className="icon-box">
+                            <Icon strokeWidth={2.1} />
+                          </div>
+                          <h3>{item.title}</h3>
+                          <p>{item.description}</p>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -900,10 +1049,17 @@ export default function SiteHomePage() {
             <div className="testimonials-grid">
               {testimonials.map((item) => (
                 <article key={item.name} className="testimonial-card">
+                  <div className="testimonial-top">
+                    <div className="testimonial-avatar">{item.initials}</div>
+                    <div className="testimonial-meta">
+                      <strong>{item.organization}</strong>
+                      <span>{item.role}</span>
+                    </div>
+                  </div>
                   <div className="stars">★★★★★</div>
                   <p>{item.quote}</p>
                   <h4>{item.name}</h4>
-                  <span>{item.role}</span>
+                  <span>{item.organization}</span>
                 </article>
               ))}
             </div>
@@ -920,17 +1076,17 @@ export default function SiteHomePage() {
                 як частину шкільного навчання.
               </p>
               <div className="cta-actions">
-                <button className="btn btn-secondary" type="button" onClick={showRegisterPage}>
-                  Зареєструватися зараз →
+                <button className="btn btn-cta-primary" type="button" onClick={showRegisterPage}>
+                  Обрати роль та почати →
                 </button>
-                <a className="btn btn-secondary" href="#footer">
-                  Зв&apos;язатися з командою
+                <a className="btn btn-cta-secondary" href="#footer">
+                  Запросити демонстрацію
                 </a>
               </div>
               <div className="cta-meta">
-                <span>◉ Відкрита участь</span>
-                <span>◉ Просте підключення</span>
-                <span>◉ Підтримка спільноти</span>
+                <span>◉ Для шкіл, родин і гуртків</span>
+                <span>◉ Прозорий цифровий процес</span>
+                <span>◉ Підтримка впровадження</span>
               </div>
             </div>
           </div>
@@ -1013,6 +1169,10 @@ export default function SiteHomePage() {
               Оберіть роль, щоб створити акаунт і підключити школу, родину або
               гурток до спільного цифрового процесу.
             </p>
+            <div className="register-helper">
+              Оберіть роль, яка найточніше відповідає вашим потребам, щоб побачити
+              релевантний кабінет, сценарії роботи та потрібні інструменти.
+            </div>
           </div>
 
           <div className="role-grid">
@@ -1022,6 +1182,7 @@ export default function SiteHomePage() {
               return (
                 <article key={item.role} className="role-card">
                   <div className={`role-top ${item.tone}`}>
+                    <span className="role-eyebrow">{item.eyebrow}</span>
                     <div className="role-icon">
                       <Icon strokeWidth={2.1} />
                     </div>
@@ -1050,6 +1211,7 @@ export default function SiteHomePage() {
                         {item.guestLabel}
                       </Link>
                     </div>
+                    <div className="role-note-small">{item.note}</div>
                   </div>
                 </article>
               );
@@ -1061,9 +1223,9 @@ export default function SiteHomePage() {
               Вже маєте акаунт? <Link href={`${appUrl}/auth/login`}>Увійти</Link>
             </p>
             <div className="register-meta">
-              <span>Відкритий доступ для учасників освіти</span>
-              <span>Неприбуткова ініціатива</span>
-              <span>Підключення без зайвих бар&apos;єрів</span>
+              <span>Для учасників освітнього процесу</span>
+              <span>Некомерційна ініціатива</span>
+              <span>Зрозуміле підключення до платформи</span>
             </div>
           </div>
         </div>

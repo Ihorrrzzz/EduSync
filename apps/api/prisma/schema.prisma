@@ -63,3 +63,96 @@ model RefreshToken {
 
   @@map("refresh_tokens")
 }
+
+model EducationalInstitution {
+  institutionId         Int                   @id @map("Institution_ID")
+  createdAt             DateTime?             @map("created_at") @db.Timestamp(6)
+  city                  String?               @db.VarChar(50)
+  address               String?               @db.VarChar(200)
+  postalCode            String?               @map("postal_code") @db.VarChar(5)
+  phoneNumber           String?               @unique @map("phone_number") @db.VarChar(10)
+  email                 String?               @unique @db.VarChar(50)
+  formalInstitution     FormalInstitution?
+  nonFormalInstitution  NonFormalInstitution?
+
+  @@map("Educational_Institutions")
+}
+
+model FormalInstitution {
+  institutionId                 Int                  @id @map("F_Institution_ID")
+  schoolName                    String?              @map("school_name") @db.VarChar(100)
+  educationalInstitution        EducationalInstitution @relation(fields: [institutionId], references: [institutionId])
+  firstFormalCooperations       F2FCooperation[]     @relation("FirstFormalInstitution")
+  secondFormalCooperations      F2FCooperation[]     @relation("SecondFormalInstitution")
+  formalToNonFormalCooperations F2NFCooperation[]    @relation("FormalInstitutionToNonFormal")
+  students                      Student[]
+
+  @@map("Formal_Institutions")
+}
+
+model NonFormalInstitution {
+  institutionId                 Int                         @id @map("NF_Institution_ID")
+  institutionName               String?                     @map("institution_name") @db.VarChar(100)
+  educationalInstitution        EducationalInstitution      @relation(fields: [institutionId], references: [institutionId])
+  formalToNonFormalCooperations F2NFCooperation[]           @relation("NonFormalInstitutionToFormal")
+  studentEnrollments            StudentNonFormalInstitution[]
+
+  @@map("Non_Formal_Institutions")
+}
+
+model Agreement {
+  agreementCode               String           @id @map("Agreement_code") @db.VarChar(10)
+  validFrom                   DateTime?        @map("valid_from") @db.Timestamp(6)
+  validTo                     DateTime?        @map("valid_to") @db.Timestamp(6)
+  formalToFormalCooperation   F2FCooperation?
+  formalToNonFormalCooperation F2NFCooperation?
+
+  @@map("Agreements")
+}
+
+model F2FCooperation {
+  agreementCode String             @id @map("FF_agreement_code") @db.VarChar(10)
+  firstSchoolId Int?               @map("f_school_1_id")
+  secondSchoolId Int?              @map("f_school_2_id")
+  agreement     Agreement          @relation(fields: [agreementCode], references: [agreementCode])
+  firstSchool   FormalInstitution? @relation("FirstFormalInstitution", fields: [firstSchoolId], references: [institutionId])
+  secondSchool  FormalInstitution? @relation("SecondFormalInstitution", fields: [secondSchoolId], references: [institutionId])
+
+  @@map("F2F_Cooperations")
+}
+
+model F2NFCooperation {
+  agreementCode     String                @id @map("FNF_agreement_code") @db.VarChar(10)
+  formalSchoolId    Int?                  @map("f_school_id")
+  nonFormalSchoolId Int?                  @map("nf_school_id")
+  agreement         Agreement             @relation(fields: [agreementCode], references: [agreementCode])
+  formalSchool      FormalInstitution?    @relation("FormalInstitutionToNonFormal", fields: [formalSchoolId], references: [institutionId])
+  nonFormalSchool   NonFormalInstitution? @relation("NonFormalInstitutionToFormal", fields: [nonFormalSchoolId], references: [institutionId])
+
+  @@map("F2NF_Cooperations")
+}
+
+model Student {
+  studentId             Int                         @id @map("Student_ID")
+  formalSchoolId        Int?                        @map("f_school_id")
+  firstName             String?                     @map("first_name") @db.VarChar(20)
+  lastName              String?                     @map("last_name") @db.VarChar(40)
+  grade                 Int?
+  formalInstitution     FormalInstitution?          @relation(fields: [formalSchoolId], references: [institutionId])
+  nonFormalEnrollments  StudentNonFormalInstitution[]
+
+  @@map("Students")
+}
+
+model StudentNonFormalInstitution {
+  studentId             Int                  @map("student_id")
+  nonFormalInstitutionId Int                 @map("nf_institution_id")
+  startedAt             DateTime?            @map("started_at") @db.Timestamp(6)
+  endedAt               DateTime?            @map("ended_at") @db.Timestamp(6)
+  studyLoad             Int?                 @map("study_load")
+  student               Student              @relation(fields: [studentId], references: [studentId])
+  nonFormalInstitution  NonFormalInstitution @relation(fields: [nonFormalInstitutionId], references: [institutionId])
+
+  @@id([studentId, nonFormalInstitutionId])
+  @@map("Students_NF_institutions")
+}

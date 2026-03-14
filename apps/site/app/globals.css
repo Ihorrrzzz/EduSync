@@ -62,7 +62,7 @@ button {
 }
 
 .container {
-  width: min(var(--container), calc(100% - 48px));
+  width: min(var(--container), calc(100% - 40px));
   margin: 0 auto;
 }
 
@@ -300,13 +300,16 @@ button {
 
 .hero-visual {
   position: relative;
-  min-height: 520px;
+  min-height: 0;
+  display: flex;
+  align-items: center;
 }
 
 .window-card {
-  position: absolute;
-  inset: 0 0 auto auto;
+  position: relative;
+  inset: auto;
   width: min(100%, 640px);
+  margin-left: auto;
   background: #fff;
   border-radius: 28px;
   padding: 18px;
@@ -1775,7 +1778,7 @@ button {
   }
 
   .hero-visual {
-    min-height: 480px;
+    min-height: 0;
   }
 
   .footer-grid {
@@ -1820,7 +1823,7 @@ button {
   }
 
   .container {
-    width: min(var(--container), calc(100% - 28px));
+    width: min(var(--container), calc(100% - 24px));
   }
 
   .hero-copy h1 {
@@ -1840,7 +1843,7 @@ button {
   }
 
   .hero-visual {
-    min-height: 420px;
+    min-height: 0;
   }
 
   .window-card {

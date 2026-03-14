@@ -4,8 +4,10 @@ import { CircleCheck, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { ScreenSpinner } from "../../../components/screen-spinner";
 import { apiFetch, type Profile } from "../../../lib/api";
 import { useAuth } from "../../../lib/auth-context";
+import { getSiteUrl } from "../../../lib/public-env";
 
 type LoginResponse = {
   accessToken: string;
@@ -17,18 +19,6 @@ const loginHighlights = [
   "Прозорі статуси заявок і погоджень",
   "AI-порівняння програм та цифрові звіти",
 ];
-
-function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
-
-function SpinnerScreen() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-    </div>
-  );
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -76,7 +66,7 @@ export default function LoginPage() {
   };
 
   if (isLoading || profile) {
-    return <SpinnerScreen />;
+    return <ScreenSpinner />;
   }
 
   return (

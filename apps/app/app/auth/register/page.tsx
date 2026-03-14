@@ -12,8 +12,12 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ScreenSpinner } from "../../../components/screen-spinner";
 import { apiFetch, type Profile, type ProfileRole } from "../../../lib/api";
 import { useAuth } from "../../../lib/auth-context";
+import { parseProfileRole } from "../../../lib/profile-utils";
+import { getSiteUrl } from "../../../lib/public-env";
+import { subjectOptions, type SubjectOption } from "../../../lib/subject-options";
 
 type RegisterResponse = {
   accessToken: string;
@@ -74,37 +78,8 @@ const stepLabels = [
   { value: 3 as const, title: "Профіль", description: "Додайте деталі акаунта" },
 ];
 
-const subjectOptions = [
-  "Мистецтво",
-  "Фізична культура",
-  "Інформатика",
-  "Математика",
-  "Природничі науки",
-  "Технології",
-] as const;
-
-function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
-
 function getGuestDashboardUrl(role: ProfileRole) {
   return `/dashboard?guest=${role}`;
-}
-
-function SpinnerScreen() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-    </div>
-  );
-}
-
-function parseRoleParam(role: string | null): ProfileRole | null {
-  if (role === "parent" || role === "school" || role === "club") {
-    return role;
-  }
-
-  return null;
 }
 
 export default function RegisterPage() {
@@ -119,7 +94,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [schoolName, setSchoolName] = useState("");
   const [city, setCity] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<SubjectOption[]>([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const siteUrl = getSiteUrl();
@@ -138,7 +113,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const requestedRole = parseRoleParam(
+    const requestedRole = parseProfileRole(
       new URLSearchParams(window.location.search).get("role"),
     );
 
@@ -152,7 +127,7 @@ export default function RegisterPage() {
     setHasAppliedRolePreset(true);
   }, [hasAppliedRolePreset]);
 
-  const handleSubjectToggle = (subject: string) => {
+  const handleSubjectToggle = (subject: SubjectOption) => {
     setSubjects((currentSubjects) =>
       currentSubjects.includes(subject)
         ? currentSubjects.filter((value) => value !== subject)
@@ -243,7 +218,7 @@ export default function RegisterPage() {
   };
 
   if (isLoading || profile) {
-    return <SpinnerScreen />;
+    return <ScreenSpinner />;
   }
 
   return (

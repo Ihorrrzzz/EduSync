@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "./public-env";
+
 export type ProfileRole = "parent" | "school" | "club";
 
 export interface Profile {
@@ -35,16 +37,6 @@ let sessionState: AuthSession = {
 };
 
 let refreshPromise: Promise<AuthSession | null> | null = null;
-
-function getApiBaseUrl() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!apiUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not configured");
-  }
-
-  return apiUrl;
-}
 
 function notifySessionListeners() {
   const snapshot = { ...sessionState };
@@ -159,6 +151,7 @@ export async function refreshSession() {
     return refreshPromise;
   }
 
+  // Reuse one in-flight refresh request so concurrent 401s do not stampede the API.
   refreshPromise = (async () => {
     const response = await fetch(`${getApiBaseUrl()}/api/auth/refresh`, {
       method: "POST",

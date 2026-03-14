@@ -1,5 +1,7 @@
+import { randomUUID } from "node:crypto";
 import { UserRole } from "@prisma/client";
 import { SignJWT, jwtVerify } from "jose";
+import { env } from "./env.js";
 
 type AccessTokenInput = {
   profileId: string;
@@ -11,25 +13,16 @@ type AccessTokenInput = {
 export type AccessTokenPayload = AccessTokenInput;
 
 const textEncoder = new TextEncoder();
+const TOKEN_ISSUER = "edusync-api";
+const ACCESS_TOKEN_AUDIENCE = "edusync-app";
+const REFRESH_TOKEN_AUDIENCE = "edusync-session";
 
 function getAccessSecret() {
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_SECRET is not configured");
-  }
-
-  return textEncoder.encode(secret);
+  return textEncoder.encode(env.JWT_SECRET);
 }
 
 function getRefreshSecret() {
-  const secret = process.env.JWT_REFRESH_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_REFRESH_SECRET is not configured");
-  }
-
-  return textEncoder.encode(secret);
+  return textEncoder.encode(env.JWT_REFRESH_SECRET);
 }
 
 export async function signAccessToken(input: AccessTokenInput) {
@@ -37,8 +30,11 @@ export async function signAccessToken(input: AccessTokenInput) {
     email: input.email,
     role: input.role,
     fullName: input.fullName,
+    type: "access",
   })
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(TOKEN_ISSUER)
+    .setAudience(ACCESS_TOKEN_AUDIENCE)
     .setSubject(input.profileId)
     .setIssuedAt()
     .setExpirationTime("15m")
@@ -50,6 +46,9 @@ export async function signRefreshToken(profileId: string) {
 
   const token = await new SignJWT({ type: "refresh" })
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(TOKEN_ISSUER)
+    .setAudience(REFRESH_TOKEN_AUDIENCE)
+    .setJti(randomUUID())
     .setSubject(profileId)
     .setIssuedAt()
     .setExpirationTime("7d")
@@ -59,15 +58,20 @@ export async function signRefreshToken(profileId: string) {
 }
 
 export async function verifyAccessToken(token: string) {
-  const { payload } = await jwtVerify(token, getAccessSecret());
+  const { payload } = await jwtVerify(token, getAccessSecret(), {
+    issuer: TOKEN_ISSUER,
+    audience: ACCESS_TOKEN_AUDIENCE,
+  });
 
   const role = payload.role;
   const email = payload.email;
+  const type = payload.type;
 
   if (
     typeof payload.sub !== "string" ||
     typeof email !== "string" ||
     typeof role !== "string" ||
+    type !== "access" ||
     !Object.values(UserRole).includes(role as UserRole)
   ) {
     throw new Error("Invalid access token payload");
@@ -85,9 +89,12 @@ export async function verifyAccessToken(token: string) {
 }
 
 export async function verifyRefreshToken(token: string) {
-  const { payload } = await jwtVerify(token, getRefreshSecret());
+  const { payload } = await jwtVerify(token, getRefreshSecret(), {
+    issuer: TOKEN_ISSUER,
+    audience: REFRESH_TOKEN_AUDIENCE,
+  });
 
-  if (typeof payload.sub !== "string") {
+  if (typeof payload.sub !== "string" || payload.type !== "refresh") {
     throw new Error("Invalid refresh token payload");
   }
 

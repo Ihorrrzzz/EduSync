@@ -5,6 +5,7 @@ apps/app/.next/
 apps/site/.next/
 apps/app/out/
 apps/site/out/
+*.tsbuildinfo
 apps/*/.env
 .env
 .DS_Store

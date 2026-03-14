@@ -1,9 +1,7 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
-    container_name: edusync_db
+    container_name: edusync_backend_db
     restart: unless-stopped
     init: true
     environment:
@@ -11,22 +9,18 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
-    networks:
-      - edusync_net
+      - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d edusync"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    container_name: edusync_api
+    container_name: edusync_backend_api
     restart: unless-stopped
     init: true
     environment:
@@ -37,15 +31,18 @@ services:
       HOST: 0.0.0.0
       CORS_ORIGIN: ${CORS_ORIGIN}
     ports:
-      - "127.0.0.1:3001:3001"
+      - "3001:3001"
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - edusync_net
-
-volumes:
-  postgres_data:
-
-networks:
-  edusync_net:
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health').then((response)=>{if(!response.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10

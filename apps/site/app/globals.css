@@ -342,9 +342,9 @@ button {
   border-radius: 22px;
   overflow: hidden;
   background: linear-gradient(160deg, #e9edf5 0%, #f4f6fb 100%);
-  min-height: 390px;
+  min-height: 330px;
   display: grid;
-  grid-template-rows: 136px 1fr;
+  grid-template-rows: 128px 1fr;
   border: 1px solid rgba(223, 229, 240, 0.9);
 }
 
@@ -409,11 +409,13 @@ button {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 14px;
+  align-items: start;
 }
 
 .preview-stack {
   display: grid;
-  gap: 14px;
+  gap: 0;
+  align-content: start;
 }
 
 .mini-card {

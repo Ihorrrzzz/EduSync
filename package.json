@@ -16,6 +16,9 @@
     "build:api": "npm run build --workspace @edusync/api",
     "build:app": "npm run build --workspace @edusync/app",
     "build": "npm run build:site && npm run build:api && npm run build:app",
+    "typecheck": "npm run typecheck --workspace @edusync/api && npm run typecheck --workspace @edusync/app && npm run typecheck --workspace @edusync/site",
+    "audit": "npm audit",
+    "verify": "npm run typecheck && npm run build && npm run audit",
     "prisma:generate": "npm run prisma:generate --workspace @edusync/api",
     "prisma:migrate": "npm run prisma:migrate --workspace @edusync/api"
   },

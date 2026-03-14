@@ -151,7 +151,11 @@ button {
   display: grid;
   place-items: center;
   box-shadow: 0 8px 22px rgba(37, 99, 255, 0.25);
-  font-size: 22px;
+}
+
+.brand-mark svg {
+  width: 24px;
+  height: 24px;
 }
 
 .nav {
@@ -554,8 +558,12 @@ button {
   color: var(--blue);
   display: grid;
   place-items: center;
-  font-size: 34px;
   margin-bottom: 24px;
+}
+
+.icon-box svg {
+  width: 34px;
+  height: 34px;
 }
 
 .step-card h3,
@@ -625,7 +633,6 @@ button {
   display: grid;
   place-items: center;
   color: #fff;
-  font-size: 24px;
 }
 
 .feature-row h4 {
@@ -826,6 +833,25 @@ button {
   justify-content: space-between;
 }
 
+.metric-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.metric-icon {
+  display: grid;
+  place-items: center;
+}
+
+.metric-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
 .metric strong {
   font-size: 36px;
   line-height: 1;
@@ -1022,6 +1048,11 @@ button {
   place-items: center;
 }
 
+.socials svg {
+  width: 18px;
+  height: 18px;
+}
+
 .register-page {
   min-height: 100vh;
   background: var(--bg);
@@ -1113,8 +1144,12 @@ button {
   background: rgba(255, 255, 255, 0.16);
   display: grid;
   place-items: center;
-  font-size: 34px;
   margin-bottom: 26px;
+}
+
+.role-icon svg {
+  width: 34px;
+  height: 34px;
 }
 
 .role-top h3 {

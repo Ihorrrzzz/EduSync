@@ -1,5 +1,31 @@
 "use client";
 
+import {
+  ArrowLeftRight,
+  BadgeCheck,
+  Blocks,
+  BookOpenCheck,
+  BrainCircuit,
+  Building2,
+  CircleCheck,
+  ClipboardList,
+  FilePenLine,
+  FileText,
+  Github,
+  GraduationCap,
+  HeartHandshake,
+  LibraryBig,
+  Linkedin,
+  LockKeyhole,
+  School,
+  ShieldCheck,
+  Sparkles,
+  TriangleAlert,
+  Twitter,
+  UserRound,
+  Users,
+  UsersRound,
+} from "lucide-react";
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 
@@ -20,42 +46,42 @@ const heroStats = [
 const processSteps = [
   {
     number: "01",
-    icon: "🏫",
+    icon: School,
     title: "Школа приєднується до платформи",
     description:
       "Школа реєструється, приймає умови мережевої форми освіти та відкриває можливість партнерства з гуртками.",
   },
   {
     number: "02",
-    icon: "👨‍👩‍👧",
+    icon: UsersRound,
     title: "Батьки обирають гурток",
     description:
       "Батьки знаходять перевірену програму для дитини та подають заявку на заміну предмета.",
   },
   {
     number: "03",
-    icon: "🧠",
+    icon: BrainCircuit,
     title: "AI порівнює програми",
     description:
       "Система аналізує відповідність програми гуртка державним або затвердженим шкільним стандартам.",
   },
   {
     number: "04",
-    icon: "✅",
+    icon: BadgeCheck,
     title: "Школа розглядає та схвалює",
     description:
       "Адміністрація бачить висновок AI, прогалини в темах та ухвалює рішення щодо погодження заміни.",
   },
   {
     number: "05",
-    icon: "📝",
+    icon: FilePenLine,
     title: "Підписується цифрова угода",
     description:
       "Школа й гурток укладають формальну угоду про співпрацю, відповідальність та перенесення оцінок.",
   },
   {
     number: "06",
-    icon: "📋",
+    icon: ClipboardList,
     title: "Оцінки та звіти передаються",
     description:
       "Гурток веде відвідуваність, виставляє оцінки й надсилає результати безпосередньо в шкільну систему.",
@@ -64,26 +90,26 @@ const processSteps = [
 
 const aiFeatures = [
   {
-    icon: "✓",
+    icon: CircleCheck,
     color: "#22c55e",
     title: "Наскільки збігається",
     description: "Відсоток відповідності програми офіційним стандартам.",
   },
   {
-    icon: "▣",
+    icon: Blocks,
     color: "#c084fc",
     title: "Які компетентності покриті",
     description: "Детальний розбір навичок і результатів навчання.",
   },
   {
-    icon: "!",
+    icon: TriangleAlert,
     color: "#f2b318",
     title: "Які теми відсутні",
     description:
       "Зрозуміле виділення прогалин, які потребують доопрацювання.",
   },
   {
-    icon: "◎",
+    icon: Sparkles,
     color: "#60a5fa",
     title: "Рекомендація щодо заміни",
     description: "Повна або часткова придатність для зарахування предмета.",
@@ -92,7 +118,7 @@ const aiFeatures = [
 
 const userCards = [
   {
-    icon: "🏢",
+    icon: Building2,
     title: "Для шкіл",
     description:
       "Керуйте мережевою формою освіти з повною прозорістю та контролем за погодженням заміни предметів.",
@@ -105,7 +131,7 @@ const userCards = [
     ],
   },
   {
-    icon: "♡",
+    icon: HeartHandshake,
     title: "Для батьків",
     description:
       "Знаходьте відповідні програми для дитини, отримуйте рекомендації AI та відстежуйте прогрес.",
@@ -118,7 +144,7 @@ const userCards = [
     ],
   },
   {
-    icon: "🎓",
+    icon: GraduationCap,
     title: "Для гуртків",
     description:
       "Розвивайте партнерства зі школами, публікуйте програми та ведіть звітність у єдиному форматі.",
@@ -134,37 +160,37 @@ const userCards = [
 
 const trustCards = [
   {
-    icon: "☑",
+    icon: BadgeCheck,
     title: "Перевірені програми",
     description:
       "Усі освітні програми проходять перевірку й зіставляються з офіційними стандартами.",
   },
   {
-    icon: "⇄",
+    icon: ArrowLeftRight,
     title: "Прозоре перенесення оцінок",
     description:
       "Чіткий, контрольований процес передачі результатів навчання від гуртків до шкіл.",
   },
   {
-    icon: "✍",
+    icon: FileText,
     title: "Цифрові договори",
     description:
       "Юридично значимі угоди про співпрацю та перенесення оцінок, підписані в електронному форматі.",
   },
   {
-    icon: "👥",
+    icon: Users,
     title: "Зрозуміла відповідальність",
     description:
       "Ролі та зони відповідальності школи, батьків і гуртка визначені на кожному етапі маршруту.",
   },
   {
-    icon: "🛡",
+    icon: ShieldCheck,
     title: "Безпечний документообіг",
     description:
       "Захищене зберігання, передавання та архівування всіх документів і погоджень.",
   },
   {
-    icon: "🔒",
+    icon: LockKeyhole,
     title: "Захист даних",
     description:
       "Платформа підтримує вимоги до конфіденційності освітніх даних та персональної інформації.",
@@ -235,7 +261,7 @@ const registerRoles = [
   {
     role: "school",
     tone: "blue",
-    icon: "🏫",
+    icon: School,
     title: "Для шкіл",
     description: "Керуйте мережевим навчанням і погоджуйте заміну предметів.",
     features: [
@@ -250,7 +276,7 @@ const registerRoles = [
   {
     role: "parent",
     tone: "purple",
-    icon: "👨‍👩‍👧",
+    icon: UsersRound,
     title: "Для батьків та учнів",
     description:
       "Знаходьте перевірені програми та відстежуйте освітній маршрут дитини.",
@@ -266,7 +292,7 @@ const registerRoles = [
   {
     role: "club",
     tone: "green",
-    icon: "🎨",
+    icon: GraduationCap,
     title: "Для гуртків",
     description:
       "Розширюйте співпрацю зі школами та передавайте результати навчання в стандартизованому форматі.",
@@ -286,9 +312,9 @@ const dashboardData = {
     title: "Шкільний дашборд",
     description: "Керуйте мережевим навчанням, погодженнями та партнерствами.",
     metrics: [
-      { label: "👥 Активні учні", value: "847", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🗂 Запити на розгляді", value: "24", color: "#9333ea", border: "#ead5ff" },
-      { label: "🎓 Партнерські гуртки", value: "12", color: "#16a34a", border: "#bbf7d0" },
+      { icon: UsersRound, label: "Активні учні", value: "847", color: "#2563ff", border: "#bfd8ff" },
+      { icon: ClipboardList, label: "Запити на розгляді", value: "24", color: "#9333ea", border: "#ead5ff" },
+      { icon: GraduationCap, label: "Партнерські гуртки", value: "12", color: "#16a34a", border: "#bbf7d0" },
     ],
     rows: [
       {
@@ -315,9 +341,9 @@ const dashboardData = {
     title: "Батьківський дашборд",
     description: "Відстежуйте заявки, прогрес дитини та освітні маршрути.",
     metrics: [
-      { label: "👦 Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🧠 AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
-      { label: "📄 Активні запити", value: "3", color: "#16a34a", border: "#bbf7d0" },
+      { icon: UserRound, label: "Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
+      { icon: BrainCircuit, label: "AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
+      { icon: FileText, label: "Активні запити", value: "3", color: "#16a34a", border: "#bbf7d0" },
     ],
     rows: [
       {
@@ -344,9 +370,9 @@ const dashboardData = {
     title: "Дашборд гуртка",
     description: "Публікуйте програми, працюйте зі школами та ведіть офіційну звітність.",
     metrics: [
-      { label: "📚 Опубліковані програми", value: "18", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🏫 Партнерські школи", value: "15", color: "#9333ea", border: "#ead5ff" },
-      { label: "📝 Звітів цього місяця", value: "41", color: "#16a34a", border: "#bbf7d0" },
+      { icon: BookOpenCheck, label: "Опубліковані програми", value: "18", color: "#2563ff", border: "#bfd8ff" },
+      { icon: School, label: "Партнерські школи", value: "15", color: "#9333ea", border: "#ead5ff" },
+      { icon: LibraryBig, label: "Звітів цього місяця", value: "41", color: "#16a34a", border: "#bbf7d0" },
     ],
     rows: [
       {
@@ -413,7 +439,9 @@ export default function SiteHomePage() {
         <header className="site-header">
           <div className="container header-inner">
             <button className="brand brand-button" type="button" onClick={showLandingPage}>
-              <span className="brand-mark">📘</span>
+              <span className="brand-mark">
+                <GraduationCap strokeWidth={2.2} />
+              </span>
               <span>EduSync</span>
             </button>
 
@@ -584,14 +612,20 @@ export default function SiteHomePage() {
             </div>
 
             <div className="steps-grid">
-              {processSteps.map((item) => (
-                <article key={item.number} className="step-card">
-                  <div className="num">{item.number}</div>
-                  <div className="icon-box">{item.icon}</div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </article>
-              ))}
+              {processSteps.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <article key={item.number} className="step-card">
+                    <div className="num">{item.number}</div>
+                    <div className="icon-box">
+                      <Icon strokeWidth={2.1} />
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -599,7 +633,10 @@ export default function SiteHomePage() {
         <section className="section ai-section" id="ai">
           <div className="container ai-grid">
             <div className="ai-copy">
-              <span className="eyebrow eyebrow-inverse">✨ AI-порівняння програм</span>
+              <span className="eyebrow eyebrow-inverse">
+                <Sparkles className="h-4 w-4" strokeWidth={2.2} />
+                AI-порівняння програм
+              </span>
               <h2>Розумне зіставлення освітніх програм</h2>
               <p>
                 AI порівнює програму гуртка з офіційною шкільною програмою та
@@ -608,17 +645,21 @@ export default function SiteHomePage() {
               </p>
 
               <div className="feature-stack">
-                {aiFeatures.map((item) => (
-                  <div key={item.title} className="feature-row">
-                    <div className="feature-icon" style={{ background: item.color }}>
-                      {item.icon}
+                {aiFeatures.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div key={item.title} className="feature-row">
+                      <div className="feature-icon" style={{ background: item.color }}>
+                        <Icon className="h-6 w-6" strokeWidth={2.2} />
+                      </div>
+                      <div>
+                        <h4>{item.title}</h4>
+                        <p>{item.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4>{item.title}</h4>
-                      <p>{item.description}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -699,21 +740,27 @@ export default function SiteHomePage() {
             </div>
 
             <div className="users-grid">
-              {userCards.map((item) => (
-                <article key={item.title} className="user-card">
-                  <div className="icon-box">{item.icon}</div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                  <ul>
-                    {item.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-                  <a className="btn btn-primary" href="#dashboards">
-                    Дізнатися більше
-                  </a>
-                </article>
-              ))}
+              {userCards.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <article key={item.title} className="user-card">
+                    <div className="icon-box">
+                      <Icon strokeWidth={2.1} />
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                    <ul>
+                      {item.features.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
+                    <a className="btn btn-primary" href="#dashboards">
+                      Дізнатися більше
+                    </a>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -772,16 +819,25 @@ export default function SiteHomePage() {
                   </div>
                   <div className="panel-body">
                     <div className="metrics">
-                      {panel.metrics.map((metric) => (
-                        <div
-                          key={metric.label}
-                          className="metric"
-                          style={{ borderColor: metric.border }}
-                        >
-                          <div>{metric.label}</div>
-                          <strong style={{ color: metric.color }}>{metric.value}</strong>
-                        </div>
-                      ))}
+                      {panel.metrics.map((metric) => {
+                        const Icon = metric.icon;
+
+                        return (
+                          <div
+                            key={metric.label}
+                            className="metric"
+                            style={{ borderColor: metric.border }}
+                          >
+                            <div className="metric-label">
+                              <span className="metric-icon" style={{ color: metric.color }}>
+                                <Icon strokeWidth={2.1} />
+                              </span>
+                              <span>{metric.label}</span>
+                            </div>
+                            <strong style={{ color: metric.color }}>{metric.value}</strong>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="record-list">
                       {panel.rows.map((row) => (
@@ -813,13 +869,19 @@ export default function SiteHomePage() {
             </div>
 
             <div className="trust-grid">
-              {trustCards.map((item) => (
-                <article key={item.title} className="trust-card">
-                  <div className="icon-box">{item.icon}</div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </article>
-              ))}
+              {trustCards.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <article key={item.title} className="trust-card">
+                    <div className="icon-box">
+                      <Icon strokeWidth={2.1} />
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -879,7 +941,9 @@ export default function SiteHomePage() {
             <div className="footer-grid">
               <div className="footer-brand">
                 <button className="brand brand-button brand-light" type="button" onClick={showLandingPage}>
-                  <span className="brand-mark">📘</span>
+                  <span className="brand-mark">
+                    <GraduationCap strokeWidth={2.2} />
+                  </span>
                   <span>EduSync</span>
                 </button>
                 <p>
@@ -904,13 +968,13 @@ export default function SiteHomePage() {
               <span>© 2026 EduSync. Некомерційний освітній продукт.</span>
               <div className="socials">
                 <a aria-label="Twitter" href="#">
-                  𝕏
+                  <Twitter strokeWidth={2.1} />
                 </a>
                 <a aria-label="GitHub" href="#">
-                  ⌘
+                  <Github strokeWidth={2.1} />
                 </a>
                 <a aria-label="LinkedIn" href="#">
-                  in
+                  <Linkedin strokeWidth={2.1} />
                 </a>
               </div>
             </div>
@@ -932,7 +996,9 @@ export default function SiteHomePage() {
               type="button"
               onClick={showLandingPage}
             >
-              <span className="brand-mark">📘</span>
+              <span className="brand-mark">
+                <GraduationCap strokeWidth={2.2} />
+              </span>
               <span>EduSync</span>
             </button>
 
@@ -950,38 +1016,44 @@ export default function SiteHomePage() {
           </div>
 
           <div className="role-grid">
-            {registerRoles.map((item) => (
-              <article key={item.role} className="role-card">
-                <div className={`role-top ${item.tone}`}>
-                  <div className="role-icon">{item.icon}</div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
+            {registerRoles.map((item) => {
+              const Icon = item.icon;
 
-                <div className="role-body">
-                  <ul>
-                    {item.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-
-                  <div className="role-actions">
-                    <Link
-                      className={`btn-role ${item.tone}`}
-                      href={`${appUrl}/auth/register?role=${item.role}`}
-                    >
-                      {item.actionLabel} →
-                    </Link>
-                    <Link
-                      className="btn-role btn-role-ghost"
-                      href={`${appUrl}/dashboard?guest=${item.role}`}
-                    >
-                      {item.guestLabel}
-                    </Link>
+              return (
+                <article key={item.role} className="role-card">
+                  <div className={`role-top ${item.tone}`}>
+                    <div className="role-icon">
+                      <Icon strokeWidth={2.1} />
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  <div className="role-body">
+                    <ul>
+                      {item.features.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
+
+                    <div className="role-actions">
+                      <Link
+                        className={`btn-role ${item.tone}`}
+                        href={`${appUrl}/auth/register?role=${item.role}`}
+                      >
+                        {item.actionLabel} →
+                      </Link>
+                      <Link
+                        className="btn-role btn-role-ghost"
+                        href={`${appUrl}/dashboard?guest=${item.role}`}
+                      >
+                        {item.guestLabel}
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
           <div className="register-bottom">

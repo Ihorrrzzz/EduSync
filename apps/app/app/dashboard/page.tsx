@@ -2,6 +2,7 @@
 
 import {
   BookOpenCheck,
+  Brain,
   CircleCheck,
   ClipboardList,
   FileText,
@@ -41,6 +42,15 @@ type InsightCard = {
   tone: string;
 };
 
+type AiAnalysisConfig = {
+  title: string;
+  description: string;
+  submitLabel: string;
+  summaryTitle: string;
+  summaryText: string;
+  bullets: string[];
+};
+
 type FormField = {
   name: string;
   label: string;
@@ -63,6 +73,7 @@ type DashboardConfig = {
   formDescription: string;
   formSubmitLabel: string;
   fields: FormField[];
+  aiAnalysis?: AiAnalysisConfig;
   insights: InsightCard[];
 };
 
@@ -129,6 +140,20 @@ const dashboardConfigs: Record<"parent" | "school" | "club", DashboardConfig> = 
         span: "full",
       },
     ],
+    aiAnalysis: {
+      title: "Аналізувати програму гуртка за допомогою AI",
+      description:
+        "Додайте основні дані про програму гуртка, щоб швидко оцінити її сумісність зі шкільним предметом до подання заявки.",
+      submitLabel: "Запустити AI-аналіз",
+      summaryTitle: "Попередній висновок AI",
+      summaryText:
+        "Програма виглядає достатньо близькою до шкільного курсу й може бути придатною для часткового або повного зарахування після перевірки школи.",
+      bullets: [
+        "Орієнтовний збіг із програмою: 89%",
+        "Сильні сторони: усне мовлення, читання, практичні завдання",
+        "Що перевірити додатково: модулі з письма та контрольні критерії оцінювання",
+      ],
+    },
     insights: [
       {
         title: "Найкращий AI-збіг",
@@ -457,6 +482,157 @@ function DashboardForm({
   );
 }
 
+function ParentAiAnalysis({
+  analysis,
+}: {
+  analysis: AiAnalysisConfig;
+}) {
+  const [status, setStatus] = useState("");
+  const [values, setValues] = useState({
+    programName: "",
+    subject: "",
+    provider: "",
+    notes: "",
+  });
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("AI-аналіз підготовлено як демонстраційний попередній висновок.");
+  };
+
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-semibold tracking-[-0.03em] text-slate-950">
+            {analysis.title}
+          </h3>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+            {analysis.description}
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+          <Brain className="h-4 w-4" strokeWidth={2.1} />
+          AI Preview
+        </span>
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-slate-700" htmlFor="ai-program-name">
+              Назва програми
+            </label>
+            <input
+              id="ai-program-name"
+              className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              placeholder="Наприклад, English Intensive"
+              value={values.programName}
+              onChange={(event) => {
+                setValues((current) => ({ ...current, programName: event.target.value }));
+                setStatus("");
+              }}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-slate-700" htmlFor="ai-subject">
+              Шкільний предмет
+            </label>
+            <input
+              id="ai-subject"
+              className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              placeholder="Наприклад, Англійська мова"
+              value={values.subject}
+              onChange={(event) => {
+                setValues((current) => ({ ...current, subject: event.target.value }));
+                setStatus("");
+              }}
+            />
+          </div>
+
+          <div className="grid gap-2 sm:col-span-2">
+            <label className="text-sm font-medium text-slate-700" htmlFor="ai-provider">
+              Назва гуртка або провайдера
+            </label>
+            <input
+              id="ai-provider"
+              className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              placeholder="Вкажіть назву закладу"
+              value={values.provider}
+              onChange={(event) => {
+                setValues((current) => ({ ...current, provider: event.target.value }));
+                setStatus("");
+              }}
+            />
+          </div>
+
+          <div className="grid gap-2 sm:col-span-2">
+            <label className="text-sm font-medium text-slate-700" htmlFor="ai-notes">
+              Опис програми або ключові модулі
+            </label>
+            <textarea
+              id="ai-notes"
+              className="min-h-32 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              placeholder="Коротко опишіть теми, навички та формат навчання"
+              value={values.notes}
+              onChange={(event) => {
+                setValues((current) => ({ ...current, notes: event.target.value }));
+                setStatus("");
+              }}
+            />
+          </div>
+
+          {status ? (
+            <div className="sm:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              {status}
+            </div>
+          ) : null}
+
+          <button
+            className="sm:col-span-2 inline-flex h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.22)] transition hover:bg-blue-700"
+            type="submit"
+          >
+            {analysis.submitLabel}
+          </button>
+        </form>
+
+        <div className="rounded-[1.5rem] border border-blue-100 bg-[linear-gradient(180deg,#f8fbff,#eef5ff)] p-5">
+          <div className="flex items-center gap-3 text-blue-700">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white shadow-sm">
+              <Brain className="h-5 w-5" strokeWidth={2.1} />
+            </span>
+            <div>
+              <div className="text-sm font-semibold uppercase tracking-[0.18em]">
+                AI Summary
+              </div>
+              <div className="text-lg font-semibold text-slate-950">
+                {analysis.summaryTitle}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">{analysis.summaryText}</p>
+
+          <div className="mt-5 grid gap-3">
+            {analysis.bullets.map((item) => (
+              <div
+                key={item}
+                className="flex items-start gap-3 rounded-2xl border border-white bg-white/80 px-4 py-4 text-sm text-slate-700"
+              >
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+                  <CircleCheck className="h-4 w-4" strokeWidth={2.1} />
+                </span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function DashboardPageLayout({
   profile,
   config,
@@ -626,6 +802,8 @@ function DashboardPageLayout({
 
             <DashboardForm config={config} />
           </section>
+
+          {config.aiAnalysis ? <ParentAiAnalysis analysis={config.aiAnalysis} /> : null}
 
           <section className="grid gap-6 md:grid-cols-2">
             {config.insights.map((item) => (

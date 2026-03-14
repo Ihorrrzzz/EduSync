@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: edusync_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: edusync
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - edusync_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d edusync"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: edusync_api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/edusync
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PORT: 3001
+      HOST: 0.0.0.0
+      CORS_ORIGIN: ${CORS_ORIGIN}
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - edusync_net
+
+volumes:
+  postgres_data:
+
+networks:
+  edusync_net:

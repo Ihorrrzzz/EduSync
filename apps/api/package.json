@@ -1,0 +1,30 @@
+{
+  "name": "@edusync/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file=.env --import tsx src/index.ts",
+    "build": "tsup src/index.ts --format esm --target es2022 --out-dir dist --clean",
+    "start": "node --env-file=.env dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "@prisma/client": "^6.7.0",
+    "bcrypt": "^5.1.1",
+    "hono": "^4.6.12",
+    "jose": "^5.9.6",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.10.2",
+    "prisma": "^6.7.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

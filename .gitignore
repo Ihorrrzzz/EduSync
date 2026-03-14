@@ -1,9 +1,9 @@
 node_modules/
 dist/
 apps/*/dist/
-apps/web/.next/
+apps/app/.next/
 apps/site/.next/
-apps/web/out/
+apps/app/out/
 apps/site/out/
 apps/*/.env
 .env

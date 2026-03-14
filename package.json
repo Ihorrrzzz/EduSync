@@ -1,10 +1,25 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "edusync",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -k -n site,api,app -c magenta,blue,green \"npm run dev:site\" \"npm run dev:api\" \"npm run dev:app\"",
+    "dev:site": "npm run dev --workspace @edusync/site",
+    "dev:api": "npm run dev --workspace @edusync/api",
+    "dev:app": "npm run dev --workspace @edusync/app",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "build:site": "npm run build --workspace @edusync/site",
+    "build:api": "npm run build --workspace @edusync/api",
+    "build:app": "npm run build --workspace @edusync/app",
+    "build": "npm run build:site && npm run build:api && npm run build:app",
+    "prisma:generate": "npm run prisma:generate --workspace @edusync/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace @edusync/api"
   },
-  "private": true
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
 }

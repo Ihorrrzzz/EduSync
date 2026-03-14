@@ -17,10 +17,52 @@ const roleCards: Array<{
   value: ProfileRole;
   icon: string;
   label: string;
+  description: string;
+  tone: string;
+  highlights: string[];
 }> = [
-  { value: "parent", icon: "👨‍👩‍👧", label: "Батьки / Учень" },
-  { value: "school", icon: "🏫", label: "Школа" },
-  { value: "club", icon: "🎨", label: "Гурток" },
+  {
+    value: "parent",
+    icon: "👨‍👩‍👧",
+    label: "Батьки / Учень",
+    description: "Пошук програм, AI-рекомендації та подання заявок на зарахування.",
+    tone: "from-purple-500 to-fuchsia-600",
+    highlights: [
+      "Каталог сумісних програм",
+      "Статуси заявок у реальному часі",
+      "Єдиний огляд прогресу дитини",
+    ],
+  },
+  {
+    value: "school",
+    icon: "🏫",
+    label: "Школа",
+    description: "Погодження замін, робота з партнерами та цифровими угодами.",
+    tone: "from-blue-500 to-blue-700",
+    highlights: [
+      "Розгляд запитів на заміну предметів",
+      "Контроль маршруту учня",
+      "Партнерства з гуртками та звітами",
+    ],
+  },
+  {
+    value: "club",
+    icon: "🎨",
+    label: "Гурток",
+    description: "Публікація програм, передавання результатів та звітів до шкіл.",
+    tone: "from-emerald-500 to-green-600",
+    highlights: [
+      "Завантаження освітніх програм",
+      "Звіти й відвідуваність у цифровому форматі",
+      "Керування шкільними партнерствами",
+    ],
+  },
+];
+
+const stepLabels = [
+  { value: 1 as const, title: "Роль", description: "Оберіть тип кабінету" },
+  { value: 2 as const, title: "Доступ", description: "Створіть дані для входу" },
+  { value: 3 as const, title: "Профіль", description: "Додайте деталі акаунта" },
 ];
 
 const subjectOptions = [
@@ -32,10 +74,14 @@ const subjectOptions = [
   "Технології",
 ] as const;
 
+function getSiteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
 function SpinnerScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="animate-spin h-5 w-5 rounded-full border-2 border-blue-600 border-t-transparent" />
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
     </div>
   );
 }
@@ -63,6 +109,9 @@ export default function RegisterPage() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const siteUrl = getSiteUrl();
+
+  const selectedRole = roleCards.find((item) => item.value === role) ?? null;
 
   useEffect(() => {
     if (!isLoading && profile) {
@@ -97,7 +146,18 @@ export default function RegisterPage() {
     );
   };
 
-  const handleStepTwoNext = () => {
+  const goToNextStep = () => {
+    if (step === 1) {
+      if (!role) {
+        setError("Оберіть роль, щоб продовжити");
+        return;
+      }
+
+      setError("");
+      setStep(2);
+      return;
+    }
+
     if (!email.trim()) {
       setError("Вкажіть email");
       return;
@@ -173,237 +233,377 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Реєстрація</h1>
-            <p className="mt-1 text-sm text-gray-500">Крок {step} з 3</p>
-          </div>
-          <Link className="text-sm text-blue-600 hover:text-blue-700" href="/auth/login">
-            Увійти
-          </Link>
-        </div>
-
-        <form className="mt-6" onSubmit={handleSubmit}>
-          {step === 1 ? (
-            <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                {roleCards.map((item) => {
-                  const isSelected = item.value === role;
-
-                  return (
-                    <button
-                      key={item.value}
-                      type="button"
-                      className={`border rounded-xl p-5 cursor-pointer transition text-left ${
-                        isSelected
-                          ? "border-2 border-blue-600 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      onClick={() => setRole(item.value)}
-                    >
-                      <div className="text-3xl">{item.icon}</div>
-                      <div className="mt-3 text-sm font-medium text-gray-900">
-                        {item.label}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:bg-blue-300"
-                  type="button"
-                  onClick={() => setStep(2)}
-                  disabled={!role}
-                >
-                  Далі
-                </button>
-              </div>
+    <main className="px-4 py-6 md:px-8">
+      <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-7xl gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <section className="rounded-[2rem] bg-[linear-gradient(160deg,#2563ff,#153db8)] p-6 text-white shadow-[0_30px_80px_rgba(37,99,255,0.24)] sm:p-8 lg:p-10">
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between gap-4">
+              <Link
+                className="inline-flex items-center gap-3 text-sm font-semibold text-white/92"
+                href={siteUrl}
+              >
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/14 text-xl">
+                  📘
+                </span>
+                <span>EduSync</span>
+              </Link>
+              <span className="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/84">
+                Register
+              </span>
             </div>
-          ) : null}
 
-          {step === 2 ? (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </div>
+            <div className="mt-10">
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/72">
+                Рольова реєстрація
+              </p>
+              <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-tight tracking-[-0.05em] sm:text-5xl">
+                Створіть кабінет, який відповідає вашій ролі в освітньому маршруті.
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/84 sm:text-lg">
+                EduSync адаптує інтерфейс для школи, родини або гуртка одразу після
+                реєстрації, щоб ви працювали тільки з релевантними запитами та
+                даними.
+              </p>
+            </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="password">
-                  Пароль
-                </label>
-                <div className="relative">
-                  <input
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-24 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    minLength={8}
-                    required
-                  />
-                  <button
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500"
-                    type="button"
-                    onClick={() => setShowPassword((currentValue) => !currentValue)}
+            <div className="mt-10 grid gap-4">
+              {stepLabels.map((item) => {
+                const isActive = item.value === step;
+                const isComplete = item.value < step;
+
+                return (
+                  <div
+                    key={item.value}
+                    className={`rounded-2xl border px-4 py-4 transition ${
+                      isActive
+                        ? "border-white/24 bg-white/14"
+                        : "border-white/10 bg-white/7"
+                    }`}
                   >
-                    {showPassword ? "Сховати" : "Показати"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <button
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
-                  type="button"
-                  onClick={() => setStep(1)}
-                >
-                  Назад
-                </button>
-                <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-                  type="button"
-                  onClick={handleStepTwoNext}
-                >
-                  Далі
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {step === 3 && role ? (
-            <div className="space-y-4">
-              {role === "parent" ? (
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="parent-name">
-                    Ваше ім&apos;я
-                  </label>
-                  <input
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    id="parent-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                  />
-                </div>
-              ) : null}
-
-              {role === "school" ? (
-                <>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="school-name">
-                      Назва школи
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      id="school-name"
-                      type="text"
-                      value={schoolName}
-                      onChange={(event) => setSchoolName(event.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="school-city">
-                      Місто
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      id="school-city"
-                      type="text"
-                      value={city}
-                      onChange={(event) => setCity(event.target.value)}
-                    />
-                  </div>
-                </>
-              ) : null}
-
-              {role === "club" ? (
-                <>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="club-name">
-                      Назва гуртка
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      id="club-name"
-                      type="text"
-                      value={fullName}
-                      onChange={(event) => setFullName(event.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="club-city">
-                      Місто
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      id="club-city"
-                      type="text"
-                      value={city}
-                      onChange={(event) => setCity(event.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <p className="mb-2 text-sm font-medium text-gray-700">Предмети</p>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      {subjectOptions.map((subject) => {
-                        const isChecked = subjects.includes(subject);
-
-                        return (
-                          <label
-                            key={subject}
-                            className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => handleSubjectToggle(subject)}
-                            />
-                            {subject}
-                          </label>
-                        );
-                      })}
+                    <div className="flex items-start gap-4">
+                      <div
+                        className={`grid h-10 w-10 place-items-center rounded-2xl text-sm font-semibold ${
+                          isActive || isComplete
+                            ? "bg-white text-blue-700"
+                            : "bg-white/10 text-white/72"
+                        }`}
+                      >
+                        {isComplete ? "✓" : item.value}
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold text-white">{item.title}</div>
+                        <div className="mt-1 text-sm text-white/68">{item.description}</div>
+                      </div>
                     </div>
                   </div>
-                </>
+                );
+              })}
+            </div>
+
+            <div className="mt-10 rounded-[1.75rem] border border-white/12 bg-white/10 p-5">
+              <div className="text-sm font-semibold uppercase tracking-[0.22em] text-white/72">
+                Поточна роль
+              </div>
+              {selectedRole ? (
+                <div className="mt-4">
+                  <div className={`inline-flex rounded-2xl bg-gradient-to-r px-4 py-3 ${selectedRole.tone}`}>
+                    <span className="mr-3 text-2xl">{selectedRole.icon}</span>
+                    <div>
+                      <div className="text-sm font-semibold text-white">
+                        {selectedRole.label}
+                      </div>
+                      <div className="mt-1 text-sm text-white/82">
+                        {selectedRole.description}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-3">
+                    {selectedRole.highlights.map((item) => (
+                      <div key={item} className="flex items-center gap-3 text-sm text-white/84">
+                        <span className="grid h-7 w-7 place-items-center rounded-xl bg-white/14">
+                          ✓
+                        </span>
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm leading-6 text-white/72">
+                  Оберіть роль на першому кроці, щоб побачити, який формат дашборду
+                  та інструментів буде доступний після реєстрації.
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 lg:p-10">
+          <div className="mx-auto max-w-3xl">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+                  Auth
+                </p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-slate-950">
+                  Реєстрація в EduSync
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
+                  Заповніть кілька коротких кроків, щоб відкрити рольовий кабінет і
+                  перейти до роботи із заявками, програмами та звітами.
+                </p>
+              </div>
+
+              <Link
+                className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                href="/auth/login"
+              >
+                Уже є акаунт
+              </Link>
+            </div>
+
+            <form className="mt-8 space-y-8" onSubmit={handleSubmit}>
+              {step === 1 ? (
+                <div className="space-y-5">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {roleCards.map((item) => {
+                      const isSelected = item.value === role;
+
+                      return (
+                        <button
+                          key={item.value}
+                          type="button"
+                          className={`rounded-[1.5rem] border p-5 text-left transition ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-50 shadow-[0_18px_30px_rgba(37,99,255,0.12)]"
+                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                          }`}
+                          onClick={() => {
+                            setRole(item.value);
+                            setError("");
+                          }}
+                        >
+                          <div
+                            className={`inline-flex rounded-2xl bg-gradient-to-r px-4 py-3 text-2xl text-white ${item.tone}`}
+                          >
+                            {item.icon}
+                          </div>
+                          <div className="mt-4 text-base font-semibold text-slate-950">
+                            {item.label}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-slate-500">
+                            {item.description}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               ) : null}
 
-              <div className="flex justify-between">
+              {step === 2 ? (
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div className="grid gap-2 md:col-span-2">
+                    <label className="text-sm font-medium text-slate-700" htmlFor="email">
+                      Email
+                    </label>
+                    <input
+                      className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2 md:col-span-2">
+                    <div className="flex items-center justify-between gap-4">
+                      <label className="text-sm font-medium text-slate-700" htmlFor="password">
+                        Пароль
+                      </label>
+                      <button
+                        className="text-xs font-semibold text-slate-500"
+                        type="button"
+                        onClick={() => setShowPassword((currentValue) => !currentValue)}
+                      >
+                        {showPassword ? "Сховати" : "Показати"}
+                      </button>
+                    </div>
+                    <input
+                      className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      minLength={8}
+                      required
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 3 && role ? (
+                <div className="grid gap-5 md:grid-cols-2">
+                  {role === "parent" ? (
+                    <>
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="parent-name">
+                          Ваше ім&apos;я
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="parent-name"
+                          type="text"
+                          value={fullName}
+                          onChange={(event) => setFullName(event.target.value)}
+                        />
+                      </div>
+
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="parent-city">
+                          Місто
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="parent-city"
+                          type="text"
+                          value={city}
+                          onChange={(event) => setCity(event.target.value)}
+                        />
+                      </div>
+                    </>
+                  ) : null}
+
+                  {role === "school" ? (
+                    <>
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="school-name">
+                          Назва школи
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="school-name"
+                          type="text"
+                          value={schoolName}
+                          onChange={(event) => setSchoolName(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="school-city">
+                          Місто
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="school-city"
+                          type="text"
+                          value={city}
+                          onChange={(event) => setCity(event.target.value)}
+                        />
+                      </div>
+                    </>
+                  ) : null}
+
+                  {role === "club" ? (
+                    <>
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="club-name">
+                          Назва гуртка
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="club-name"
+                          type="text"
+                          value={fullName}
+                          onChange={(event) => setFullName(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid gap-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="club-city">
+                          Місто
+                        </label>
+                        <input
+                          className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          id="club-city"
+                          type="text"
+                          value={city}
+                          onChange={(event) => setCity(event.target.value)}
+                        />
+                      </div>
+
+                      <div className="grid gap-3 md:col-span-2">
+                        <p className="text-sm font-medium text-slate-700">Предмети</p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {subjectOptions.map((subject) => {
+                            const isChecked = subjects.includes(subject);
+
+                            return (
+                              <label
+                                key={subject}
+                                className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                                  isChecked
+                                    ? "border-blue-500 bg-blue-50 text-blue-900"
+                                    : "border-slate-200 bg-white text-slate-700"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => handleSubjectToggle(subject)}
+                                />
+                                {subject}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {error ? (
+                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap justify-between gap-3">
                 <button
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep((currentStep) => (currentStep > 1 ? ((currentStep - 1) as Step) : currentStep))}
+                  disabled={step === 1}
                 >
                   Назад
                 </button>
-                <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:bg-blue-300"
-                  type="submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Створення..." : "Зареєструватись"}
-                </button>
-              </div>
-            </div>
-          ) : null}
 
-          {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
-        </form>
+                {step < 3 ? (
+                  <button
+                    className="inline-flex h-12 items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.24)] transition hover:bg-blue-700"
+                    type="button"
+                    onClick={goToNextStep}
+                  >
+                    Далі
+                  </button>
+                ) : (
+                  <button
+                    className="inline-flex h-12 items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.24)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Створення..." : "Створити акаунт"}
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
     </main>
   );

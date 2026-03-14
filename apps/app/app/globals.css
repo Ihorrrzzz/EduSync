@@ -2,8 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --app-blue: #2563ff;
+  --app-blue-dark: #1239b8;
+  --app-text: #0f172a;
+  --app-muted: #5b6577;
+  --app-bg: #f6f8fc;
+  --app-line: #dfe5f0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #111827;
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 255, 0.08), transparent 28%),
+    linear-gradient(180deg, #eef4ff 0%, var(--app-bg) 26%, #f7f9fd 100%);
+  color: var(--app-text);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(37, 99, 255, 0.16);
 }

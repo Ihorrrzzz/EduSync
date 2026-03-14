@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "../../lib/auth-context";
-import type { Profile } from "../../lib/api";
+import type { Profile, ProfileRole } from "../../lib/api";
 
 type BadgeTone = "pending" | "approved" | "reviewing" | "active";
 
@@ -297,6 +297,29 @@ function SpinnerScreen() {
   );
 }
 
+function parseGuestRole(role: string | null): ProfileRole | null {
+  if (role === "parent" || role === "school" || role === "club") {
+    return role;
+  }
+
+  return null;
+}
+
+function createGuestProfile(role: ProfileRole): Profile {
+  const labels: Record<ProfileRole, string> = {
+    parent: "Гість: Батьківський кабінет",
+    school: "Гість: Шкільний кабінет",
+    club: "Гість: Кабінет гуртка",
+  };
+
+  return {
+    id: `guest-${role}`,
+    email: "guest@edusync.demo",
+    role,
+    fullName: labels[role],
+  };
+}
+
 function DashboardForm({
   config,
 }: {
@@ -424,10 +447,12 @@ function DashboardPageLayout({
   profile,
   config,
   logout,
+  isGuest,
 }: {
   profile: Profile;
   config: DashboardConfig;
   logout: () => Promise<void>;
+  isGuest: boolean;
 }) {
   const displayName = profile.fullName ?? profile.email;
 
@@ -450,7 +475,9 @@ function DashboardPageLayout({
           <div className="flex flex-wrap items-center gap-3">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600">
               <span className="font-semibold text-slate-900">{displayName}</span>
-              <span className="ml-2 hidden text-slate-400 sm:inline">{profile.email}</span>
+              <span className="ml-2 hidden text-slate-400 sm:inline">
+                {isGuest ? "demo access" : profile.email}
+              </span>
             </div>
             <button
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -465,6 +492,13 @@ function DashboardPageLayout({
         </header>
 
         <main className="mt-6 grid gap-6">
+          {isGuest ? (
+            <div className="rounded-[1.5rem] border border-blue-100 bg-blue-50 px-5 py-4 text-sm text-blue-900">
+              Ви переглядаєте демо-кабінет у режимі гостя. Форми тут працюють як
+              інтерактивні макети без збереження в систему.
+            </div>
+          ) : null}
+
           <section className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
             <div className="rounded-[2rem] bg-[linear-gradient(155deg,#2563ff,#153db8)] p-6 text-white shadow-[0_28px_80px_rgba(37,99,255,0.2)] sm:p-8">
               <div className="max-w-3xl">
@@ -587,22 +621,40 @@ function DashboardPageLayout({
 export default function DashboardPage() {
   const router = useRouter();
   const { isLoading, profile, logout } = useAuth();
+  const [guestProfile, setGuestProfile] = useState<Profile | null>(null);
+  const [hasResolvedGuest, setHasResolvedGuest] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !profile) {
+    const guestRole = parseGuestRole(
+      new URLSearchParams(window.location.search).get("guest"),
+    );
+
+    setGuestProfile(guestRole ? createGuestProfile(guestRole) : null);
+    setHasResolvedGuest(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !profile && !guestProfile && hasResolvedGuest) {
       router.replace("/auth/login");
     }
-  }, [isLoading, profile, router]);
+  }, [guestProfile, hasResolvedGuest, isLoading, profile, router]);
 
-  if (isLoading || !profile) {
+  if (!hasResolvedGuest || (isLoading && !guestProfile)) {
+    return <SpinnerScreen />;
+  }
+
+  const resolvedProfile = profile ?? guestProfile;
+
+  if (!resolvedProfile) {
     return <SpinnerScreen />;
   }
 
   return (
     <DashboardPageLayout
-      config={dashboardConfigs[profile.role]}
+      config={dashboardConfigs[resolvedProfile.role]}
+      isGuest={!profile && !!guestProfile}
       logout={logout}
-      profile={profile}
+      profile={resolvedProfile}
     />
   );
 }

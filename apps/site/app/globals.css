@@ -1138,6 +1138,12 @@ button {
   flex: 1;
 }
 
+.role-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+}
+
 .role-body ul {
   list-style: none;
   padding: 0;
@@ -1199,6 +1205,12 @@ button {
 
 .btn-role.green {
   background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.btn-role-ghost {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  color: var(--text);
 }
 
 .register-bottom {

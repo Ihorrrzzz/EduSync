@@ -245,6 +245,7 @@ const registerRoles = [
       "Цифрові домовленості та звіти",
     ],
     actionLabel: "Продовжити як школа",
+    guestLabel: "Увійти як гість",
   },
   {
     role: "parent",
@@ -260,6 +261,7 @@ const registerRoles = [
       "Подання запитів на зарахування",
     ],
     actionLabel: "Продовжити як родина",
+    guestLabel: "Увійти як гість",
   },
   {
     role: "club",
@@ -275,6 +277,7 @@ const registerRoles = [
       "Надсилання оцінок і звітів",
     ],
     actionLabel: "Продовжити як гурток",
+    guestLabel: "Увійти як гість",
   },
 ];
 
@@ -962,12 +965,20 @@ export default function SiteHomePage() {
                     ))}
                   </ul>
 
-                  <Link
-                    className={`btn-role ${item.tone}`}
-                    href={`${appUrl}/auth/register?role=${item.role}`}
-                  >
-                    {item.actionLabel} →
-                  </Link>
+                  <div className="role-actions">
+                    <Link
+                      className={`btn-role ${item.tone}`}
+                      href={`${appUrl}/auth/register?role=${item.role}`}
+                    >
+                      {item.actionLabel} →
+                    </Link>
+                    <Link
+                      className="btn-role btn-role-ghost"
+                      href={`${appUrl}/dashboard?guest=${item.role}`}
+                    >
+                      {item.guestLabel}
+                    </Link>
+                  </div>
                 </div>
               </article>
             ))}

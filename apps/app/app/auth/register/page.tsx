@@ -78,6 +78,10 @@ function getSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
+function getGuestDashboardUrl(role: ProfileRole) {
+  return `/dashboard?guest=${role}`;
+}
+
 function SpinnerScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -600,6 +604,24 @@ export default function RegisterPage() {
                     {isSubmitting ? "Створення..." : "Створити акаунт"}
                   </button>
                 )}
+              </div>
+
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-5">
+                <div className="text-sm font-semibold text-slate-900">Увійти як гість</div>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Перейдіть у демо-кабінет без реєстрації та подивіться інтерфейс для кожної ролі.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {roleCards.map((item) => (
+                    <Link
+                      key={item.value}
+                      className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                      href={getGuestDashboardUrl(item.value)}
+                    >
+                      {item.icon} <span className="ml-2">{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </form>
           </div>

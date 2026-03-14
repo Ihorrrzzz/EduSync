@@ -1,0 +1,10 @@
+node_modules/
+dist/
+apps/*/dist/
+apps/web/.next/
+apps/site/.next/
+apps/web/out/
+apps/site/out/
+apps/*/.env
+.env
+.DS_Store

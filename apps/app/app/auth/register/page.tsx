@@ -40,11 +40,20 @@ function SpinnerScreen() {
   );
 }
 
+function parseRoleParam(role: string | null): ProfileRole | null {
+  if (role === "parent" || role === "school" || role === "club") {
+    return role;
+  }
+
+  return null;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const { isLoading, profile, login } = useAuth();
   const [step, setStep] = useState<Step>(1);
   const [role, setRole] = useState<ProfileRole | null>(null);
+  const [hasAppliedRolePreset, setHasAppliedRolePreset] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +69,25 @@ export default function RegisterPage() {
       router.replace("/dashboard");
     }
   }, [isLoading, profile, router]);
+
+  useEffect(() => {
+    if (hasAppliedRolePreset) {
+      return;
+    }
+
+    const requestedRole = parseRoleParam(
+      new URLSearchParams(window.location.search).get("role"),
+    );
+
+    if (!requestedRole) {
+      setHasAppliedRolePreset(true);
+      return;
+    }
+
+    setRole((currentRole) => currentRole ?? requestedRole);
+    setStep((currentStep) => (currentStep === 1 ? 2 : currentStep));
+    setHasAppliedRolePreset(true);
+  }, [hasAppliedRolePreset]);
 
   const handleSubjectToggle = (subject: string) => {
     setSubjects((currentSubjects) =>

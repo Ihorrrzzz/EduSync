@@ -2,10 +2,271 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #f3f6fb;
+  --line: rgba(148, 163, 184, 0.3);
+  --muted: #5b667a;
+  --blue: #2563eb;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   background:
     radial-gradient(circle at top, rgba(191, 219, 254, 0.45), transparent 36%),
     linear-gradient(180deg, #f8fafc 0%, #eef4ff 100%);
   color: #0f172a;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.register-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 34px 0 70px;
+}
+
+.register-wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.register-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 84px;
+}
+
+.register-hero {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 56px;
+}
+
+.register-hero h1 {
+  margin: 0 0 20px;
+  font-size: clamp(42px, 5vw, 78px);
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+}
+
+.register-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 34px;
+  margin-bottom: 52px;
+}
+
+.role-card {
+  background: #fff;
+  border: 1px solid #d9dfeb;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.role-top {
+  padding: 34px 34px 30px;
+  color: #fff;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.role-top.blue {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.role-top.purple {
+  background: linear-gradient(135deg, #a855f7, #c026d3);
+}
+
+.role-top.green {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.role-icon {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.16);
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  margin-bottom: 26px;
+}
+
+.role-top h3 {
+  margin: 0 0 14px;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.role-top p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 18px;
+  line-height: 1.55;
+  max-width: 340px;
+}
+
+.role-body {
+  padding: 32px 34px 34px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.role-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px;
+  display: grid;
+  gap: 18px;
+}
+
+.role-body li {
+  position: relative;
+  padding-left: 34px;
+  color: #3e495d;
+  line-height: 1.55;
+  font-size: 17px;
+}
+
+.role-body li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #22c55e;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.btn-role {
+  width: 100%;
+  margin-top: auto;
+  min-height: 60px;
+  border-radius: 18px;
+  font-size: 18px;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.btn-role:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
+}
+
+.btn-role.blue {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.btn-role.purple {
+  background: linear-gradient(135deg, #a855f7, #a21caf);
+}
+
+.btn-role.green {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.register-bottom {
+  text-align: center;
+}
+
+.register-bottom p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.register-bottom a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.register-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 34px;
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.register-meta span::before {
+  content: "✓";
+  color: #22c55e;
+  font-weight: 800;
+  margin-right: 12px;
+}
+
+@media (max-width: 1180px) {
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .register-top {
+    margin-bottom: 54px;
+  }
+}
+
+@media (max-width: 860px) {
+  .register-page {
+    padding-top: 18px;
+  }
+
+  .register-top {
+    margin-bottom: 40px;
+  }
+
+  .register-hero p {
+    font-size: 18px;
+  }
+
+  .role-top,
+  .role-body {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .register-meta {
+    flex-direction: column;
+    gap: 14px;
+  }
 }

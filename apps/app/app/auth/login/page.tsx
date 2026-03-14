@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheck, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -88,8 +89,8 @@ export default function LoginPage() {
                 className="inline-flex items-center gap-3 text-sm font-semibold text-white/92"
                 href={siteUrl}
               >
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/14 text-xl">
-                  📘
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/14">
+                  <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <span>EduSync</span>
               </Link>
@@ -118,7 +119,7 @@ export default function LoginPage() {
                   className="flex items-center gap-3 rounded-2xl border border-white/12 bg-white/10 px-4 py-4 text-sm text-white/88"
                 >
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/16">
-                    ✓
+                    <CircleCheck className="h-4 w-4" strokeWidth={2.2} />
                   </span>
                   <span>{item}</span>
                 </div>

@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  BadgeCheck,
+  CircleCheck,
+  GraduationCap,
+  Paintbrush,
+  School,
+  type LucideIcon,
+  UsersRound,
+} from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,7 +24,7 @@ type Step = 1 | 2 | 3;
 
 const roleCards: Array<{
   value: ProfileRole;
-  icon: string;
+  icon: LucideIcon;
   label: string;
   description: string;
   tone: string;
@@ -23,7 +32,7 @@ const roleCards: Array<{
 }> = [
   {
     value: "parent",
-    icon: "👨‍👩‍👧",
+    icon: UsersRound,
     label: "Батьки / Учень",
     description: "Пошук програм, AI-рекомендації та подання заявок на зарахування.",
     tone: "from-purple-500 to-fuchsia-600",
@@ -35,7 +44,7 @@ const roleCards: Array<{
   },
   {
     value: "school",
-    icon: "🏫",
+    icon: School,
     label: "Школа",
     description: "Погодження замін, робота з партнерами та цифровими угодами.",
     tone: "from-blue-500 to-blue-700",
@@ -47,7 +56,7 @@ const roleCards: Array<{
   },
   {
     value: "club",
-    icon: "🎨",
+    icon: Paintbrush,
     label: "Гурток",
     description: "Публікація програм, передавання результатів та звітів до шкіл.",
     tone: "from-emerald-500 to-green-600",
@@ -116,6 +125,7 @@ export default function RegisterPage() {
   const siteUrl = getSiteUrl();
 
   const selectedRole = roleCards.find((item) => item.value === role) ?? null;
+  const SelectedRoleIcon = selectedRole?.icon;
 
   useEffect(() => {
     if (!isLoading && profile) {
@@ -246,8 +256,8 @@ export default function RegisterPage() {
                 className="inline-flex items-center gap-3 text-sm font-semibold text-white/92"
                 href={siteUrl}
               >
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/14 text-xl">
-                  📘
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/14">
+                  <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <span>EduSync</span>
               </Link>
@@ -292,7 +302,11 @@ export default function RegisterPage() {
                             : "bg-white/10 text-white/72"
                         }`}
                       >
-                        {isComplete ? "✓" : item.value}
+                        {isComplete ? (
+                          <BadgeCheck className="h-5 w-5" strokeWidth={2.2} />
+                        ) : (
+                          item.value
+                        )}
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-white">{item.title}</div>
@@ -311,7 +325,11 @@ export default function RegisterPage() {
               {selectedRole ? (
                 <div className="mt-4">
                   <div className={`inline-flex rounded-2xl bg-gradient-to-r px-4 py-3 ${selectedRole.tone}`}>
-                    <span className="mr-3 text-2xl">{selectedRole.icon}</span>
+                    <span className="mr-3 grid h-10 w-10 place-items-center rounded-2xl bg-white/14">
+                      {SelectedRoleIcon ? (
+                        <SelectedRoleIcon className="h-5 w-5 text-white" strokeWidth={2.2} />
+                      ) : null}
+                    </span>
                     <div>
                       <div className="text-sm font-semibold text-white">
                         {selectedRole.label}
@@ -326,7 +344,7 @@ export default function RegisterPage() {
                     {selectedRole.highlights.map((item) => (
                       <div key={item} className="flex items-center gap-3 text-sm text-white/84">
                         <span className="grid h-7 w-7 place-items-center rounded-xl bg-white/14">
-                          ✓
+                          <CircleCheck className="h-4 w-4" strokeWidth={2.2} />
                         </span>
                         <span>{item}</span>
                       </div>
@@ -373,6 +391,7 @@ export default function RegisterPage() {
                   <div className="grid gap-4 md:grid-cols-3">
                     {roleCards.map((item) => {
                       const isSelected = item.value === role;
+                      const Icon = item.icon;
 
                       return (
                         <button
@@ -389,9 +408,9 @@ export default function RegisterPage() {
                           }}
                         >
                           <div
-                            className={`inline-flex rounded-2xl bg-gradient-to-r px-4 py-3 text-2xl text-white ${item.tone}`}
+                            className={`inline-flex rounded-2xl bg-gradient-to-r px-4 py-3 text-white ${item.tone}`}
                           >
-                            {item.icon}
+                            <Icon className="h-7 w-7" strokeWidth={2.1} />
                           </div>
                           <div className="mt-4 text-base font-semibold text-slate-950">
                             {item.label}
@@ -612,15 +631,20 @@ export default function RegisterPage() {
                   Перейдіть у демо-кабінет без реєстрації та подивіться інтерфейс для кожної ролі.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  {roleCards.map((item) => (
-                    <Link
-                      key={item.value}
-                      className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                      href={getGuestDashboardUrl(item.value)}
-                    >
-                      {item.icon} <span className="ml-2">{item.label}</span>
-                    </Link>
-                  ))}
+                  {roleCards.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        key={item.value}
+                        className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                        href={getGuestDashboardUrl(item.value)}
+                      >
+                        <Icon className="h-4 w-4 text-blue-600" strokeWidth={2.1} />
+                        <span className="ml-2">{item.label}</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </form>

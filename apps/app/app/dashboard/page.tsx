@@ -1,5 +1,18 @@
 "use client";
 
+import {
+  BookOpenCheck,
+  CircleCheck,
+  ClipboardList,
+  FileText,
+  GraduationCap,
+  LibraryBig,
+  type LucideIcon,
+  School,
+  UserRound,
+  UsersRound,
+  BrainCircuit,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "../../lib/auth-context";
@@ -8,6 +21,7 @@ import type { Profile, ProfileRole } from "../../lib/api";
 type BadgeTone = "pending" | "approved" | "reviewing" | "active";
 
 type DashboardMetric = {
+  icon: LucideIcon;
   label: string;
   value: string;
   color: string;
@@ -64,9 +78,9 @@ const dashboardConfigs: Record<"parent" | "school" | "club", DashboardConfig> = 
       "Прогрес, відвідуваність і цифрові документи в одному місці",
     ],
     metrics: [
-      { label: "👦 Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🧠 AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
-      { label: "📄 Активні запити", value: "3", color: "#16a34a", border: "#bbf7d0" },
+      { icon: UserRound, label: "Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
+      { icon: BrainCircuit, label: "AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
+      { icon: FileText, label: "Активні запити", value: "3", color: "#16a34a", border: "#bbf7d0" },
     ],
     rowsTitle: "Активні маршрути та заявки",
     rowsDescription: "Поточні рішення школи та останні синхронізовані маршрути.",
@@ -139,9 +153,9 @@ const dashboardConfigs: Record<"parent" | "school" | "club", DashboardConfig> = 
       "Партнерські гуртки та цифрові домовленості",
     ],
     metrics: [
-      { label: "👥 Активні учні", value: "847", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🗂 Запити на розгляді", value: "24", color: "#9333ea", border: "#ead5ff" },
-      { label: "🎓 Партнерські гуртки", value: "12", color: "#16a34a", border: "#bbf7d0" },
+      { icon: UsersRound, label: "Активні учні", value: "847", color: "#2563ff", border: "#bfd8ff" },
+      { icon: ClipboardList, label: "Запити на розгляді", value: "24", color: "#9333ea", border: "#ead5ff" },
+      { icon: GraduationCap, label: "Партнерські гуртки", value: "12", color: "#16a34a", border: "#bbf7d0" },
     ],
     rowsTitle: "Черга заявок та погоджень",
     rowsDescription: "Останні запити, які потребують рішення або фінального підпису.",
@@ -215,9 +229,9 @@ const dashboardConfigs: Record<"parent" | "school" | "club", DashboardConfig> = 
       "Передавання звітів і результатів у стандартизованому форматі",
     ],
     metrics: [
-      { label: "📚 Опубліковані програми", value: "18", color: "#2563ff", border: "#bfd8ff" },
-      { label: "🏫 Партнерські школи", value: "15", color: "#9333ea", border: "#ead5ff" },
-      { label: "📝 Звітів цього місяця", value: "41", color: "#16a34a", border: "#bbf7d0" },
+      { icon: BookOpenCheck, label: "Опубліковані програми", value: "18", color: "#2563ff", border: "#bfd8ff" },
+      { icon: School, label: "Партнерські школи", value: "15", color: "#9333ea", border: "#ead5ff" },
+      { icon: LibraryBig, label: "Звітів цього місяця", value: "41", color: "#16a34a", border: "#bbf7d0" },
     ],
     rowsTitle: "Програми та активні взаємодії",
     rowsDescription: "Стан навчальних програм, угод і щотижневих відправлень у школи.",
@@ -462,7 +476,7 @@ function DashboardPageLayout({
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-[1.75rem] border border-slate-200/80 bg-white/92 px-5 py-4 shadow-[0_16px_40px_rgba(15,23,42,0.05)] backdrop-blur sm:px-6">
           <div className="flex items-center gap-4">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-600 text-xl text-white shadow-[0_14px_28px_rgba(37,99,255,0.24)]">
-              📘
+              <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
             </div>
             <div>
               <div className="text-lg font-semibold tracking-[-0.03em] text-slate-950">
@@ -520,7 +534,7 @@ function DashboardPageLayout({
                     className="flex items-center gap-3 rounded-2xl border border-white/12 bg-white/10 px-4 py-4 text-sm text-white/88"
                   >
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/16">
-                      ✓
+                      <CircleCheck className="h-4 w-4" strokeWidth={2.2} />
                     </span>
                     <span>{item}</span>
                   </div>
@@ -541,21 +555,33 @@ function DashboardPageLayout({
               </div>
 
               <div className="mt-6 grid gap-4">
-                {config.metrics.map((metric) => (
-                  <div
-                    key={metric.label}
-                    className="rounded-[1.5rem] border bg-slate-50 px-5 py-5"
-                    style={{ borderColor: metric.border }}
-                  >
-                    <div className="text-sm font-medium text-slate-500">{metric.label}</div>
+                {config.metrics.map((metric) => {
+                  const Icon = metric.icon;
+
+                  return (
                     <div
-                      className="mt-3 text-4xl font-semibold tracking-[-0.05em]"
-                      style={{ color: metric.color }}
+                      key={metric.label}
+                      className="rounded-[1.5rem] border bg-slate-50 px-5 py-5"
+                      style={{ borderColor: metric.border }}
                     >
-                      {metric.value}
+                      <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+                        <span
+                          className="grid h-9 w-9 place-items-center rounded-2xl bg-white"
+                          style={{ color: metric.color }}
+                        >
+                          <Icon className="h-4 w-4" strokeWidth={2.1} />
+                        </span>
+                        <span>{metric.label}</span>
+                      </div>
+                      <div
+                        className="mt-3 text-4xl font-semibold tracking-[-0.05em]"
+                        style={{ color: metric.color }}
+                      >
+                        {metric.value}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

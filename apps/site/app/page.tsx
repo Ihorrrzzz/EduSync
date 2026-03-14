@@ -862,13 +862,13 @@ export default function SiteHomePage() {
                   Зареєструватися зараз →
                 </button>
                 <a className="btn btn-secondary" href="#footer">
-                  Запросити демо
+                  Зв&apos;язатися з командою
                 </a>
               </div>
               <div className="cta-meta">
-                <span>◉ Безкоштовний старт</span>
-                <span>◉ Простий онбординг</span>
-                <span>◉ Підтримка команди</span>
+                <span>◉ Відкрита участь</span>
+                <span>◉ Просте підключення</span>
+                <span>◉ Підтримка спільноти</span>
               </div>
             </div>
           </div>
@@ -901,7 +901,7 @@ export default function SiteHomePage() {
             </div>
 
             <div className="footer-bottom">
-              <span>© 2026 EduSync. All rights reserved.</span>
+              <span>© 2026 EduSync. Некомерційний освітній продукт.</span>
               <div className="socials">
                 <a aria-label="Twitter" href="#">
                   𝕏
@@ -989,9 +989,9 @@ export default function SiteHomePage() {
               Вже маєте акаунт? <Link href={`${appUrl}/auth/login`}>Увійти</Link>
             </p>
             <div className="register-meta">
-              <span>Безкоштовний старт</span>
-              <span>Без банківської картки</span>
-              <span>Налаштування за кілька хвилин</span>
+              <span>Відкритий доступ для учасників освіти</span>
+              <span>Неприбуткова ініціатива</span>
+              <span>Підключення без зайвих бар&apos;єрів</span>
             </div>
           </div>
         </div>

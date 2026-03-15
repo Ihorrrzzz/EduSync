@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Users, FileText } from "lucide-react";
+import Link from "next/link";
+import { Users, FileText } from "lucide-react";
 import {
   fetchSchoolRequests,
   type RecognitionRequestRecord,
@@ -46,119 +47,40 @@ function groupByChild(
   );
 }
 
-function StudentRow({ student }: { student: GroupedStudent }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const approvedCount = student.requests.filter(
-    (r) => r.status === "APPROVED" || r.status === "PARTIALLY_APPROVED",
-  ).length;
-  const pendingCount = student.requests.filter(
-    (r) =>
-      r.status === "SUBMITTED" ||
-      r.status === "AI_READY" ||
-      r.status === "UNDER_REVIEW",
-  ).length;
-
-  return (
-    <SurfaceCard className="overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-slate-50/60"
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-            <Users strokeWidth={2.1} className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              {student.fullName}
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {student.grade} клас
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="hidden items-center gap-4 sm:flex">
-            <span className="text-xs text-slate-500">
-              <span className="font-medium text-slate-700">
-                {student.requests.length}
-              </span>{" "}
-              {student.requests.length === 1 ? "запит" : "запитів"}
-            </span>
-            {approvedCount > 0 && (
-              <span className="text-xs text-emerald-600">
-                {approvedCount} затверджено
-              </span>
-            )}
-            {pendingCount > 0 && (
-              <span className="text-xs text-amber-600">
-                {pendingCount} на розгляді
-              </span>
-            )}
-          </div>
-          {expanded ? (
-            <ChevronUp
-              strokeWidth={2.1}
-              className="h-4 w-4 text-slate-400"
-            />
-          ) : (
-            <ChevronDown
-              strokeWidth={2.1}
-              className="h-4 w-4 text-slate-400"
-            />
-          )}
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="border-t border-slate-100 bg-slate-50/40">
-          <div className="divide-y divide-slate-100">
-            {student.requests.map((req) => (
-              <div
-                key={req.id}
-                className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-800">
-                    {req.clubProgram.title}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    {req.club.name} · {req.targetSubject}, {req.targetGrade} клас
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={req.status} />
-                  <span className="text-xs text-slate-400">
-                    {new Date(req.updatedAt).toLocaleDateString("uk-UA")}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </SurfaceCard>
-  );
-}
-
 export default function SchoolStudentsPage() {
   useRoleAccess(["school"]);
 
   const [requests, setRequests] = useState<RecognitionRequestRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSchoolRequests()
       .then((data) => {
         setRequests(data.requests);
       })
+      .catch(() => {
+        setError("Не вдалося завантажити дані. Спробуйте оновити сторінку.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <ScreenSpinner />;
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <PageHeading
+          eyebrow="Шкільний кабінет"
+          title="Учні"
+          description="Перегляд учнів, які подали запити на визнання результатів навчання у гуртках."
+        />
+        <SurfaceCard>
+          <p className="text-sm text-red-600">{error}</p>
+        </SurfaceCard>
+      </div>
+    );
+  }
 
   const students = groupByChild(requests);
   const totalStudents = students.length;
@@ -172,7 +94,7 @@ export default function SchoolStudentsPage() {
         description="Перегляд учнів, які подали запити на визнання результатів навчання у гуртках."
       />
 
-      {students.length === 0 ? (
+      {requests.length === 0 ? (
         <EmptyState
           title="Учнів поки немає"
           description="Запити на визнання від учнів ще не надходили. Вони з'являться тут, коли батьки подадуть запити до вашої школи."
@@ -214,12 +136,59 @@ export default function SchoolStudentsPage() {
             </SurfaceCard>
           </div>
 
-          {/* Student list */}
-          <div className="space-y-3">
-            {students.map((student) => (
-              <StudentRow key={student.childId} student={student} />
-            ))}
-          </div>
+          {/* Requests table */}
+          <SurfaceCard className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    <th className="px-4 py-3">Учень</th>
+                    <th className="px-4 py-3">Клас</th>
+                    <th className="px-4 py-3">Гурток</th>
+                    <th className="px-4 py-3">Програма</th>
+                    <th className="px-4 py-3">Предмет</th>
+                    <th className="px-4 py-3">Статус</th>
+                    <th className="px-4 py-3">Дата</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((req) => (
+                    <tr
+                      key={req.id}
+                      className="border-t border-slate-100 transition hover:bg-slate-50/60"
+                    >
+                      <td className="px-4 py-4 text-sm text-slate-900">
+                        {req.child.fullName}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-slate-500">
+                        {req.child.grade}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-slate-500">
+                        {req.club.name}
+                      </td>
+                      <td className="px-4 py-4 text-sm">
+                        <Link
+                          href={`/dashboard/review/detail?id=${req.id}`}
+                          className="font-medium text-blue-600 hover:text-blue-800"
+                        >
+                          {req.clubProgram.title}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-slate-500">
+                        {req.targetSubject}
+                      </td>
+                      <td className="px-4 py-4">
+                        <StatusBadge status={req.status} />
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-500">
+                        {new Date(req.updatedAt).toLocaleDateString("uk-UA")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SurfaceCard>
         </>
       )}
     </div>

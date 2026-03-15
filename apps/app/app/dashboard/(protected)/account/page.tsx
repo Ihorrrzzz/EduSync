@@ -532,14 +532,9 @@ function getAccountCopy(role: AccountRole): AccountCopy {
           hint: "Додавайте профілі дітей і перевіряйте їхню шкільну прив'язку.",
         },
         {
-          href: "/dashboard/discover",
-          label: "Знайти програму",
-          hint: "Підбирайте гуртки та програми за предметом, віком або містом.",
-        },
-        {
-          href: "/dashboard/requests",
-          label: "Переглянути запити",
-          hint: "Слідкуйте за етапами подань і рішеннями шкіл.",
+          href: "/dashboard/clubs",
+          label: "Переглянути гуртки",
+          hint: "Подивіться, які гуртки відвідують ваші діти та стан заявок.",
         },
       ],
     };
@@ -581,13 +576,13 @@ function getAccountCopy(role: AccountRole): AccountCopy {
     actions: [
       {
         href: "/dashboard/review",
-        label: "Відкрити чергу",
+        label: "Відкрити заявки",
         hint: "Поверніться до кейсів, які зараз чекають розгляду.",
       },
       {
-        href: "/dashboard/review",
-        label: "Переглянути рішення",
-        hint: "Оцініть поточний стан уже оброблених запитів.",
+        href: "/dashboard/school-students",
+        label: "Переглянути учнів",
+        hint: "Перегляньте учнів, які подали запити на визнання.",
       },
     ],
   };

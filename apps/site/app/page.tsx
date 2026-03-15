@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
-  ArrowRight,
   Github,
   GraduationCap,
   Linkedin,
@@ -10,7 +8,7 @@ import {
   Twitter,
 } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   aiFeatures,
   dashboardData,
@@ -19,7 +17,6 @@ import {
   navLinks,
   processSteps,
   registerRoles,
-  testimonials,
   trustGroups,
   userCards,
   type DashboardTab,
@@ -36,7 +33,6 @@ export default function SiteHomePage() {
   const [activePage, setActivePage] = useState<ActivePage>("landing");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDashboard, setActiveDashboard] = useState<DashboardTab>("school");
-  const testimonialsRef = useRef<HTMLDivElement | null>(null);
   const appUrl = getAppUrl();
 
   const showRegisterPage = () => {
@@ -53,21 +49,6 @@ export default function SiteHomePage() {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
-  };
-
-  const scrollTestimonials = (direction: "prev" | "next") => {
-    const testimonialsNode = testimonialsRef.current;
-
-    if (!testimonialsNode) {
-      return;
-    }
-
-    const offset = Math.max(testimonialsNode.clientWidth * 0.82, 320);
-
-    testimonialsNode.scrollBy({
-      left: direction === "next" ? offset : -offset,
-      behavior: "smooth",
-    });
   };
 
   return (
@@ -407,7 +388,7 @@ export default function SiteHomePage() {
         <section className="section" id="users">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">FOR USERS</span>
+              <span className="eyebrow">ДЛЯ КОРИСТУВАЧІВ</span>
               <h2>Три типи користувачів, одна платформа</h2>
               <p>
                 Окремі інструменти та інтерфейси спеціально для шкіл, батьків і
@@ -448,8 +429,8 @@ export default function SiteHomePage() {
         <section className="section" id="dashboards">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">PLATFORM OVERVIEW</span>
-              <h2>Platform overview</h2>
+              <span className="eyebrow">ОГЛЯД ПЛАТФОРМИ</span>
+              <h2>Огляд платформи</h2>
               <p>
                 Інтуїтивні інтерфейси, створені спеціально для шкіл, батьків і
                 закладів позакласної освіти.
@@ -579,61 +560,6 @@ export default function SiteHomePage() {
                     })}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section" id="testimonials">
-          <div className="container">
-            <div className="section-head">
-              <span className="eyebrow">REVIEWS</span>
-              <h2>Reviews</h2>
-            </div>
-
-            <div className="testimonials-toolbar">
-              <p>
-                Гортайте картки, щоб переглянути відгуки від шкіл, родин та
-                освітніх провайдерів про роботу платформи.
-              </p>
-              <div className="testimonials-actions">
-                <button
-                  aria-label="Прокрутити відгуки ліворуч"
-                  className="testimonial-control"
-                  type="button"
-                  onClick={() => scrollTestimonials("prev")}
-                >
-                  <ArrowLeft strokeWidth={2.1} />
-                </button>
-                <button
-                  aria-label="Прокрутити відгуки праворуч"
-                  className="testimonial-control"
-                  type="button"
-                  onClick={() => scrollTestimonials("next")}
-                >
-                  <ArrowRight strokeWidth={2.1} />
-                </button>
-              </div>
-            </div>
-
-            <div
-              ref={testimonialsRef}
-              aria-label="Відгуки користувачів EduSync"
-              className="testimonials-scroller"
-            >
-              {testimonials.map((item) => (
-                <article key={item.name} className="testimonial-card testimonial-slide">
-                  <div className="testimonial-top">
-                    <div className="testimonial-avatar">{item.initials}</div>
-                    <div className="testimonial-meta">
-                      <strong>{item.organization}</strong>
-                      <span>{item.role}</span>
-                    </div>
-                  </div>
-                  <p>{item.quote}</p>
-                  <h4>{item.name}</h4>
-                  <span>{item.organization}</span>
-                </article>
               ))}
             </div>
           </div>

@@ -25,15 +25,15 @@ import {
 export const navLinks = [
   { href: "#how", label: "Як це працює" },
   { href: "#ai", label: "AI-порівняння" },
-  { href: "#users", label: "For users" },
-  { href: "#dashboards", label: "Platform overview" },
+  { href: "#users", label: "Для користувачів" },
+  { href: "#dashboards", label: "Огляд платформи" },
   { href: "#trust", label: "Прозорість" },
 ];
 
 export const heroStats = [
-  { value: "connected schools", label: "" },
-  { value: "connected parents", label: "" },
-  { value: "connected groups", label: "" },
+  { value: "підключені школи", label: "" },
+  { value: "підключені батьки", label: "" },
+  { value: "підключені гуртки", label: "" },
 ];
 
 export const processSteps = [
@@ -75,7 +75,7 @@ export const processSteps = [
     title: "Школа переглядає доказовий пакет",
     description:
       "Адміністрація бачить покриті результати, прогалини та рекомендовані докази, але приймає рішення самостійно.",
-    highlight: "Review школи",
+    highlight: "Розгляд школи",
   },
   {
     number: "06",
@@ -219,73 +219,22 @@ export const trustGroups = [
   },
 ];
 
-export const testimonials = [
-  {
-    quote:
-      "Нарешті весь пакет документів і пояснень видно в одному місці. Комісії не потрібно збирати листи з різних каналів, щоб ухвалити рішення.",
-    name: "Ірина Коваленко",
-    role: "Заступниця директора",
-    organization: "Гімназія «Перспектива»",
-    initials: "ІК",
-  },
-  {
-    quote:
-      "Для мене найцінніше, що я бачу статус кожного кроку без дзвінків і нагадувань. Відразу зрозуміло, що вже перевірила школа і що ще очікується.",
-    name: "Наталія Мельник",
-    role: "Мама учениці 7 класу",
-    organization: "Батьківська спільнота",
-    initials: "НМ",
-  },
-  {
-    quote:
-      "Ми перестали дублювати описи програм вручну. Те, що потрібне школі для розгляду, команда гуртка готує один раз і потім лише оновлює.",
-    name: "Тарас Бойко",
-    role: "Керівник STEM-студії",
-    organization: "STEM Lab Kyiv",
-    initials: "ТБ",
-  },
-  {
-    quote:
-      "Платформа допомогла нам зробити розгляд спокійнішим: менше хаосу, менше ручних таблиць і більше прозорих коментарів для родин.",
-    name: "Олена Савчук",
-    role: "Координаторка навчальних програм",
-    organization: "Ліцей Horizon",
-    initials: "ОС",
-  },
-  {
-    quote:
-      "Зручно, що можна подати запит без довгих листувань. Навіть коли школа просить доповнення, одразу видно, що саме треба уточнити.",
-    name: "Марина Черненко",
-    role: "Мама учня 5 класу",
-    organization: "Освітня спільнота батьків",
-    initials: "МЧ",
-  },
-  {
-    quote:
-      "Для команди провайдера це хороший формат демо: можна показати програму, докази і відповідь школи без зайвих слайдів та окремих файлів.",
-    name: "Антон Рибак",
-    role: "Керівник освітнього центру",
-    organization: "Smart Start Club",
-    initials: "АР",
-  },
-];
-
 export const footerColumns = [
   {
     title: "Платформа",
     links: [
       { href: "#how", label: "Як це працює" },
       { href: "#ai", label: "AI-порівняння" },
-      { href: "#dashboards", label: "Platform overview" },
+      { href: "#dashboards", label: "Огляд платформи" },
       { href: "#trust", label: "Прозорість" },
     ],
   },
   {
-    title: "For users",
+    title: "Для користувачів",
     links: [
-      { href: "#users", label: "Школи" },
-      { href: "#users", label: "Батьки" },
-      { href: "#users", label: "Гуртки" },
+      { href: "#users", label: "Для шкіл" },
+      { href: "#users", label: "Для батьків" },
+      { href: "#users", label: "Для гуртків" },
       { href: "#cta", label: "Почати" },
     ],
   },
@@ -296,6 +245,15 @@ export const footerColumns = [
       { href: "#trust", label: "Немає автоматичного зарахування" },
       { href: "#trust", label: "Фінальне слово за школою" },
       { href: "#footer", label: "Контакти" },
+    ],
+  },
+  {
+    title: "Юридичне",
+    links: [
+      { href: "#footer", label: "Політика конфіденційності" },
+      { href: "#footer", label: "Умови використання" },
+      { href: "#footer", label: "Документи" },
+      { href: "#footer", label: "Відповідність вимогам" },
     ],
   },
 ];

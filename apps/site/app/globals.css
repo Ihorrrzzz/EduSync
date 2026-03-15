@@ -1605,47 +1605,9 @@ button {
 .register-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 18px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 84px;
-}
-
-.register-login {
-  min-height: 52px;
-}
-
-.register-hero {
-  text-align: center;
-  max-width: 860px;
-  margin: 0 auto 56px;
-}
-
-.register-hero h1 {
-  margin: 0 0 20px;
-  font-size: clamp(36px, 4.3vw, 62px);
-  line-height: 1.04;
-  letter-spacing: -0.05em;
-}
-
-.register-hero p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.55;
-}
-
-.register-helper {
-  max-width: 680px;
-  margin: 18px auto 0;
-  padding: 14px 18px;
-  border-radius: 18px;
-  background: #eef4ff;
-  border: 1.5px solid #dbe6fb;
-  color: #35507d;
-  font-size: 15px;
-  line-height: 1.55;
+  margin-bottom: 40px;
 }
 
 .role-grid {
@@ -1668,7 +1630,7 @@ button {
 .role-top {
   padding: 34px 34px 30px;
   color: #fff;
-  min-height: 280px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -2023,7 +1985,6 @@ button {
   .list-row p,
   .recommendation p,
   .footer-brand p,
-  .register-hero p,
   .register-bottom p,
   .register-meta,
   .role-top p,
@@ -2149,11 +2110,7 @@ button {
   }
 
   .register-top {
-    margin-bottom: 64px;
-  }
-
-  .register-hero h1 {
-    font-size: clamp(32px, 3.6vw, 52px);
+    margin-bottom: 40px;
   }
 
   .role-grid {
@@ -2161,7 +2118,7 @@ button {
   }
 
   .role-top {
-    min-height: 250px;
+    min-height: 300px;
     padding: 28px 28px 24px;
   }
 
@@ -2336,10 +2293,6 @@ button {
 
   .register-top {
     margin-bottom: 40px;
-  }
-
-  .register-hero p {
-    font-size: 18px;
   }
 
   .trust-group {

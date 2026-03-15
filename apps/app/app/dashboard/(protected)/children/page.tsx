@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   EmptyState,
@@ -170,14 +169,6 @@ export default function DashboardChildrenPage() {
         eyebrow="Дитина"
         title="Відомості про дитину"
         description="Тут ви додаєте дитину, оновлюєте її відомості, прив'язуєте школу та використовуєте профіль для нових запитів."
-        actions={
-          <Link
-            href="/dashboard/discover"
-            className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            До каталогу програм
-          </Link>
-        }
       />
 
       {pageError ? (

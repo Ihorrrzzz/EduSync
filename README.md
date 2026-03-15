@@ -167,21 +167,17 @@ npm run dev
 | API | http://localhost:3001 | Backend (health check: `/health`) |
 | Dashboard | http://localhost:3002 | Main application |
 
-### Demo Accounts
+### Test Accounts
 
-All demo accounts use password: **`Demo12345!`**
+All test accounts use password: **`12345678`**
 
 | Role | Email | What you can do |
 |------|-------|-----------------|
-| Parent | `parent.olena@example.com` | Manage children, browse programs, enroll, submit requests |
-| Parent | `parent.andriy@example.com` | Same as above |
-| School | `school.lyceum127@example.com` | Upload standards, review programs & requests, manage students |
-| School | `school.constellation@example.com` | Same as above |
-| Club | `club.crescendo@example.com` | Create programs, manage enrollments, track student marks |
-| Club | `club.horizon@example.com` | Same as above |
-| Club | `club.vector@example.com` | Same as above |
+| Parent | `parents@test.com` | Manage children, browse clubs & programs, enroll, submit requests |
+| School | `school@test.com` | Upload standards, review programs & requests, manage students |
+| Club | `club@test.com` | Create programs, upload PDF, manage enrollments, track student marks |
 
-Pre-seeded data: 2 schools, 3 clubs, 5 programs, 3 children, 4 recognition requests in various statuses.
+Production dashboard: **https://dashboard.educationsync.org**
 
 ---
 

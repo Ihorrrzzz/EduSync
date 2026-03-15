@@ -17,6 +17,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../lib/auth-context";
 import { useDashboardData } from "../lib/dashboard-data-context";
+import { getDashboardDemoPath, getDashboardHomePath } from "../lib/dashboard-role-config";
 import type { ProfileRole } from "../lib/api";
 import { ScreenSpinner } from "./screen-spinner";
 
@@ -30,6 +31,15 @@ const roleLabels: Record<ProfileRole, string> = {
   parent: "Батьківський кабінет",
   club: "Кабінет гуртка",
   school: "Шкільний кабінет",
+};
+
+const roleDescriptions: Record<ProfileRole, string> = {
+  parent:
+    "Керуйте дітьми, шукайте програми та тримайте всі запити в одному персональному кабінеті.",
+  club:
+    "Оновлюйте профіль гуртка, керуйте програмами та швидко переходьте до запитів від батьків і шкіл.",
+  school:
+    "Працюйте з профілем школи, чергою розгляду та фінальними рішеннями без зайвих переходів.",
 };
 
 const navigationByRole: Record<ProfileRole, NavigationItem[]> = {
@@ -245,12 +255,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   const navigationItems = navigationByRole[profile.role];
+  const activeNavigationItem =
+    navigationItems.find((item) => isActiveLink(pathname, item.href)) ?? navigationItems[0];
+  const ActiveNavigationIcon = activeNavigationItem.icon;
 
   return (
     <div className="min-h-screen px-4 py-5 md:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="rounded-[2rem] border border-white/60 bg-[linear-gradient(180deg,#0f172a,#10244f)] p-5 text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)]">
-          <Link className="flex items-center gap-3" href="/dashboard/account">
+          <Link className="flex items-center gap-3" href={getDashboardHomePath(profile.role)}>
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
               <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
             </span>
@@ -318,26 +331,52 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </aside>
 
         <main className="space-y-6">
-          <div className="rounded-[1.8rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_rgba(15,23,42,0.06)] backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-                <BookOpen className="h-4 w-4 text-blue-600" strokeWidth={2.1} />
-                <span>Структурований пакет доказів</span>
-                <span className="text-slate-300">•</span>
-                <span>AI-сумісність як підтримка рішення</span>
+          <div className="overflow-hidden rounded-[1.95rem] border border-slate-900/10 bg-[linear-gradient(135deg,#081225_0%,#12396f_56%,#2563ff_100%)] p-5 text-white shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="grid h-14 w-14 place-items-center rounded-[1.35rem] border border-white/15 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <ActiveNavigationIcon className="h-6 w-6" strokeWidth={2.1} />
+                  </div>
+                  <div className="max-w-2xl">
+                    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
+                      Навігація кабінету
+                    </div>
+                    <div className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
+                      {activeNavigationItem.label}
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-white/78">
+                      {roleDescriptions[profile.role]}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white/82">
+                    <BookOpen className="h-3.5 w-3.5" strokeWidth={2.1} />
+                    {roleLabels[profile.role]}
+                  </div>
+                  <div className="inline-flex items-center rounded-full border border-white/15 bg-slate-950/20 px-3 py-1.5 text-white/82">
+                    {me.account.displayName}
+                  </div>
+                  {me.account.city ? (
+                    <div className="inline-flex items-center rounded-full border border-white/15 bg-slate-950/20 px-3 py-1.5 text-white/82">
+                      {me.account.city}
+                    </div>
+                  ) : null}
+                </div>
               </div>
+
               <Link
-                href="/dashboard?guest=parent"
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 transition hover:bg-slate-50"
+                href={getDashboardDemoPath(profile.role)}
+                className="inline-flex items-center gap-2 self-start rounded-full border border-white/15 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 transition hover:bg-slate-100"
               >
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" strokeWidth={2.1} />
                 Демо режим
               </Link>
             </div>
-          </div>
 
-          <div className="grid gap-4 lg:hidden">
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="mt-6 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
 
@@ -345,10 +384,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium ${
+                    aria-current={isActiveLink(pathname, item.href) ? "page" : undefined}
+                    className={`flex items-center gap-3 rounded-[1.3rem] border px-4 py-3 text-sm font-medium transition ${
                       isActiveLink(pathname, item.href)
-                        ? "border-blue-200 bg-blue-50 text-blue-700"
-                        : "border-slate-200 bg-white text-slate-700"
+                        ? "border-white/20 bg-white text-slate-950 shadow-[0_18px_32px_rgba(255,255,255,0.14)]"
+                        : "border-white/12 bg-white/8 text-white/80 hover:bg-white/14 hover:text-white"
                     }`}
                   >
                     <Icon className="h-4 w-4" strokeWidth={2.1} />

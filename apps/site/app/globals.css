@@ -272,30 +272,33 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  max-width: 580px;
+  max-width: 720px;
 }
 
 .stat {
-  position: relative;
-  padding-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 76px;
+  padding: 18px 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.76);
+  text-align: center;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 }
 
 .stat:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  right: -11px;
-  top: 6px;
-  width: 1px;
-  height: 52px;
-  background: var(--line);
+  display: none;
 }
 
 .stat strong {
   display: block;
-  font-size: clamp(28px, 3.1vw, 44px);
-  line-height: 1;
-  margin-bottom: 6px;
-  letter-spacing: -0.04em;
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
 }
 
 .stat span {
@@ -1089,15 +1092,19 @@ button {
   font-weight: 800;
 }
 
-.user-card .btn {
+.user-card-footer {
+  display: grid;
+  gap: 16px;
   margin-top: auto;
+}
+
+.user-card .btn {
   width: 100%;
 }
 
 .role-note {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid #e5ebf4;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5ebf4;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
@@ -1881,15 +1888,11 @@ button {
 
   .stats {
     gap: 14px;
-    max-width: 520px;
+    max-width: 660px;
   }
 
   .stat strong {
-    font-size: clamp(24px, 2.6vw, 36px);
-  }
-
-  .stat span {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .window-card {
@@ -2044,7 +2047,7 @@ button {
   }
 
   .user-card ul {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     gap: 12px;
   }
 

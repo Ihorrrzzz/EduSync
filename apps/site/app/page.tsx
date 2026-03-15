@@ -118,9 +118,9 @@ export default function SiteHomePage() {
             <div className="hero-copy">
               <span className="eyebrow">Процес для шкільного розгляду позашкільного навчання</span>
               <h1>
-                Платформа для <span className="accent">запитів</span>
+                Платформа для
                 <br />
-                на врахування позашкільного
+                <span className="accent">запитів</span> на врахування позашкільного
                 <br />
                 навчання школою
               </h1>
@@ -141,9 +141,9 @@ export default function SiteHomePage() {
 
               <div className="stats">
                 {heroStats.map((item) => (
-                  <div key={item.label} className="stat">
+                  <div key={item.value} className="stat">
                     <strong>{item.value}</strong>
-                    <span>{item.label}</span>
+                    {item.label ? <span>{item.label}</span> : null}
                   </div>
                 ))}
               </div>
@@ -407,7 +407,7 @@ export default function SiteHomePage() {
         <section className="section" id="users">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">ДЛЯ ВСІХ</span>
+              <span className="eyebrow">FOR USERS</span>
               <h2>Три типи користувачів, одна платформа</h2>
               <p>
                 Окремі інструменти та інтерфейси спеціально для шкіл, батьків і
@@ -432,10 +432,12 @@ export default function SiteHomePage() {
                         <li key={feature}>{feature}</li>
                       ))}
                     </ul>
-                    <a className="btn btn-primary" href="#dashboards">
-                      Дізнатися більше
-                    </a>
-                    <div className="role-note">{item.note}</div>
+                    <div className="user-card-footer">
+                      <div className="role-note">{item.note}</div>
+                      <a className="btn btn-primary" href="#dashboards">
+                        Дізнатися більше
+                      </a>
+                    </div>
                   </article>
                 );
               })}
@@ -446,8 +448,8 @@ export default function SiteHomePage() {
         <section className="section" id="dashboards">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">ОГЛЯД ПЛАТФОРМИ</span>
-              <h2>Потужні дашборди для кожної ролі</h2>
+              <span className="eyebrow">PLATFORM OVERVIEW</span>
+              <h2>Platform overview</h2>
               <p>
                 Інтуїтивні інтерфейси, створені спеціально для шкіл, батьків і
                 закладів позакласної освіти.
@@ -585,19 +587,14 @@ export default function SiteHomePage() {
         <section className="section" id="testimonials">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">DEMO SCENARIOS</span>
-              <h2>Три демо-сценарії для хакатонного MVP</h2>
-              <p>
-                Це не рекламні відгуки, а приклади реальних сценаріїв, які можна
-                показати у демо після seed бази.
-              </p>
+              <span className="eyebrow">REVIEWS</span>
+              <h2>Reviews</h2>
             </div>
 
             <div className="testimonials-toolbar">
               <p>
-                Гортайте картки відгуків, щоб переглянути історії різних типів
-                користувачів і побачити, як платформа працює для шкіл, родин та
-                освітніх провайдерів.
+                Гортайте картки, щоб переглянути відгуки від шкіл, родин та
+                освітніх провайдерів про роботу платформи.
               </p>
               <div className="testimonials-actions">
                 <button

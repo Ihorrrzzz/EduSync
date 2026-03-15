@@ -558,17 +558,19 @@ function DashboardPageLayout({
 
           {config.aiAnalysis ? <DashboardAiPreview analysis={config.aiAnalysis} /> : null}
 
-          <section className="grid gap-6 md:grid-cols-2">
-            {config.insights.map((item) => (
-              <article
-                key={item.title}
-                className={`rounded-[1.75rem] border p-6 shadow-[0_16px_35px_rgba(15,23,42,0.04)] ${item.tone}`}
-              >
-                <h3 className="text-lg font-semibold tracking-[-0.03em]">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 opacity-90">{item.description}</p>
-              </article>
-            ))}
-          </section>
+          {config.insights.length > 0 ? (
+            <section className="grid gap-6 md:grid-cols-2">
+              {config.insights.map((item) => (
+                <article
+                  key={item.title}
+                  className={`rounded-[1.75rem] border p-6 shadow-[0_16px_35px_rgba(15,23,42,0.04)] ${item.tone}`}
+                >
+                  <h3 className="text-lg font-semibold tracking-[-0.03em]">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 opacity-90">{item.description}</p>
+                </article>
+              ))}
+            </section>
+          ) : null}
         </main>
       </div>
     </div>

@@ -266,18 +266,7 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
         },
       ],
     },
-    insights: [
-      {
-        title: "Найкращий AI-збіг",
-        description: "English Intensive Program покриває 92% програми 9 класу.",
-        tone: "bg-blue-50 border-blue-100 text-blue-900",
-      },
-      {
-        title: "Що варто додати",
-        description: "Для повної заміни бракує лише модуля з письма та есе.",
-        tone: "bg-amber-50 border-amber-100 text-amber-900",
-      },
-    ],
+    insights: [],
   },
   school: {
     roleLabel: "Шкільний кабінет",

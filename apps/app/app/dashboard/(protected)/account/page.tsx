@@ -3,14 +3,11 @@
 import {
   ArrowRight,
   Building2,
-  CheckCircle2,
-  Compass,
   Mail,
   MapPin,
   RotateCcw,
   Save,
   School,
-  Sparkles,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -19,16 +16,20 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { EmptyState, SurfaceCard } from "../../../../components/dashboard-shell";
 import { ScreenSpinner } from "../../../../components/screen-spinner";
 import { subjectOptions } from "../../../../lib/subject-options";
-import { updateMyProfile } from "../../../../lib/mvp-api";
+import {
+  fetchChildren,
+  fetchClubRequests,
+  fetchParentRequests,
+  fetchSchoolRequests,
+  updateMyProfile,
+  type ChildRecord,
+  type ClubRequestRecord,
+  type DashboardMe,
+  type RecognitionRequestRecord,
+} from "../../../../lib/mvp-api";
 import { useRoleAccess } from "../../../../lib/use-role-access";
 
 type AccountRole = "parent" | "club" | "school";
-
-type AccountMetric = {
-  label: string;
-  valueKey: string;
-  hint: string;
-};
 
 type AccountAction = {
   href: string;
@@ -37,9 +38,6 @@ type AccountAction = {
 };
 
 type AccountTheme = {
-  heroSurfaceClass: string;
-  badgeClass: string;
-  iconSurfaceClass: string;
   infoPillClass: string;
   metricSurfaceClass: string;
   sectionSurfaceClass: string;
@@ -53,8 +51,7 @@ type AccountCopy = {
   eyebrow: string;
   title: string;
   description: string;
-  readinessLabel: string;
-  metrics: AccountMetric[];
+  dashboardLabel: string;
   actions: AccountAction[];
 };
 
@@ -66,11 +63,6 @@ const roleIcons: Record<AccountRole, LucideIcon> = {
 
 const roleThemes: Record<AccountRole, AccountTheme> = {
   parent: {
-    heroSurfaceClass:
-      "border-sky-200/80 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.2),transparent_36%),linear-gradient(180deg,#ffffff_0%,#eff6ff_55%,#f0fdf9_100%)]",
-    badgeClass: "border-sky-200 bg-sky-950 text-sky-50",
-    iconSurfaceClass:
-      "border-sky-200 bg-white text-sky-800 shadow-[0_18px_42px_rgba(14,165,233,0.16)]",
     infoPillClass: "border-sky-200/80 bg-sky-50 text-sky-950",
     metricSurfaceClass: "border-sky-100 bg-white/90",
     sectionSurfaceClass: "border-sky-100 bg-sky-50/55",
@@ -82,11 +74,6 @@ const roleThemes: Record<AccountRole, AccountTheme> = {
     actionHoverClass: "hover:border-sky-200 hover:bg-sky-50 hover:text-sky-900",
   },
   club: {
-    heroSurfaceClass:
-      "border-amber-200/80 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.22),transparent_36%),linear-gradient(180deg,#fffef8_0%,#fff8eb_55%,#f0fdf4_100%)]",
-    badgeClass: "border-amber-200 bg-amber-950 text-amber-50",
-    iconSurfaceClass:
-      "border-amber-200 bg-white text-amber-800 shadow-[0_18px_42px_rgba(245,158,11,0.16)]",
     infoPillClass: "border-amber-200/80 bg-amber-50 text-amber-950",
     metricSurfaceClass: "border-amber-100 bg-white/90",
     sectionSurfaceClass: "border-amber-100 bg-amber-50/55",
@@ -98,11 +85,6 @@ const roleThemes: Record<AccountRole, AccountTheme> = {
     actionHoverClass: "hover:border-amber-200 hover:bg-amber-50 hover:text-amber-900",
   },
   school: {
-    heroSurfaceClass:
-      "border-indigo-200/80 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.22),transparent_36%),linear-gradient(180deg,#ffffff_0%,#eef2ff_55%,#eff6ff_100%)]",
-    badgeClass: "border-indigo-200 bg-indigo-950 text-indigo-50",
-    iconSurfaceClass:
-      "border-indigo-200 bg-white text-indigo-800 shadow-[0_18px_42px_rgba(99,102,241,0.16)]",
     infoPillClass: "border-indigo-200/80 bg-indigo-50 text-indigo-950",
     metricSurfaceClass: "border-indigo-100 bg-white/90",
     sectionSurfaceClass: "border-indigo-100 bg-indigo-50/55",
@@ -114,6 +96,23 @@ const roleThemes: Record<AccountRole, AccountTheme> = {
     actionHoverClass: "hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-900",
   },
 };
+
+const schoolPendingStatuses: RecognitionRequestRecord["status"][] = [
+  "SUBMITTED",
+  "AI_READY",
+  "UNDER_REVIEW",
+];
+
+const schoolAcceptedStatuses: RecognitionRequestRecord["status"][] = [
+  "APPROVED",
+  "PARTIALLY_APPROVED",
+];
+
+const clubUnderReviewStatuses: ClubRequestRecord["status"][] = [
+  "SUBMITTED",
+  "AI_READY",
+  "UNDER_REVIEW",
+];
 
 function WorkspaceSection({
   eyebrow,
@@ -144,24 +143,376 @@ function WorkspaceSection({
   );
 }
 
-function MetricPanel({
+function OverviewCard({
   label,
   value,
   hint,
   className,
+  children,
 }: {
   label: string;
   value: number | string;
   hint: string;
   className: string;
+  children?: ReactNode;
 }) {
   return (
-    <div className={`rounded-[1.6rem] border p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] ${className}`}>
+    <div
+      className={`rounded-[1.6rem] border p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] ${className}`}
+    >
       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {label}
       </div>
-      <div className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">{value}</div>
+      <div className="mt-3 break-words text-3xl font-semibold leading-tight tracking-[-0.05em] text-slate-950">
+        {value}
+      </div>
       <p className="mt-3 text-sm leading-6 text-slate-600">{hint}</p>
+      {children ? <div className="mt-4 space-y-2">{children}</div> : null}
+    </div>
+  );
+}
+
+function OverviewListItem({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-3">
+      <div className="text-sm font-semibold text-slate-900">{title}</div>
+      <div className="mt-1 text-sm leading-6 text-slate-600">{subtitle}</div>
+    </div>
+  );
+}
+
+function OverviewLoadingCard() {
+  return (
+    <div className="flex items-center gap-3 rounded-[1.6rem] border border-slate-200 bg-slate-50/80 px-5 py-6 text-sm text-slate-600">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
+      Завантажуємо короткий огляд кабінету...
+    </div>
+  );
+}
+
+function ParentOverview({
+  me,
+  theme,
+  childrenRecords,
+  requests,
+}: {
+  me: DashboardMe;
+  theme: AccountTheme;
+  childrenRecords: ChildRecord[];
+  requests: RecognitionRequestRecord[];
+}) {
+  const childSummaries = childrenRecords.map((child) => {
+    const childRequests = requests.filter((request) => request.child.id === child.id);
+    const clubsCount = new Set(childRequests.map((request) => request.club.id)).size;
+
+    return {
+      id: child.id,
+      fullName: child.fullName,
+      schoolName: child.school?.name ?? child.schoolNameSnapshot ?? "Школу ще не вказано",
+      clubsCount,
+    };
+  });
+
+  const linkedSchools = Array.from(
+    new Set(
+      childSummaries
+        .map((child) => child.schoolName)
+        .filter((schoolName) => schoolName !== "Школу ще не вказано"),
+    ),
+  );
+  const totalClubAttendances = childSummaries.reduce(
+    (total, child) => total + child.clubsCount,
+    0,
+  );
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+      <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          Інформація про вас
+        </div>
+        <h3 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">
+          {me.account.displayName}
+        </h3>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          У цьому блоці зібрано базову інформацію родини, прив'язані шкільні дані
+          та короткий стан участі дітей у гуртках.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <div
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+          >
+            <Mail className="h-4 w-4" strokeWidth={2.1} />
+            {me.profile.email}
+          </div>
+          {me.account.city ? (
+            <div
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+            >
+              <MapPin className="h-4 w-4" strokeWidth={2.1} />
+              {me.account.city}
+            </div>
+          ) : null}
+          <div
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+          >
+            <Users className="h-4 w-4" strokeWidth={2.1} />
+            {childrenRecords.length} профілів дітей
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <OverviewCard
+          label="Школа"
+          value={
+            linkedSchools.length === 0
+              ? "Не вказано"
+              : linkedSchools.length === 1
+                ? linkedSchools[0]
+                : `${linkedSchools.length} шкіл у профілях`
+          }
+          hint="Школи, які зараз прив'язані до профілів ваших дітей."
+          className={theme.metricSurfaceClass}
+        >
+          {childSummaries.length === 0 ? (
+            <OverviewListItem
+              title="Ще немає профілів дітей"
+              subtitle="Додайте дитину, щоб відобразити школу в огляді."
+            />
+          ) : (
+            childSummaries.map((child) => (
+              <OverviewListItem
+                key={child.id}
+                title={child.fullName}
+                subtitle={child.schoolName}
+              />
+            ))
+          )}
+        </OverviewCard>
+
+        <OverviewCard
+          label="Гуртки дітей"
+          value={totalClubAttendances}
+          hint="Скільки унікальних гуртків зафіксовано у заявках ваших дітей."
+          className={theme.metricSurfaceClass}
+        >
+          {childSummaries.length === 0 ? (
+            <OverviewListItem
+              title="Поки без гуртків"
+              subtitle="Коли з'являться заявки, тут буде видно відвідувані гуртки."
+            />
+          ) : (
+            childSummaries.map((child) => (
+              <OverviewListItem
+                key={`${child.id}-clubs`}
+                title={child.fullName}
+                subtitle={`Гуртків у заявках: ${child.clubsCount}`}
+              />
+            ))
+          )}
+        </OverviewCard>
+      </div>
+    </div>
+  );
+}
+
+function ClubOverview({
+  theme,
+  requests,
+}: {
+  theme: AccountTheme;
+  requests: ClubRequestRecord[];
+}) {
+  const studentsCount = new Set(requests.map((request) => request.child.id)).size;
+  const acceptedSchoolsMap = new Map<
+    string,
+    { id: string; name: string; approvalsCount: number }
+  >();
+
+  requests.forEach((request) => {
+    if (!schoolAcceptedStatuses.includes(request.status)) {
+      return;
+    }
+
+    const existingSchool = acceptedSchoolsMap.get(request.school.id);
+
+    if (existingSchool) {
+      existingSchool.approvalsCount += 1;
+      return;
+    }
+
+    acceptedSchoolsMap.set(request.school.id, {
+      id: request.school.id,
+      name: request.school.name,
+      approvalsCount: 1,
+    });
+  });
+
+  const acceptedSchools = Array.from(acceptedSchoolsMap.values()).sort(
+    (left, right) =>
+      right.approvalsCount - left.approvalsCount || left.name.localeCompare(right.name, "uk"),
+  );
+  const underReviewCount = requests.filter((request) =>
+    clubUnderReviewStatuses.includes(request.status),
+  ).length;
+
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      <OverviewCard
+        label="Учні"
+        value={studentsCount}
+        hint="Унікальні діти, які вже проходять через програми або заявки вашого гуртка."
+        className={theme.metricSurfaceClass}
+      />
+
+      <OverviewCard
+        label="Школи, що прийняли"
+        value={acceptedSchools.length}
+        hint="Школи, де вже є позитивне або частково позитивне рішення щодо ваших заявок."
+        className={theme.metricSurfaceClass}
+      >
+        {acceptedSchools.length === 0 ? (
+          <OverviewListItem
+            title="Позитивних рішень поки немає"
+            subtitle="Коли школа погодить заявку, вона з'явиться в цьому списку."
+          />
+        ) : (
+          acceptedSchools.slice(0, 4).map((school) => (
+            <OverviewListItem
+              key={school.id}
+              title={school.name}
+              subtitle={`Погоджених заявок: ${school.approvalsCount}`}
+            />
+          ))
+        )}
+      </OverviewCard>
+
+      <OverviewCard
+        label="Запити на розгляді"
+        value={underReviewCount}
+        hint="Заявки, які школа ще не завершила фінальним рішенням."
+        className={theme.metricSurfaceClass}
+      />
+    </div>
+  );
+}
+
+function SchoolOverview({
+  theme,
+  requests,
+}: {
+  theme: AccountTheme;
+  requests: RecognitionRequestRecord[];
+}) {
+  const pendingRequests = requests.filter((request) =>
+    schoolPendingStatuses.includes(request.status),
+  );
+  const pendingClubsMap = new Map<
+    string,
+    { id: string; name: string; city: string | null; requestsCount: number }
+  >();
+  const acceptedClubsMap = new Map<
+    string,
+    { id: string; name: string; city: string | null; approvalsCount: number }
+  >();
+
+  pendingRequests.forEach((request) => {
+    const existingClub = pendingClubsMap.get(request.club.id);
+
+    if (existingClub) {
+      existingClub.requestsCount += 1;
+      return;
+    }
+
+    pendingClubsMap.set(request.club.id, {
+      id: request.club.id,
+      name: request.club.name,
+      city: request.club.city,
+      requestsCount: 1,
+    });
+  });
+
+  requests.forEach((request) => {
+    if (!schoolAcceptedStatuses.includes(request.status)) {
+      return;
+    }
+
+    const existingClub = acceptedClubsMap.get(request.club.id);
+
+    if (existingClub) {
+      existingClub.approvalsCount += 1;
+      return;
+    }
+
+    acceptedClubsMap.set(request.club.id, {
+      id: request.club.id,
+      name: request.club.name,
+      city: request.club.city,
+      approvalsCount: 1,
+    });
+  });
+
+  const pendingClubs = Array.from(pendingClubsMap.values()).sort(
+    (left, right) =>
+      right.requestsCount - left.requestsCount || left.name.localeCompare(right.name, "uk"),
+  );
+  const acceptedClubs = Array.from(acceptedClubsMap.values()).sort(
+    (left, right) =>
+      right.approvalsCount - left.approvalsCount || left.name.localeCompare(right.name, "uk"),
+  );
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-2">
+      <OverviewCard
+        label="Заявки без розгляду"
+        value={pendingRequests.length}
+        hint="Заявки від гуртків, які ще чекають на перевірку або фінальне рішення."
+        className={theme.metricSurfaceClass}
+      >
+        {pendingClubs.length === 0 ? (
+          <OverviewListItem
+            title="Черга порожня"
+            subtitle="Усі поточні заявки вже мають фінальне рішення."
+          />
+        ) : (
+          pendingClubs.map((club) => (
+            <OverviewListItem
+              key={club.id}
+              title={club.name}
+              subtitle={`${club.city ? `${club.city} · ` : ""}Заявок без рішення: ${club.requestsCount}`}
+            />
+          ))
+        )}
+      </OverviewCard>
+
+      <OverviewCard
+        label="Інтегровані гуртки"
+        value={acceptedClubs.length}
+        hint="Гуртки, з якими школа вже має погоджені або частково погоджені інтеграції."
+        className={theme.metricSurfaceClass}
+      >
+        {acceptedClubs.length === 0 ? (
+          <OverviewListItem
+            title="Ще немає інтегрованих гуртків"
+            subtitle="Після першого позитивного рішення список з'явиться тут."
+          />
+        ) : (
+          acceptedClubs.map((club) => (
+            <OverviewListItem
+              key={club.id}
+              title={club.name}
+              subtitle={`${club.city ? `${club.city} · ` : ""}Погоджених заявок: ${club.approvalsCount}`}
+            />
+          ))
+        )}
+      </OverviewCard>
     </div>
   );
 }
@@ -172,25 +523,8 @@ function getAccountCopy(role: AccountRole): AccountCopy {
       eyebrow: "Огляд родини",
       title: "Огляд батьківського кабінету",
       description:
-        "Головна сторінка батьків після входу: базові дані родини, короткий стан дітей і швидкі переходи до наступних дій.",
-      readinessLabel: "Кабінет родини",
-      metrics: [
-        {
-          label: "Діти",
-          valueKey: "childrenCount",
-          hint: "Профілі дітей, прив'язані до цього сімейного кабінету.",
-        },
-        {
-          label: "Активні запити",
-          valueKey: "activeRequests",
-          hint: "Подання, які ще проходять розгляд або очікують рішення.",
-        },
-        {
-          label: "Погоджені",
-          valueKey: "approvedRequests",
-          hint: "Запити, за якими школа вже зберегла фінальний висновок.",
-        },
-      ],
+        "Короткий зріз по дітях, школах і гуртках разом із швидким доступом до основних робочих розділів.",
+      dashboardLabel: "Кабінет родини",
       actions: [
         {
           href: "/dashboard/children",
@@ -216,25 +550,8 @@ function getAccountCopy(role: AccountRole): AccountCopy {
       eyebrow: "Огляд гуртка",
       title: "Огляд кабінету гуртка",
       description:
-        "Головна сторінка гуртка після входу: короткий стан учнів, програм і запитів разом із налаштуванням профілю організації.",
-      readinessLabel: "Кабінет гуртка",
-      metrics: [
-        {
-          label: "Учні",
-          valueKey: "studentsCount",
-          hint: "Діти, які вже проходять через програми та запити вашого гуртка.",
-        },
-        {
-          label: "Програми",
-          valueKey: "programsCount",
-          hint: "Усі програми, які гурток уже створив на платформі.",
-        },
-        {
-          label: "Запити в роботі",
-          valueKey: "requestsNeedingEvidenceCount",
-          hint: "Запити, де гуртку ще потрібно оновити докази або підсумки.",
-        },
-      ],
+        "Головна сторінка з коротким зведенням по учнях, погоджених школах і запитах, які ще чекають на рішення.",
+      dashboardLabel: "Кабінет гуртка",
       actions: [
         {
           href: "/dashboard/students",
@@ -259,25 +576,8 @@ function getAccountCopy(role: AccountRole): AccountCopy {
     eyebrow: "Огляд школи",
     title: "Огляд шкільного кабінету",
     description:
-      "Головна сторінка школи після входу: короткий стан розгляду заявок, профілю школи та швидкі переходи до черги.",
-    readinessLabel: "Кабінет школи",
-    metrics: [
-      {
-        label: "Очікують розгляду",
-        valueKey: "pendingReviews",
-        hint: "Запити, які вже в черзі та потребують старту або продовження перевірки.",
-      },
-      {
-        label: "Погоджені",
-        valueKey: "approvedRequests",
-        hint: "Заявки з позитивним або частково позитивним рішенням школи.",
-      },
-      {
-        label: "Увага потрібна",
-        valueKey: "attentionRequired",
-        hint: "Відхилені або повернуті на доопрацювання кейси.",
-      },
-    ],
+      "Короткий зріз по заявках від гуртків: що ще не розглянуто і які гуртки вже інтегровані школою.",
+    dashboardLabel: "Кабінет школи",
     actions: [
       {
         href: "/dashboard/review",
@@ -308,8 +608,6 @@ function getDisplayNameLabel(role: AccountRole) {
 function getProfileGuide(role: AccountRole) {
   if (role === "parent") {
     return {
-      summaryDescription:
-        "Профіль родини допомагає швидко зрозуміти, хто створює запити, скільки дітей у кабінеті та наскільки все готово до наступних дій.",
       cityHint: "Місто допомагає швидше підбирати школу та програми для дітей.",
       completionHint: "Базовий профіль достатній для створення дітей і нових запитів.",
     };
@@ -317,8 +615,6 @@ function getProfileGuide(role: AccountRole) {
 
   if (role === "club") {
     return {
-      summaryDescription:
-        "Профіль гуртка працює як візитка в каталозі, у списку програм і в комунікації зі школами та батьками.",
       cityHint: "Місто впливає на локальні фільтри та видимість гуртка в каталозі.",
       completionHint:
         "Для гуртка важливо позначити предметні напрями, щоб програми знаходилися швидше.",
@@ -326,8 +622,6 @@ function getProfileGuide(role: AccountRole) {
   }
 
   return {
-    summaryDescription:
-      "Дані профілю школи використовуються в черзі розгляду, у прив'язці дітей і у фінальних рішеннях по кожному запиту.",
     cityHint: "Місто допомагає родинам коректно знаходити школу під час створення профілю дитини.",
     completionHint: "Заповнений профіль школи спрощує розпізнавання організації в усіх запитах.",
   };
@@ -353,6 +647,12 @@ export default function DashboardAccountPage() {
   const [displayName, setDisplayName] = useState("");
   const [city, setCity] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [parentChildren, setParentChildren] = useState<ChildRecord[]>([]);
+  const [parentRequests, setParentRequests] = useState<RecognitionRequestRecord[]>([]);
+  const [clubRequests, setClubRequests] = useState<ClubRequestRecord[]>([]);
+  const [schoolRequests, setSchoolRequests] = useState<RecognitionRequestRecord[]>([]);
+  const [overviewError, setOverviewError] = useState("");
+  const [isOverviewLoading, setIsOverviewLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -366,6 +666,79 @@ export default function DashboardAccountPage() {
     setCity(me.account.city ?? "");
     setSubjects(me.account.subjects);
   }, [me]);
+
+  useEffect(() => {
+    if (!me || !isAllowed) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadOverview = async () => {
+      setIsOverviewLoading(true);
+      setOverviewError("");
+
+      try {
+        if (me.profile.role === "parent") {
+          const [childrenResponse, requestsResponse] = await Promise.all([
+            fetchChildren(),
+            fetchParentRequests(),
+          ]);
+
+          if (isCancelled) {
+            return;
+          }
+
+          setParentChildren(childrenResponse.children);
+          setParentRequests(requestsResponse.requests);
+          setClubRequests([]);
+          setSchoolRequests([]);
+        } else if (me.profile.role === "club") {
+          const response = await fetchClubRequests();
+
+          if (isCancelled) {
+            return;
+          }
+
+          setClubRequests(response.requests);
+          setParentChildren([]);
+          setParentRequests([]);
+          setSchoolRequests([]);
+        } else {
+          const response = await fetchSchoolRequests();
+
+          if (isCancelled) {
+            return;
+          }
+
+          setSchoolRequests(response.requests);
+          setParentChildren([]);
+          setParentRequests([]);
+          setClubRequests([]);
+        }
+      } catch (loadError) {
+        if (isCancelled) {
+          return;
+        }
+
+        setOverviewError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Не вдалося завантажити короткий огляд кабінету",
+        );
+      } finally {
+        if (!isCancelled) {
+          setIsOverviewLoading(false);
+        }
+      }
+    };
+
+    void loadOverview();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isAllowed, me?.account.entityId, me?.profile.role]);
 
   if (isLoading) {
     return <ScreenSpinner />;
@@ -389,7 +762,8 @@ export default function DashboardAccountPage() {
   const initialCity = (me.account.city ?? "").trim();
   const normalizedDisplayName = displayName.trim();
   const normalizedCity = city.trim();
-  const hasSubjectChanges = role === "club" ? !areSubjectsEqual(subjects, me.account.subjects) : false;
+  const hasSubjectChanges =
+    role === "club" ? !areSubjectsEqual(subjects, me.account.subjects) : false;
   const hasChanges =
     normalizedDisplayName !== initialDisplayName ||
     normalizedCity !== initialCity ||
@@ -398,7 +772,7 @@ export default function DashboardAccountPage() {
   const completionItems = [
     {
       label: "Тип акаунта",
-      value: copy.eyebrow,
+      value: copy.dashboardLabel,
       isComplete: true,
     },
     {
@@ -431,7 +805,6 @@ export default function DashboardAccountPage() {
   ];
   const completedItemsCount = completionItems.filter((item) => item.isComplete).length;
   const completionProgress = Math.round((completedItemsCount / completionItems.length) * 100);
-  const primaryAction = copy.actions[0];
   const inputClassName =
     "h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-950/5";
 
@@ -485,34 +858,103 @@ export default function DashboardAccountPage() {
     }
   };
 
+  let overviewContent: ReactNode;
+
+  if (isOverviewLoading) {
+    overviewContent = <OverviewLoadingCard />;
+  } else if (overviewError) {
+    overviewContent = (
+      <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {overviewError}
+        </div>
+      </SurfaceCard>
+    );
+  } else if (role === "parent") {
+    overviewContent = (
+      <ParentOverview
+        me={me}
+        theme={theme}
+        childrenRecords={parentChildren}
+        requests={parentRequests}
+      />
+    );
+  } else if (role === "club") {
+    overviewContent = <ClubOverview theme={theme} requests={clubRequests} />;
+  } else {
+    overviewContent = <SchoolOverview theme={theme} requests={schoolRequests} />;
+  }
+
   return (
     <div className="space-y-6">
       <WorkspaceSection eyebrow={copy.eyebrow} title={copy.title} description={copy.description}>
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div className="grid gap-4 md:grid-cols-3">
-              {copy.metrics.map((metric) => (
-                <MetricPanel
-                  key={metric.label}
-                  label={metric.label}
-                  value={me.summary[metric.valueKey] ?? 0}
-                  hint={metric.hint}
-                  className={theme.metricSurfaceClass}
-                />
-              ))}
+        {overviewContent}
+      </WorkspaceSection>
+
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <WorkspaceSection
+          eyebrow="Основні дані"
+          title={getDisplayNameLabel(role)}
+          description={guide.completionHint}
+        >
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px]">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
+                {getDisplayNameLabel(role)}
+              </label>
+              <input
+                id="displayName"
+                className={inputClassName}
+                value={displayName}
+                onChange={(event) => {
+                  clearFeedback();
+                  setDisplayName(event.target.value);
+                }}
+                required
+              />
             </div>
 
-            <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
-              <div className="flex items-start gap-3">
-                <div
-                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
-                >
-                  <Sparkles className="h-5 w-5" strokeWidth={2.1} />
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-slate-700" htmlFor="city">
+                Місто
+              </label>
+              <input
+                id="city"
+                className={inputClassName}
+                value={city}
+                onChange={(event) => {
+                  clearFeedback();
+                  setCity(event.target.value);
+                }}
+                placeholder="Наприклад, Київ"
+              />
+              <p className="text-xs leading-5 text-slate-500">{guide.cityHint}</p>
+            </div>
+
+            <div className={`rounded-[1.6rem] border p-4 ${theme.sectionSurfaceClass}`}>
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Доступ
+              </div>
+              <label className="mt-3 block text-sm font-medium text-slate-700" htmlFor="email">
+                Email для входу
+              </label>
+              <input
+                id="email"
+                className="mt-2 h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
+                value={me.profile.email}
+                readOnly
+              />
+              <div className="mt-3 flex flex-wrap gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
+                  <Mail className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.1} />
+                  Тільки перегляд
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-slate-950">Операційний фокус</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{guide.summaryDescription}</p>
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
+                  <RoleIcon className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.1} />
+                  {copy.dashboardLabel}
                 </div>
               </div>
+
               <div className="mt-5 rounded-[1.4rem] border border-slate-200 bg-white/90 p-4">
                 <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
                   <span>Готовність профілю</span>
@@ -528,126 +970,36 @@ export default function DashboardAccountPage() {
                   {completedItemsCount} з {completionItems.length} блоків профілю заповнено.
                 </div>
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <div
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
-                >
-                  <Mail className="h-4 w-4" strokeWidth={2.1} />
-                  {me.profile.email}
-                </div>
-                <div
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
-                >
-                  <RoleIcon className="h-4 w-4" strokeWidth={2.1} />
-                  {copy.readinessLabel}
-                </div>
-                {normalizedCity ? (
-                  <div
-                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
-                  >
-                    <MapPin className="h-4 w-4" strokeWidth={2.1} />
-                    {normalizedCity}
-                  </div>
-                ) : null}
-              </div>
-              <Link
-                href={primaryAction.href}
-                className={`mt-5 inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${theme.primaryButtonClass}`}
-              >
-                {primaryAction.label}
-                <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-              </Link>
             </div>
           </div>
-      </WorkspaceSection>
-
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <WorkspaceSection
-          eyebrow="Основні дані"
-          title={getDisplayNameLabel(role)}
-          description={guide.completionHint}
-        >
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
-                  {getDisplayNameLabel(role)}
-                </label>
-                <input
-                  id="displayName"
-                  className={inputClassName}
-                  value={displayName}
-                  onChange={(event) => {
-                    clearFeedback();
-                    setDisplayName(event.target.value);
-                  }}
-                  required
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="city">
-                  Місто
-                </label>
-                <input
-                  id="city"
-                  className={inputClassName}
-                  value={city}
-                  onChange={(event) => {
-                    clearFeedback();
-                    setCity(event.target.value);
-                  }}
-                  placeholder="Наприклад, Київ"
-                />
-                <p className="text-xs leading-5 text-slate-500">{guide.cityHint}</p>
-              </div>
-
-              <div className={`rounded-[1.6rem] border p-4 ${theme.sectionSurfaceClass}`}>
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Доступ
-                </div>
-                <label className="mt-3 block text-sm font-medium text-slate-700" htmlFor="email">
-                  Email для входу
-                </label>
-                <input
-                  id="email"
-                  className="mt-2 h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
-                  value={me.profile.email}
-                  readOnly
-                />
-                <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
-                  <Mail className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.1} />
-                  Тільки перегляд
-                </div>
-              </div>
-            </div>
         </WorkspaceSection>
 
         {role === "club" ? (
           <WorkspaceSection
             eyebrow="Предметні напрями"
             title="Навчальні напрями гуртка"
-            description="Окремий блок для керування предметними напрямами, щоб програми точніше знаходилися в каталозі."
+            description="Позначені напрями використовуються в каталозі та в огляді програм для шкіл і батьків."
           >
-              <div className="flex flex-wrap gap-2">
-                {subjectOptions.map((subject) => {
-                  const isActive = subjects.includes(subject);
+            <div className="flex flex-wrap gap-2">
+              {subjectOptions.map((subject) => {
+                const isActive = subjects.includes(subject);
 
-                  return (
-                    <button
-                      key={subject}
-                      type="button"
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                        isActive
-                          ? theme.activeSubjectClass
-                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                      onClick={() => toggleSubject(subject)}
-                    >
-                      {subject}
-                    </button>
-                  );
-                })}
-              </div>
+                return (
+                  <button
+                    key={subject}
+                    type="button"
+                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                      isActive
+                        ? theme.activeSubjectClass
+                        : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                    onClick={() => toggleSubject(subject)}
+                  >
+                    {subject}
+                  </button>
+                );
+              })}
+            </div>
           </WorkspaceSection>
         ) : null}
 
@@ -697,264 +1049,30 @@ export default function DashboardAccountPage() {
         </SurfaceCard>
       </form>
 
-      {role === "parent" ? (
-          <>
-            <WorkspaceSection
-              eyebrow="Діти та сім'я"
-              title="Сімейний контекст кабінету"
-              description="Окремий блок про склад сімейного кабінету та логіку прив'язки дітей до шкіл."
+      <WorkspaceSection
+        eyebrow="Швидкий доступ"
+        title="Що відкрити далі"
+        description="Основні переходи для наступних дій у персональному кабінеті."
+      >
+        <div className="grid gap-3">
+          {copy.actions.map((action) => (
+            <Link
+              key={`${action.href}-${action.label}`}
+              href={action.href}
+              className={`group rounded-[1.5rem] border border-slate-200 bg-slate-50/75 px-4 py-4 transition ${theme.actionHoverClass}`}
             >
-              <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
-                <MetricPanel
-                  label="Профілі дітей"
-                  value={me.summary.childrenCount ?? 0}
-                  hint="Саме цей блок визначає, скільки профілів доступно для нових заявок і шкільних зв'язків."
-                  className={theme.metricSurfaceClass}
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-slate-900">{action.label}</span>
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-1"
+                  strokeWidth={2.1}
                 />
-                <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
-                    >
-                      <Users className="h-5 w-5" strokeWidth={2.1} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-950">
-                        Керування дітьми винесене в окремий робочий блок
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        У профілі батьків зберігаються лише базові дані родини. Додавання дитини,
-                        школа, вік і примітки живуть у спеціальному розділі для дітей, щоб не
-                        змішувати персональні дані з робочими записами.
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/dashboard/children"
-                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                  >
-                    Перейти до дітей
-                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                  </Link>
-                </div>
               </div>
-            </WorkspaceSection>
-
-            <WorkspaceSection
-              eyebrow="Запити"
-              title="Активність і прогрес заявок"
-              description="Блок для швидкого розуміння, де сім'я зараз у процесі подань і рішень."
-            >
-              <div className="grid gap-4 lg:grid-cols-3">
-                <MetricPanel
-                  label="Активні запити"
-                  value={me.summary.activeRequests ?? 0}
-                  hint="Кейси, у яких ще триває розгляд, збір доказів або очікується рішення."
-                  className={theme.metricSurfaceClass}
-                />
-                <MetricPanel
-                  label="Погоджені"
-                  value={me.summary.approvedRequests ?? 0}
-                  hint="Кількість позитивно завершених заявок, де школа вже зафіксувала висновок."
-                  className={theme.metricSurfaceClass}
-                />
-                <div className={`rounded-[1.6rem] border p-5 ${theme.sectionSurfaceClass}`}>
-                  <div className="text-sm font-semibold text-slate-950">Що далі</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    Якщо сім'я шукає нові можливості, маршрут починається з каталогу програм, а
-                    потім повертається в розділ запитів для контролю статусів.
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <Link
-                      href="/dashboard/discover"
-                      className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                    >
-                      Каталог програм
-                      <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                    </Link>
-                    <Link
-                      href="/dashboard/requests"
-                      className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                    >
-                      Відкрити запити
-                      <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </WorkspaceSection>
-          </>
-        ) : null}
-
-      {role === "club" ? (
-          <WorkspaceSection
-            eyebrow="Каталог і програми"
-            title="Присутність гуртка в каталозі"
-            description="Окремий операційний блок для програм, публікації та черги запитів, де потрібні докази."
-          >
-            <div className="grid gap-4 lg:grid-cols-3">
-              <MetricPanel
-                label="Усі програми"
-                value={me.summary.programsCount ?? 0}
-                hint="Загальна кількість програм, що належать вашій організації."
-                className={theme.metricSurfaceClass}
-              />
-              <MetricPanel
-                label="Опубліковані"
-                value={me.summary.publishedProgramsCount ?? 0}
-                hint="Програми, які зараз доступні в каталозі для пошуку батьками."
-                className={theme.metricSurfaceClass}
-              />
-              <MetricPanel
-                label="Черга доказів"
-                value={me.summary.requestsNeedingEvidenceCount ?? 0}
-                hint="Запити, де гуртку ще потрібно додати пояснення або підтвердження."
-                className={theme.metricSurfaceClass}
-              />
-            </div>
-
-            <div className={`mt-4 rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
-              <div className="flex items-start gap-3">
-                <div
-                  className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
-                >
-                  <Compass className="h-5 w-5" strokeWidth={2.1} />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-slate-950">
-                    Програми і профіль працюють як одна система
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Назва організації, місто та предметні напрями напряму впливають на те, як
-                    гурток виглядає в каталозі. Окремий розділ програм залишається робочим центром
-                    для створення та оновлення наповнення.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href="/dashboard/programs"
-                  className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                >
-                  Керувати програмами
-                  <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                </Link>
-                <Link
-                  href="/dashboard/requests"
-                  className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                >
-                  Відкрити запити
-                  <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                </Link>
-              </div>
-            </div>
-          </WorkspaceSection>
-        ) : null}
-
-      {role === "school" ? (
-          <>
-            <WorkspaceSection
-              eyebrow="Черга розгляду"
-              title="Стан активної перевірки"
-              description="Окремий блок для контролю навантаження на розгляд і кейсів, які не можна пропустити."
-            >
-              <div className="grid gap-4 lg:grid-cols-3">
-                <MetricPanel
-                  label="Очікують розгляду"
-                  value={me.summary.pendingReviews ?? 0}
-                  hint="Запити, які мають зайти в роботу або вже знаходяться на розгляді."
-                  className={theme.metricSurfaceClass}
-                />
-                <MetricPanel
-                  label="Потрібна увага"
-                  value={me.summary.attentionRequired ?? 0}
-                  hint="Кейси, де є відхилення або потрібно повернення на доопрацювання."
-                  className={theme.metricSurfaceClass}
-                />
-                <div className={`rounded-[1.6rem] border p-5 ${theme.sectionSurfaceClass}`}>
-                  <div className="text-sm font-semibold text-slate-950">Робочий фокус школи</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    Профіль школи має залишатися лаконічним, а операційна логіка живе в черзі
-                    розгляду. Саме там команда рухається по кейсах і повертається до рішень.
-                  </p>
-                  <Link
-                    href="/dashboard/review"
-                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                  >
-                    Перейти до черги
-                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                  </Link>
-                </div>
-              </div>
-            </WorkspaceSection>
-
-            <WorkspaceSection
-              eyebrow="Рішення"
-              title="Фінальні сигнали та контекст"
-              description="Окремий блок для підсумкових рішень, щоб відділити профіль школи від операційної логіки кейсів."
-            >
-              <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
-                <MetricPanel
-                  label="Погоджені заявки"
-                  value={me.summary.approvedRequests ?? 0}
-                  hint="Кількість позитивних або частково позитивних рішень, які школа вже зафіксувала."
-                  className={theme.metricSurfaceClass}
-                />
-                <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
-                    >
-                      <CheckCircle2 className="h-5 w-5" strokeWidth={2.1} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-950">
-                        Профіль не дублює систему рішень
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        У профілі зберігаються реквізити школи, а історія оцінки та фінальні
-                        висновки залишаються в розділі розгляду. Так кабінет не змішує довідкові
-                        дані з робочою перевіркою кейсів.
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/dashboard/review"
-                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
-                  >
-                    Переглянути рішення
-                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                  </Link>
-                </div>
-              </div>
-            </WorkspaceSection>
-          </>
-        ) : null}
-
-        <WorkspaceSection
-          eyebrow="Наступні дії"
-          title="Швидкі переходи"
-          description="Окремий блок для задач, які найчастіше виконуються після оновлення профілю."
-        >
-          <div className="grid gap-3">
-            {copy.actions.map((action) => (
-              <Link
-                key={`${action.href}-${action.label}`}
-                href={action.href}
-                className={`group rounded-[1.5rem] border border-slate-200 bg-slate-50/75 px-4 py-4 transition ${theme.actionHoverClass}`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold text-slate-900">{action.label}</span>
-                  <ArrowRight
-                    className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-1"
-                    strokeWidth={2.1}
-                  />
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{action.hint}</p>
-              </Link>
-            ))}
-          </div>
-        </WorkspaceSection>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{action.hint}</p>
+            </Link>
+          ))}
+        </div>
+      </WorkspaceSection>
     </div>
   );
 }

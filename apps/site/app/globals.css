@@ -213,7 +213,7 @@ button {
 .btn-secondary {
   background: #fff;
   color: var(--text);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
 }
 
 .btn-ghost {
@@ -322,7 +322,7 @@ button {
   border-radius: 28px;
   padding: 18px;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(223, 229, 240, 0.85);
+  border: 1.5px solid rgba(223, 229, 240, 0.85);
   display: flex;
   flex-direction: column;
 }
@@ -358,7 +358,7 @@ button {
   min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr;
-  border: 1px solid rgba(223, 229, 240, 0.9);
+  border: 1.5px solid rgba(223, 229, 240, 0.9);
   flex: 1;
 }
 
@@ -435,7 +435,7 @@ button {
 .mini-card {
   border-radius: 20px;
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   padding: 18px;
 }
 
@@ -502,7 +502,7 @@ button {
   padding: 12px 14px;
   border-radius: 16px;
   background: #f7faff;
-  border: 1px solid #dbe6fb;
+  border: 1.5px solid #dbe6fb;
 }
 
 .request-row span {
@@ -618,7 +618,7 @@ button {
 .compare-note {
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1px solid #dde6f4;
+  border: 1.5px solid #dde6f4;
   background: #f8fbff;
 }
 
@@ -655,7 +655,7 @@ button {
 .score-box {
   border-radius: 18px;
   background: #f7faff;
-  border: 1px solid #cfe0ff;
+  border: 1.5px solid #cfe0ff;
   padding: 16px;
   display: flex;
   align-items: center;
@@ -737,7 +737,7 @@ button {
 .trust-card,
 .testimonial-card {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 26px;
   padding: 34px;
   position: relative;
@@ -869,7 +869,7 @@ button {
   align-items: center;
   padding: 20px;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 22px;
 }
 
@@ -929,7 +929,7 @@ button {
   padding: 20px;
   border-radius: 20px;
   background: #effcf4;
-  border: 1px solid #bfe9cc;
+  border: 1.5px solid #bfe9cc;
 }
 
 .recommendation h4 {
@@ -954,7 +954,7 @@ button {
 .explain-card {
   padding: 16px 18px;
   border-radius: 18px;
-  border: 1px solid #dce6f5;
+  border: 1.5px solid #dce6f5;
   background: #f7fbff;
 }
 
@@ -1114,7 +1114,7 @@ button {
   padding: 6px;
   border-radius: 999px;
   margin: 0 auto 34px;
-  border: 1px solid #dde4ef;
+  border: 1.5px solid #dde4ef;
 }
 
 .tab-btn {
@@ -1134,7 +1134,7 @@ button {
 .dashboard-panel {
   display: none;
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 30px;
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -1195,7 +1195,7 @@ button {
   border-radius: 22px;
   padding: 22px;
   background: #f7f9fd;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   min-height: 126px;
   display: flex;
   flex-direction: column;
@@ -1235,7 +1235,7 @@ button {
 }
 
 .list-row {
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 20px;
   padding: 18px 20px;
   display: flex;
@@ -1299,7 +1299,7 @@ button {
 
 .trust-group {
   border-radius: 28px;
-  border: 1px solid #dbe4f2;
+  border: 1.5px solid #dbe4f2;
   background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
   padding: 30px;
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
@@ -1558,7 +1558,7 @@ button {
   padding: 14px 18px;
   border-radius: 18px;
   background: #eef4ff;
-  border: 1px solid #dbe6fb;
+  border: 1.5px solid #dbe6fb;
   color: #35507d;
   font-size: 15px;
   line-height: 1.55;
@@ -1573,7 +1573,7 @@ button {
 
 .role-card {
   background: #fff;
-  border: 1px solid #d9dfeb;
+  border: 1.5px solid #d9dfeb;
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
@@ -1725,7 +1725,7 @@ button {
 
 .btn-role-ghost {
   background: #f8fafc;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   color: var(--text);
 }
 
@@ -1768,6 +1768,327 @@ button {
   color: #22c55e;
   font-weight: 800;
   margin-right: 12px;
+}
+
+@media (min-width: 1024px) and (max-width: 1512px), (min-width: 1024px) and (max-height: 980px) {
+  .section {
+    padding: 58px 0;
+  }
+
+  .header-inner {
+    min-height: 68px;
+  }
+
+  .brand {
+    font-size: 17px;
+  }
+
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-mark svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav {
+    gap: 28px;
+  }
+
+  .nav a {
+    font-size: 15px;
+  }
+
+  .header-actions {
+    gap: 12px;
+  }
+
+  .btn {
+    min-height: 48px;
+    padding: 0 20px;
+    font-size: 15px;
+  }
+
+  .hero {
+    padding: 18px 0 12px;
+  }
+
+  .hero-grid {
+    gap: 32px;
+    min-height: calc(100vh - 92px);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(34px, 4vw, 58px);
+  }
+
+  .hero-copy p {
+    max-width: 620px;
+    font-size: 15px;
+  }
+
+  .hero-actions {
+    margin-bottom: 26px;
+  }
+
+  .stats {
+    gap: 14px;
+    max-width: 520px;
+  }
+
+  .stat strong {
+    font-size: clamp(24px, 2.6vw, 36px);
+  }
+
+  .stat span {
+    font-size: 14px;
+  }
+
+  .window-card {
+    width: min(100%, 600px);
+    padding: 16px;
+    border-radius: 30px;
+  }
+
+  .window-top {
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .preview-header {
+    padding: 18px;
+  }
+
+  .preview-header h3 {
+    font-size: 20px;
+  }
+
+  .preview-header p,
+  .preview-pill,
+  .mini-card p,
+  .mini-card li,
+  .bar-row span {
+    font-size: 13px;
+  }
+
+  .preview-body,
+  .mini-card,
+  .report-card,
+  .panel-body {
+    padding: 16px;
+  }
+
+  .request-row {
+    padding: 10px 12px;
+  }
+
+  .request-row span,
+  .request-row strong,
+  .flow-step p,
+  .compare-note strong {
+    font-size: 12px;
+  }
+
+  .mini-card h4,
+  .feature-row h4,
+  .list-row h4,
+  .testimonial-card h4 {
+    font-size: 18px;
+  }
+
+  .score-box {
+    padding: 14px;
+  }
+
+  .score-box strong,
+  .metric strong {
+    font-size: 32px;
+  }
+
+  .ring {
+    width: 68px;
+    height: 68px;
+  }
+
+  .step-card,
+  .user-card,
+  .trust-card,
+  .testimonial-card,
+  .trust-group {
+    padding: 28px;
+  }
+
+  .step-card h3,
+  .user-card h3,
+  .trust-card h3,
+  .trust-group-head h3,
+  .panel-top h3,
+  .report-head h3,
+  .role-top h3 {
+    font-size: 20px;
+  }
+
+  .step-card p,
+  .user-card p,
+  .trust-card p,
+  .testimonial-card p,
+  .trust-group-head p,
+  .panel-top p,
+  .list-row p,
+  .recommendation p,
+  .footer-brand p,
+  .register-hero p,
+  .register-bottom p,
+  .register-meta,
+  .role-top p,
+  .role-body li {
+    font-size: 15px;
+  }
+
+  .section-head {
+    margin-bottom: 34px;
+  }
+
+  .section-head h2,
+  .cta-card h2 {
+    font-size: clamp(28px, 3vw, 44px);
+  }
+
+  .section-head p,
+  .ai-copy p,
+  .cta-card p {
+    font-size: 16px;
+  }
+
+  .ai-grid {
+    gap: 32px;
+  }
+
+  .ai-copy h2 {
+    font-size: clamp(30px, 3.2vw, 48px);
+  }
+
+  .feature-stack {
+    gap: 14px;
+  }
+
+  .feature-row {
+    grid-template-columns: 56px 1fr;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .feature-row p {
+    font-size: 14px;
+  }
+
+  .report-head {
+    margin-bottom: 20px;
+  }
+
+  .report-bars,
+  .user-card ul {
+    margin-top: 22px;
+  }
+
+  .user-card ul {
+    margin-bottom: 24px;
+    gap: 12px;
+  }
+
+  .dashboard-tabs {
+    margin-bottom: 28px;
+  }
+
+  .tab-btn {
+    min-height: 42px;
+    font-size: 14px;
+  }
+
+  .panel-top {
+    padding: 24px 26px;
+  }
+
+  .metrics {
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .metric {
+    min-height: 112px;
+    padding: 18px;
+  }
+
+  .metric-label,
+  .role-note,
+  .role-note-small,
+  .testimonial-meta span,
+  .testimonial-card span,
+  .footer-bottom {
+    font-size: 13px;
+  }
+
+  .list-row {
+    padding: 16px 18px;
+  }
+
+  .badge {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .cta {
+    padding: 68px 0;
+  }
+
+  .cta-card p {
+    margin-bottom: 26px;
+  }
+
+  .site-footer {
+    padding: 58px 0 24px;
+  }
+
+  .footer-col h4 {
+    font-size: 17px;
+  }
+
+  .register-page {
+    padding: 28px 0 58px;
+  }
+
+  .register-top {
+    margin-bottom: 64px;
+  }
+
+  .register-hero h1 {
+    font-size: clamp(32px, 3.6vw, 52px);
+  }
+
+  .role-grid {
+    gap: 26px;
+  }
+
+  .role-top {
+    min-height: 250px;
+    padding: 28px 28px 24px;
+  }
+
+  .role-body {
+    padding: 28px;
+  }
+
+  .btn-role {
+    min-height: 54px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 1180px) {

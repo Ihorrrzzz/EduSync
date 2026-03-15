@@ -60,6 +60,13 @@ export type FormSectionConfig = {
   statusMessage?: string;
 };
 
+export type FeedbackSectionConfig = FormSectionConfig & {
+  badgeLabel: string;
+  summaryTitle: string;
+  summaryDescription: string;
+  highlights: string[];
+};
+
 export type DashboardConfig = {
   roleLabel: string;
   heroTitle: string;
@@ -75,6 +82,7 @@ export type DashboardConfig = {
   formStatusMessage?: string;
   fields: FormField[];
   groupSearchForm?: FormSectionConfig;
+  feedbackForm?: FeedbackSectionConfig;
   aiAnalysis?: AiAnalysisConfig;
   insights: InsightCard[];
 };
@@ -196,6 +204,68 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
         },
       ],
     },
+    feedbackForm: {
+      title: "Надіслати відгук",
+      description:
+        "Поділіться враженнями від роботи кабінету батьків, пошуку груп і подання заявок, щоб ми точніше пріоритезували покращення.",
+      submitLabel: "Надіслати відгук",
+      statusMessage:
+        "Відгук збережено як демонстраційний запис. Його можна буде передати команді продукту після підключення API.",
+      badgeLabel: "Parent Feedback",
+      summaryTitle: "Які сигнали ми збираємо від родин",
+      summaryDescription:
+        "Найцінніші відгуки для батьківського кабінету показують, де процес можна зробити коротшим, зрозумілішим і менш стресовим для родини.",
+      highlights: [
+        "Наскільки просто знайти відповідну групу та зібрати заявку без зайвих кроків.",
+        "Чи достатньо зрозумілі статуси погодження школи та наступні дії після подання.",
+        "Яких сповіщень, підказок або даних про прогрес дитини бракує в щоденному сценарії.",
+      ],
+      fields: [
+        {
+          name: "feedbackArea",
+          label: "Тема відгуку",
+          placeholder: "Оберіть тему",
+          type: "select",
+          options: [
+            { value: "groups", label: "Пошук груп і програм" },
+            { value: "requests", label: "Подання та відстеження заявок" },
+            { value: "reports", label: "Звіти та прогрес дитини" },
+            { value: "notifications", label: "Сповіщення та комунікація" },
+          ],
+        },
+        {
+          name: "feedbackType",
+          label: "Тип відгуку",
+          placeholder: "Оберіть варіант",
+          type: "select",
+          options: [
+            { value: "praise", label: "Що подобається" },
+            { value: "improvement", label: "Що варто покращити" },
+            { value: "issue", label: "Що заважає користуванню" },
+          ],
+        },
+        {
+          name: "rating",
+          label: "Оцінка досвіду",
+          placeholder: "Оберіть оцінку",
+          type: "select",
+          options: [
+            { value: "5", label: "5 / 5" },
+            { value: "4", label: "4 / 5" },
+            { value: "3", label: "3 / 5" },
+            { value: "2", label: "2 / 5" },
+            { value: "1", label: "1 / 5" },
+          ],
+        },
+        {
+          name: "message",
+          label: "Коментар",
+          type: "textarea",
+          placeholder: "Опишіть, що спрацювало добре або який крок варто зробити простішим.",
+          span: "full",
+        },
+      ],
+    },
     insights: [
       {
         title: "Найкращий AI-збіг",
@@ -250,6 +320,8 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
     formDescription:
       "Зафіксуйте рішення щодо заявки та додайте коментар для батьків і гуртка.",
     formSubmitLabel: "Зберегти рішення",
+    formStatusMessage:
+      "Рішення збережено в чернетці. Після підключення API його можна буде передати батькам і партнерському гуртку.",
     fields: [
       { name: "student", label: "Учень", placeholder: "ПІБ учня" },
       { name: "subject", label: "Предмет", placeholder: "Який предмет розглядається" },
@@ -272,6 +344,66 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
         span: "full",
       },
     ],
+    feedbackForm: {
+      title: "Зворотний зв'язок від школи",
+      description:
+        "Зафіксуйте, де в шкільному кабінеті є зайві ручні кроки, чого бракує для швидкого погодження та як покращити координацію з родинами і гуртками.",
+      submitLabel: "Передати відгук",
+      statusMessage:
+        "Відгук школи збережено як демонстраційний запис. Його можна буде передати команді продукту після підключення API.",
+      badgeLabel: "School Feedback",
+      summaryTitle: "На що орієнтуємося у відгуках шкіл",
+      summaryDescription:
+        "Для адміністраторів і координаторів важливо зменшувати час на погодження, підписи, перевірку програм та обмін коментарями з учасниками процесу.",
+      highlights: [
+        "Де черга заявок, рішення або документи потребують більше контексту прямо в інтерфейсі.",
+        "Яких статусів, фільтрів чи узгоджувальних кроків не вистачає для адміністративної команди.",
+        "Які сценарії перевірки програм і партнерств варто автоматизувати насамперед.",
+      ],
+      fields: [
+        {
+          name: "feedbackArea",
+          label: "Напрям відгуку",
+          placeholder: "Оберіть напрям",
+          type: "select",
+          options: [
+            { value: "approvals", label: "Погодження заявок" },
+            { value: "documents", label: "Документи та підписи" },
+            { value: "partners", label: "Партнерства з гуртками" },
+            { value: "reporting", label: "Звіти та перенесення результатів" },
+          ],
+        },
+        {
+          name: "impact",
+          label: "Рівень впливу",
+          placeholder: "Оберіть вплив",
+          type: "select",
+          options: [
+            { value: "critical", label: "Критично для роботи" },
+            { value: "noticeable", label: "Помітно уповільнює процес" },
+            { value: "minor", label: "Невелике покращення" },
+          ],
+        },
+        {
+          name: "audience",
+          label: "Кого стосується",
+          placeholder: "Оберіть роль",
+          type: "select",
+          options: [
+            { value: "admin", label: "Адміністрація школи" },
+            { value: "teachers", label: "Педагоги та координатори" },
+            { value: "all", label: "Усі учасники процесу" },
+          ],
+        },
+        {
+          name: "message",
+          label: "Опис відгуку",
+          type: "textarea",
+          placeholder: "Опишіть, на якому кроці виникає затримка або яке покращення заощадить час команді школи.",
+          span: "full",
+        },
+      ],
+    },
     aiAnalysis: {
       title: "Аналізувати програму гуртка за допомогою AI",
       description:
@@ -340,6 +472,8 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
     formDescription:
       "Заповніть форму для нової програми, синхронізації зі школою або відправлення звітного пакета.",
     formSubmitLabel: "Підготувати пакет",
+    formStatusMessage:
+      "Чернетку пакета збережено. Після підключення API її можна буде відправити школі або оновити в системі.",
     fields: [
       { name: "program", label: "Програма", placeholder: "Назва програми або групи" },
       { name: "school", label: "Школа", placeholder: "Партнерська школа" },
@@ -362,6 +496,66 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
         span: "full",
       },
     ],
+    feedbackForm: {
+      title: "Відгук від гуртка",
+      description:
+        "Розкажіть, що варто покращити в роботі з програмами, партнерськими школами та цифровими звітами, щоб кабінет економив час команди гуртка.",
+      submitLabel: "Надіслати відгук",
+      statusMessage:
+        "Відгук гуртка збережено як демонстраційний запис. Його можна буде передати команді продукту після підключення API.",
+      badgeLabel: "Club Feedback",
+      summaryTitle: "Що важливо чути від гуртків",
+      summaryDescription:
+        "Для позашкільних провайдерів критично, щоб подання програм, передавання результатів і робота з партнерами не вимагали дублювання даних у різних системах.",
+      highlights: [
+        "Які дані про програму або групу варто підтягувати автоматично замість повторного введення.",
+        "Де координація зі школами та родинами потребує швидших статусів або шаблонів комунікації.",
+        "Яких інструментів бракує для масового надсилання звітів, відвідуваності та результатів навчання.",
+      ],
+      fields: [
+        {
+          name: "feedbackArea",
+          label: "Тема відгуку",
+          placeholder: "Оберіть тему",
+          type: "select",
+          options: [
+            { value: "programs", label: "Подання програм" },
+            { value: "schools", label: "Співпраця зі школами" },
+            { value: "reports", label: "Звіти та оцінювання" },
+            { value: "operations", label: "Щоденні операції команди" },
+          ],
+        },
+        {
+          name: "effect",
+          label: "Очікуваний ефект",
+          placeholder: "Оберіть результат",
+          type: "select",
+          options: [
+            { value: "save-time", label: "Заощадити час команди" },
+            { value: "reduce-errors", label: "Зменшити помилки" },
+            { value: "expand-scale", label: "Підтримати більше партнерств" },
+          ],
+        },
+        {
+          name: "priority",
+          label: "Пріоритет",
+          placeholder: "Оберіть пріоритет",
+          type: "select",
+          options: [
+            { value: "now", label: "Потрібно зараз" },
+            { value: "next", label: "Варто зробити наступним етапом" },
+            { value: "later", label: "Можна запланувати пізніше" },
+          ],
+        },
+        {
+          name: "message",
+          label: "Деталі",
+          type: "textarea",
+          placeholder: "Опишіть, який сценарій потрібно прискорити або автоматизувати в кабінеті гуртка.",
+          span: "full",
+        },
+      ],
+    },
     aiAnalysis: {
       title: "Аналізувати програму гуртка за допомогою AI",
       description:

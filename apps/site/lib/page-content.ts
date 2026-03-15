@@ -1,5 +1,4 @@
 import {
-  ArrowLeftRight,
   BadgeCheck,
   Blocks,
   BookOpenCheck,
@@ -12,9 +11,7 @@ import {
   GraduationCap,
   HeartHandshake,
   LibraryBig,
-  LockKeyhole,
   School,
-  ShieldCheck,
   Sparkles,
   TriangleAlert,
   UserRound,
@@ -25,15 +22,30 @@ import {
 export const navLinks = [
   { href: "#how", label: "Як це працює" },
   { href: "#ai", label: "AI-порівняння" },
-  { href: "#users", label: "Для ролей" },
-  { href: "#dashboards", label: "MVP кабінети" },
+  { href: "#users", label: "Для користувачів" },
+  { href: "#dashboards", label: "Огляд платформи" },
   { href: "#trust", label: "Прозорість" },
 ];
 
 export const heroStats = [
-  { value: "3 ролі", label: "в одному процесі" },
-  { value: "1 запит", label: "від родини до рішення школи" },
-  { value: "AI-рівень", label: "лише як рекомендація" },
+  {
+    value: "0",
+    label: "підключених шкіл",
+    note: "Поточна кількість шкіл у системі",
+    tone: "primary",
+  },
+  {
+    value: "0",
+    label: "підключених батьків",
+    note: "Публічне підключення ще не розпочато",
+    tone: "neutral",
+  },
+  {
+    value: "0",
+    label: "підключених гуртків",
+    note: "Провайдери додаватимуться після старту",
+    tone: "neutral",
+  },
 ];
 
 export const processSteps = [
@@ -75,7 +87,7 @@ export const processSteps = [
     title: "Школа переглядає доказовий пакет",
     description:
       "Адміністрація бачить покриті результати, прогалини та рекомендовані докази, але приймає рішення самостійно.",
-    highlight: "Review школи",
+    highlight: "Розгляд школи",
   },
   {
     number: "06",
@@ -192,82 +204,6 @@ export const trustGroups = [
       },
     ],
   },
-  {
-    title: "Безпечна MVP-архітектура",
-    description:
-      "Хакатонний MVP працює на рольовому доступі, збереженні даних у PostgreSQL і server-side AI викликах з fallback-логікою.",
-    cards: [
-      {
-        icon: ArrowLeftRight,
-        title: "Постійне збереження даних",
-        description:
-          "Діти, програми, запити, AI-аналіз і рішення школи зберігаються через Prisma та PostgreSQL.",
-      },
-      {
-        icon: ShieldCheck,
-        title: "Рольовий доступ",
-        description:
-          "Батьки, гуртки і школи бачать тільки власні сутності та пов'язані з ними запити.",
-      },
-      {
-        icon: LockKeyhole,
-        title: "Fallback для демо-режиму",
-        description:
-          "Якщо OpenAI ключ відсутній, рекомендаційний рівень формується детермінованою серверною евристикою.",
-      },
-    ],
-  },
-];
-
-export const testimonials = [
-  {
-    quote:
-      "Сценарій 01: родина створює запит на врахування програми з англійської мови, а школа бачить AI-підсумок та чекає фінального рішення.",
-    name: "Сценарій 01",
-    role: "Родина → школа",
-    organization: "English Intensive",
-    initials: "01",
-  },
-  {
-    quote:
-      "Сценарій 02: музична школа додає структуровані докази, після чого школа погоджує запит і фіксує коментар у системі.",
-    name: "Сценарій 02",
-    role: "Гурток → школа",
-    organization: "Музична програма",
-    initials: "02",
-  },
-  {
-    quote:
-      "Сценарій 03: запит щодо робототехніки повертається на доопрацювання, бо школі потрібні індивідуальні критерії оцінювання для дитини.",
-    name: "Сценарій 03",
-    role: "Шкільний розгляд",
-    organization: "Лабораторія робототехніки",
-    initials: "03",
-  },
-  {
-    quote:
-      "Після запуску кабінету ми бачимо всі погодження в одному процесі, а батьки перестали губитися між листами, дзвінками й файлами.",
-    name: "Ірина Коваленко",
-    role: "Заступниця директора",
-    organization: "Гімназія «Перспектива»",
-    initials: "ІК",
-  },
-  {
-    quote:
-      "Для мене найцінніше, що видно статус кожного кроку: де заявка, що вже перевірила школа і коли чекати оновлення без додаткових повідомлень.",
-    name: "Наталія Мельник",
-    role: "Мама учениці 7 класу",
-    organization: "Батьківська спільнота",
-    initials: "НМ",
-  },
-  {
-    quote:
-      "Ми нарешті перестали дублювати звіти вручну. Те, що потрібне школі, можна підготувати в одному кабінеті й відправити без зайвої рутини.",
-    name: "Тарас Бойко",
-    role: "Керівник STEM-студії",
-    organization: "STEM Lab Kyiv",
-    initials: "ТБ",
-  },
 ];
 
 export const footerColumns = [
@@ -276,16 +212,16 @@ export const footerColumns = [
     links: [
       { href: "#how", label: "Як це працює" },
       { href: "#ai", label: "AI-порівняння" },
-      { href: "#dashboards", label: "MVP кабінети" },
+      { href: "#dashboards", label: "Огляд платформи" },
       { href: "#trust", label: "Прозорість" },
     ],
   },
   {
-    title: "Для ролей",
+    title: "Для користувачів",
     links: [
-      { href: "#users", label: "Школи" },
-      { href: "#users", label: "Батьки" },
-      { href: "#users", label: "Гуртки" },
+      { href: "#users", label: "Для шкіл" },
+      { href: "#users", label: "Для батьків" },
+      { href: "#users", label: "Для гуртків" },
       { href: "#cta", label: "Почати" },
     ],
   },
@@ -298,7 +234,35 @@ export const footerColumns = [
       { href: "#footer", label: "Контакти" },
     ],
   },
+  {
+    title: "Юридичне",
+    links: [
+      { href: "/legal", label: "Політика конфіденційності" },
+      { href: "/legal", label: "Умови використання" },
+      { href: "/legal", label: "Документи" },
+      { href: "/legal", label: "Відповідність вимогам" },
+    ],
+  },
 ];
+
+export const legalResources = [
+  {
+    title: "Закон України «Про освіту»",
+    meta: "Закон України від 5 вересня 2017 року № 2145-VIII",
+    description:
+      "Базовий закон, який визначає правові засади організації освітнього процесу та форми здобуття освіти.",
+    href: "https://zakon.rada.gov.ua/laws/show/2145-19#Text",
+  },
+  {
+    title:
+      "Положення про інституційну та дуальну форми здобуття повної загальної середньої освіти",
+    meta:
+      "Наказ МОН України від 10 лютого 2021 року № 160, зареєстрований у Мін'юсті 19 квітня 2021 року за № 529/36151",
+    description:
+      "Нормативний акт МОН, який деталізує організацію форм здобуття повної загальної середньої освіти.",
+    href: "https://zakon.rada.gov.ua/laws/show/z0529-21#Text",
+  },
+] as const;
 
 export const registerRoles = [
   {
@@ -358,7 +322,7 @@ export const registerRoles = [
 
 export const dashboardData = {
   school: {
-    title: "Шкільний MVP кабінет",
+    title: "Шкільний кабінет",
     description: "Приклад того, що школа бачить у черзі розгляду.",
     chips: ["4 демо-запити", "AI-рекомендація з поясненням"],
     metrics: [
@@ -406,7 +370,7 @@ export const dashboardData = {
     ],
   },
   parent: {
-    title: "Батьківський MVP кабінет",
+    title: "Батьківський кабінет",
     description: "Приклад реального шляху батьків у межах MVP.",
     chips: ["2 дитини", "AI-підсумок збережено в запиті"],
     metrics: [

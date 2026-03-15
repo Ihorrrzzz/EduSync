@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
-  ArrowRight,
   Github,
   GraduationCap,
   Linkedin,
@@ -10,7 +8,7 @@ import {
   Twitter,
 } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   aiFeatures,
   dashboardData,
@@ -19,7 +17,6 @@ import {
   navLinks,
   processSteps,
   registerRoles,
-  testimonials,
   trustGroups,
   userCards,
   type DashboardTab,
@@ -36,7 +33,6 @@ export default function SiteHomePage() {
   const [activePage, setActivePage] = useState<ActivePage>("landing");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDashboard, setActiveDashboard] = useState<DashboardTab>("school");
-  const testimonialsRef = useRef<HTMLDivElement | null>(null);
   const appUrl = getAppUrl();
 
   const showRegisterPage = () => {
@@ -53,21 +49,6 @@ export default function SiteHomePage() {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
-  };
-
-  const scrollTestimonials = (direction: "prev" | "next") => {
-    const testimonialsNode = testimonialsRef.current;
-
-    if (!testimonialsNode) {
-      return;
-    }
-
-    const offset = Math.max(testimonialsNode.clientWidth * 0.82, 320);
-
-    testimonialsNode.scrollBy({
-      left: direction === "next" ? offset : -offset,
-      behavior: "smooth",
-    });
   };
 
   return (
@@ -118,9 +99,9 @@ export default function SiteHomePage() {
             <div className="hero-copy">
               <span className="eyebrow">Процес для шкільного розгляду позашкільного навчання</span>
               <h1>
-                Платформа для <span className="accent">запитів</span>
+                Платформа для
                 <br />
-                на врахування позашкільного
+                <span className="accent">запитів</span> на врахування позашкільного
                 <br />
                 навчання школою
               </h1>
@@ -141,9 +122,10 @@ export default function SiteHomePage() {
 
               <div className="stats">
                 {heroStats.map((item) => (
-                  <div key={item.label} className="stat">
+                  <div key={item.label} className={`stat stat-${item.tone}`}>
                     <strong>{item.value}</strong>
                     <span>{item.label}</span>
+                    <small>{item.note}</small>
                   </div>
                 ))}
               </div>
@@ -407,7 +389,7 @@ export default function SiteHomePage() {
         <section className="section" id="users">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">ДЛЯ ВСІХ</span>
+              <span className="eyebrow">ДЛЯ КОРИСТУВАЧІВ</span>
               <h2>Три типи користувачів, одна платформа</h2>
               <p>
                 Окремі інструменти та інтерфейси спеціально для шкіл, батьків і
@@ -432,10 +414,12 @@ export default function SiteHomePage() {
                         <li key={feature}>{feature}</li>
                       ))}
                     </ul>
-                    <a className="btn btn-primary" href="#dashboards">
-                      Дізнатися більше
-                    </a>
-                    <div className="role-note">{item.note}</div>
+                    <div className="user-card-footer">
+                      <div className="role-note">{item.note}</div>
+                      <a className="btn btn-primary" href="#dashboards">
+                        Дізнатися більше
+                      </a>
+                    </div>
                   </article>
                 );
               })}
@@ -447,7 +431,7 @@ export default function SiteHomePage() {
           <div className="container">
             <div className="section-head">
               <span className="eyebrow">ОГЛЯД ПЛАТФОРМИ</span>
-              <h2>Потужні дашборди для кожної ролі</h2>
+              <h2>Огляд платформи</h2>
               <p>
                 Інтуїтивні інтерфейси, створені спеціально для шкіл, батьків і
                 закладів позакласної освіти.
@@ -582,66 +566,6 @@ export default function SiteHomePage() {
           </div>
         </section>
 
-        <section className="section" id="testimonials">
-          <div className="container">
-            <div className="section-head">
-              <span className="eyebrow">DEMO SCENARIOS</span>
-              <h2>Три демо-сценарії для хакатонного MVP</h2>
-              <p>
-                Це не рекламні відгуки, а приклади реальних сценаріїв, які можна
-                показати у демо після seed бази.
-              </p>
-            </div>
-
-            <div className="testimonials-toolbar">
-              <p>
-                Гортайте картки відгуків, щоб переглянути історії різних типів
-                користувачів і побачити, як платформа працює для шкіл, родин та
-                освітніх провайдерів.
-              </p>
-              <div className="testimonials-actions">
-                <button
-                  aria-label="Прокрутити відгуки ліворуч"
-                  className="testimonial-control"
-                  type="button"
-                  onClick={() => scrollTestimonials("prev")}
-                >
-                  <ArrowLeft strokeWidth={2.1} />
-                </button>
-                <button
-                  aria-label="Прокрутити відгуки праворуч"
-                  className="testimonial-control"
-                  type="button"
-                  onClick={() => scrollTestimonials("next")}
-                >
-                  <ArrowRight strokeWidth={2.1} />
-                </button>
-              </div>
-            </div>
-
-            <div
-              ref={testimonialsRef}
-              aria-label="Відгуки користувачів EduSync"
-              className="testimonials-scroller"
-            >
-              {testimonials.map((item) => (
-                <article key={item.name} className="testimonial-card testimonial-slide">
-                  <div className="testimonial-top">
-                    <div className="testimonial-avatar">{item.initials}</div>
-                    <div className="testimonial-meta">
-                      <strong>{item.organization}</strong>
-                      <span>{item.role}</span>
-                    </div>
-                  </div>
-                  <p>{item.quote}</p>
-                  <h4>{item.name}</h4>
-                  <span>{item.organization}</span>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="cta" id="cta">
           <div className="container">
             <div className="cta-card">
@@ -687,9 +611,9 @@ export default function SiteHomePage() {
                 <div key={column.title} className="footer-col">
                   <h4>{column.title}</h4>
                   {column.links.map((link) => (
-                    <a key={link.label} href={link.href}>
+                    <Link key={link.label} href={link.href}>
                       {link.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               ))}

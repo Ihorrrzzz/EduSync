@@ -1,224 +1,291 @@
 # EduSync
 
-EduSync is a role-based MVP for handling school review of extracurricular learning.
-The repository currently contains:
+**EduSync** is a platform that bridges formal (school) and non-formal (club/extracurricular) education in Ukraine. It lets parents request official school recognition for what their children learn in clubs, while giving schools the AI-powered tools to evaluate those programs against government standards.
 
-- a public marketing site
-- an authenticated dashboard for parents, clubs, and schools
-- a Hono + Prisma API backed by PostgreSQL
-- a backend-only Docker deployment bundle for VPS hosting
+---
 
-The implemented workflow is:
+## The Problem
 
-1. A club creates and publishes a structured program.
-2. A parent adds a child, selects a school and a club program, and submits a recognition request.
-3. The API generates and stores an AI advisory analysis, then moves the request to `AI_READY`.
-4. The club can add evidence, attendance, and an external performance band for the same request.
-5. The school reviews the package and stores the final decision.
+In Ukraine, children often attend after-school clubs (music, robotics, art, coding, sports) but schools have no standardized way to recognize that learning. Parents have to manually negotiate with schools, clubs have no visibility into the approval process, and schools lack tools to compare club curricula against official requirements.
 
-The product is deliberately conservative. AI is advisory only, school decisions are final, and the current MVP does not automate grade transfer or government/school-system integrations.
+## The Solution
 
-## Documentation Map
+EduSync connects all three parties — **parents**, **clubs**, and **schools** — in a single workflow:
 
-- [`docs/project-structure.md`](docs/project-structure.md): detailed directory map and source layout
-- [`docs/local-development.md`](docs/local-development.md): setup, env files, scripts, and demo data
-- [`docs/backend-api.md`](docs/backend-api.md): API routes, auth model, request lifecycle, and data model
-- [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md): backend VPS deployment bundle
+1. **Clubs** register their educational programs with structured metadata and PDF documents
+2. **Schools** upload their government-approved model plans (standards)
+3. The platform uses **AI to compare** club programs against school standards and produce alignment reports
+4. **Parents** can enroll their children in club programs and request formal school recognition
+5. **Schools** make informed decisions backed by AI analysis, not guesswork
 
-## Current Repository Layout
+---
 
-```text
-.
-├── README.md
-├── docs/
-│   ├── backend-api.md
-│   ├── local-development.md
-│   └── project-structure.md
+## How It Works — Step by Step
+
+### For Clubs
+
+1. **Register** as a club and set up your profile (name, city, subjects)
+2. **Create programs** — enter a name, select a subject, specify the target audience (e.g. "grades 5-11"), and upload your program PDF
+3. **Send programs for school review** — select a school from the platform and submit your program. If the school has uploaded a model plan for that subject, AI automatically compares your program against it and generates an alignment report
+4. **Manage enrolled students** — when parents enroll their children, you approve or reject the enrollment
+5. **Track student progress** — open a student's journal and record marks (subject, score X out of Y, comments, dates)
+6. **Provide evidence** for recognition requests — when a school reviews a recognition request, you can add attendance rates, performance data, and evidence summaries
+
+### For Parents
+
+1. **Register** as a parent and add your children (name, age, grade, school)
+2. **Browse the program catalog** — filter by subject, city, age, or grade to find programs
+3. **Enroll your child** in a club program — the club will approve or reject the enrollment
+4. **Submit recognition requests** — select a program, a school, and a target subject/grade. The system generates an AI advisory analysis automatically
+5. **Track request status** — see whether the school has approved, partially approved, requested changes, or rejected your request
+
+### For Schools
+
+1. **Register** as a school
+2. **Upload model plans (standards)** — upload the government-approved curriculum PDF for each subject. These are used by AI to compare club programs
+3. **Review program submissions** — when clubs send their programs for review, see the AI comparison report (coverage %, alignment details, violations, recommendations) and approve, reject, or return with comments
+4. **Review recognition requests** — see the full evidence package (program details, club evidence, AI analysis) and make a final decision: approve, partially approve, request changes, or reject
+5. **View enrolled students** — see all students who have submitted requests to your school
+
+---
+
+## AI Integration
+
+EduSync uses AI in two ways:
+
+### 1. Program-to-Standard Comparison
+When a club submits a program to a school for review, the system compares the club's program (PDF + metadata) against the school's uploaded government model plan using **OpenAI GPT**. The AI generates:
+- A **verdict** (Fully Suitable / Partially Suitable / Not Suitable)
+- **Coverage percentage** of curriculum requirements
+- **Alignment details** — requirement-by-requirement matching
+- **Violations** — areas where the program contradicts standards
+- **Recommendations** for improvement
+
+### 2. Recognition Request Advisory
+When a parent submits a recognition request, the system generates an advisory analysis:
+- **Recommendation band** (Strong / Possible / Weak match)
+- **Compatibility score** (0-100)
+- **Matched outcomes**, gaps, and suggested evidence
+
+> **Important**: AI is advisory only. Schools always make the final decision.
+
+If no OpenAI API key is configured, the system falls back to a deterministic heuristic based on keyword matching and subject alignment.
+
+---
+
+## Tech Stack & Tools Used
+
+### Core Technologies
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | Next.js 15, React 18, TailwindCSS | Dashboard and marketing site (static export) |
+| **Backend** | Hono 4, Node.js 20 | Lightweight, fast API server |
+| **Database** | PostgreSQL 16, Prisma 6 ORM | Data storage with type-safe queries |
+| **Auth** | jose (JWT), bcrypt | Access tokens (15min) + refresh tokens (7d, HTTP-only cookie) |
+| **Validation** | Zod | Request/response schema validation |
+| **AI** | OpenAI API (GPT) | Program comparison and recommendation analysis |
+| **Containerization** | Docker, Docker Compose | Local dev and production deployment |
+| **Reverse Proxy** | Caddy 2 | TLS termination and routing in production |
+| **Icons** | lucide-react | UI icons |
+| **Build** | tsup, Next.js | API bundling and static site generation |
+
+### AI Tools Used During Development
+
+| Tool | How It Was Used |
+|------|----------------|
+| **Claude Sonnet / Opus** (Anthropic) | Architecture design, code generation, comprehensive codebase auditing, security review, documentation |
+| **ChatGPT** (OpenAI) | Feature ideation, UI/UX brainstorming, prompt engineering for the AI comparison system |
+| **GitHub Copilot / Codex** | Inline code completion, boilerplate generation, test scaffolding |
+
+---
+
+## Project Structure
+
+```
+EduSync/
 ├── apps/
-│   ├── api/
-│   ├── app/
-│   └── site/
+│   ├── api/          # Hono + Prisma backend (port 3001)
+│   │   ├── prisma/   # Schema, migrations, seed data
+│   │   ├── src/
+│   │   │   ├── lib/          # Core utilities (auth, AI, serializers)
+│   │   │   ├── middleware/   # Auth & rate limiting
+│   │   │   └── routes/      # API route handlers
+│   │   └── uploads/  # Uploaded PDF files
+│   ├── app/          # Next.js dashboard (port 3002)
+│   │   ├── app/      # Pages (auth, dashboard)
+│   │   ├── components/  # Shared UI components
+│   │   └── lib/      # API client, auth context, utilities
+│   └── site/         # Next.js marketing site (port 3000)
 ├── deploy/
-│   └── vps/backend/
+│   └── vps/backend/  # Docker production deployment bundle
+├── docs/             # Detailed documentation
 ├── docker-compose.yml
-├── package.json
-└── .env.example
+└── package.json      # npm workspaces root
 ```
 
-At the moment the workspace also contains generated output directories such as `apps/api/dist`, `apps/app/.next`, `apps/app/out`, `apps/site/.next`, `apps/site/out`, and root `dist/`. Those are build artifacts, not the primary source of truth.
+For the full file-by-file breakdown, see [`docs/project-structure.md`](docs/project-structure.md).
 
-## What Exists Today
-
-### Public Site
-
-`apps/site` is a statically exported Next.js landing page. It does not implement the authenticated product workflow itself; instead it:
-
-- explains the product and role model
-- links users to the dashboard login and registration pages
-- exposes guest/demo entry points such as `/dashboard?guest=parent`
-
-### Authenticated Dashboard
-
-`apps/app` is a statically exported Next.js dashboard that runs entirely on the client and talks to the API over HTTP. The UI language is Ukrainian.
-
-Implemented dashboard areas:
-
-- `/auth/login`
-- `/auth/register`
-- `/dashboard` guest/demo entry or authenticated redirect
-- `/dashboard/account`
-- `/dashboard/children` for parents
-- `/dashboard/discover` for parents
-- `/dashboard/programs` for clubs
-- `/dashboard/requests` for parents and clubs
-- `/dashboard/requests/detail?id=...` for parents and clubs
-- `/dashboard/review` for schools
-- `/dashboard/review/detail?id=...` for schools
-
-### API
-
-`apps/api` is a Hono service with Prisma and PostgreSQL.
-
-Implemented route groups:
-
-- `GET /health`
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/refresh`
-- `POST /api/auth/logout`
-- `GET /api/me`
-- `PATCH /api/me/profile`
-- `GET /api/catalog/schools`
-- `GET /api/catalog/programs`
-- parent routes under `/api/children` and `/api/requests`
-- club routes under `/api/programs`, `/api/club/requests`, and `/api/requests/:id/evidence`
-- school routes under `/api/school/requests`
-- authenticated AI preview route at `/api/ai/recommendation-band`
+---
 
 ## Quick Start
 
-1. Install dependencies.
+### Prerequisites
+- Node.js 20+
+- Docker & Docker Compose (for PostgreSQL)
+
+### Setup
 
 ```bash
+# 1. Install dependencies
 npm install
-```
 
-2. Create local env files.
-
-```bash
+# 2. Create environment files
 cp .env.example .env
 cp apps/api/.env.example apps/api/.env
 cp apps/app/.env.example apps/app/.env
 cp apps/site/.env.example apps/site/.env
-```
 
-3. Start PostgreSQL.
-
-```bash
+# 3. Start PostgreSQL
 npm run db:up
-```
 
-4. Apply Prisma migrations.
-
-```bash
+# 4. Run database migrations
 npm run prisma:migrate
-```
 
-5. Seed demo data.
-
-```bash
+# 5. Seed demo data
 npm run prisma:seed
-```
 
-6. Start all three apps.
-
-```bash
+# 6. Start all three apps
 npm run dev
 ```
 
-Local URLs:
+### Local URLs
 
-- public site: `http://localhost:3000`
-- API: `http://localhost:3001`
-- dashboard app: `http://localhost:3002`
+| App | URL | Description |
+|-----|-----|-------------|
+| Marketing Site | http://localhost:3000 | Landing page |
+| API | http://localhost:3001 | Backend (health check: `/health`) |
+| Dashboard | http://localhost:3002 | Main application |
 
-## Environment Files
+### Demo Accounts
 
-| File | Used by | Purpose |
-| --- | --- | --- |
-| `.env` | root `docker-compose.yml` | local Docker values for Postgres and the API container |
-| `apps/api/.env` | API dev server and Prisma | database URL, JWT secrets, CORS origins, OpenAI settings, host/port |
-| `apps/app/.env` | dashboard app | `NEXT_PUBLIC_API_URL` and optional `NEXT_PUBLIC_SITE_URL` |
-| `apps/site/.env` | public site | `NEXT_PUBLIC_APP_URL` for links into the dashboard |
+All demo accounts use password: **`Demo12345!`**
 
-Important details:
+| Role | Email | What you can do |
+|------|-------|-----------------|
+| Parent | `parent.olena@example.com` | Manage children, browse programs, enroll, submit requests |
+| Parent | `parent.andriy@example.com` | Same as above |
+| School | `school.lyceum127@example.com` | Upload standards, review programs & requests, manage students |
+| School | `school.constellation@example.com` | Same as above |
+| Club | `club.crescendo@example.com` | Create programs, manage enrollments, track student marks |
+| Club | `club.horizon@example.com` | Same as above |
+| Club | `club.vector@example.com` | Same as above |
 
-- `OPENAI_API_KEY` is optional.
-- if `OPENAI_API_KEY` is missing, the API falls back to a deterministic heuristic
-- `CORS_ORIGIN` is a comma-separated list
-- in production, the dashboard app requires `NEXT_PUBLIC_API_URL`
-- both Next apps build with `output: "export"`, so public env values must be correct at build time
+Pre-seeded data: 2 schools, 3 clubs, 5 programs, 3 children, 4 recognition requests in various statuses.
 
-## Demo Data
+---
 
-Seed password for all demo accounts:
+## Environment Configuration
 
-```text
-Demo12345!
-```
+| File | Used By | Key Variables |
+|------|---------|--------------|
+| `.env` | Docker Compose | `POSTGRES_*`, `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET` |
+| `apps/api/.env` | API server | `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `OPENAI_API_KEY` |
+| `apps/app/.env` | Dashboard | `NEXT_PUBLIC_API_URL` |
+| `apps/site/.env` | Marketing site | `NEXT_PUBLIC_APP_URL` |
 
-Seeded accounts:
+- `OPENAI_API_KEY` is **optional** — without it, AI falls back to heuristic analysis
+- `CORS_ORIGIN` supports comma-separated origins
+- Both Next.js apps use `output: "export"` — env values must be correct at build time
 
-- parents: `parent.olena@example.com`, `parent.andriy@example.com`
-- schools: `school.lyceum127@example.com`, `school.constellation@example.com`
-- clubs: `club.crescendo@example.com`, `club.horizon@example.com`, `club.vector@example.com`
+---
 
-Seeded records:
+## API Overview
 
-- 2 schools
-- 3 clubs
-- 5 club programs
-- 2 parent accounts
-- 3 children
-- 4 recognition requests in different statuses
+Full API documentation: [`docs/backend-api.md`](docs/backend-api.md)
 
-## Build Outputs
+### Key Endpoint Groups
+
+| Group | Base Path | Auth | Purpose |
+|-------|-----------|------|---------|
+| Auth | `/api/auth/*` | No | Register, login, refresh, logout |
+| Profile | `/api/me` | Yes | Dashboard data & profile management |
+| Catalog | `/api/catalog/*` | No | Public program & school browsing |
+| Children | `/api/children/*` | Parent | Child CRUD |
+| Requests | `/api/requests/*` | Parent | Recognition request creation & tracking |
+| Programs | `/api/programs/*` | Club | Program CRUD, PDF upload, AI preview |
+| Club Requests | `/api/club/requests/*` | Club | View & provide evidence for requests |
+| Program Reviews | `/api/program-reviews/*` | Club | Send programs to schools for review |
+| Enrollments | `/api/enrollments/*` | Parent/Club | Enrollment management |
+| Journal | `/api/club/enrollments/*/journal` | Club | Student mark tracking |
+| School Review | `/api/school/requests/*` | School | Review & decide on recognition requests |
+| School Programs | `/api/school/program-reviews/*` | School | Review club program submissions |
+| Model Plans | `/api/school/model-plans/*` | School | Upload government standard plans |
+| AI | `/api/ai/*` | Yes | Standalone AI analysis |
+
+---
+
+## Build & Verification
 
 ```bash
+# Type-check all workspaces
 npm run typecheck
+
+# Build all apps
 npm run build
+
+# Full verification (typecheck + build + audit)
+npm run verify
 ```
 
-Current build behavior:
+Build outputs:
+- `apps/site/out/` — static marketing site
+- `apps/app/out/` — static dashboard
+- `apps/api/dist/` — bundled API server
 
-- `apps/site` exports static files into `apps/site/out`
-- `apps/app` exports static files into `apps/app/out`
-- `apps/api` bundles into `apps/api/dist`
+---
 
-The repository does not currently include a frontend hosting bundle. The only deployment bundle in the repo is the backend stack in [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md).
+## Deployment
 
-## Important Implementation Notes
+The production deployment bundle is in [`deploy/vps/backend/`](deploy/vps/backend/README.md). It includes:
+- `docker-compose.yml` — PostgreSQL + API + Caddy reverse proxy
+- `Caddyfile` — automatic TLS with Let's Encrypt
+- Step-by-step setup instructions
 
-- The API access token lives in memory on the dashboard client and expires after 15 minutes.
-- A hashed refresh token is stored server-side and sent as an HTTP-only cookie with a 7-day lifetime.
-- Refresh cookies are scoped to `/api/auth`.
-- The dashboard restores the session by calling `/api/auth/refresh` on load.
-- Catalog endpoints are public; most other API routes require a Bearer access token.
-- The schema contains `DRAFT`, but the current parent flow creates a request and immediately advances it to `AI_READY` after analysis generation.
-- Club evidence updates request metadata, but the current implementation only creates a new AI analysis if the request does not already have one.
-- Role-specific actor records are auto-created on first authenticated access if a related row is missing.
-- There is no automated test suite or lint script configured yet.
+Frontend apps are static exports and can be hosted on any CDN/static hosting (Vercel, Netlify, Cloudflare Pages, etc.).
 
-## Current MVP Boundaries
+---
 
-Out of scope in the current codebase:
+## Documentation
 
-- official school MIS or journal integrations
-- automatic grade conversion
-- attendance sync from third-party systems
-- file uploads
-- messaging/chat
-- payments
-- e-signatures
-- government registry integrations
-- multi-school network agreements
+| Document | Contents |
+|----------|----------|
+| [`docs/project-structure.md`](docs/project-structure.md) | Complete directory map and file descriptions |
+| [`docs/local-development.md`](docs/local-development.md) | Setup, env files, scripts, troubleshooting |
+| [`docs/backend-api.md`](docs/backend-api.md) | All API routes, auth model, data model, rate limits |
+| [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md) | Production deployment guide |
+
+---
+
+## Security Notes
+
+- Access tokens are stored in-memory (not localStorage) and expire after 15 minutes
+- Refresh tokens are SHA-256 hashed server-side, sent as HTTP-only cookies (7-day lifetime)
+- Passwords are hashed with bcrypt (cost factor 12)
+- All endpoints use Zod validation with strict input constraints
+- Rate limiting is applied per-IP on all routes
+- CORS is configured with an explicit origin allowlist
+- Login uses constant-time password comparison to prevent user enumeration
+
+---
+
+## Current Limitations
+
+- No automated test suite
+- In-memory rate limiting (per-process, not shared across instances)
+- No official school MIS/journal integrations
+- No automatic grade conversion or transfer
+- No messaging/chat between parties
+- No payment processing
+- No government registry integrations
+- No multi-language support (UI is Ukrainian only)

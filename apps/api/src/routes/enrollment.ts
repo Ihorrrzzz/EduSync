@@ -1,3 +1,7 @@
+/**
+ * Enrollment routes: parent-to-club enrollment workflow.
+ * Parents enroll children in published club programs; clubs approve or reject.
+ */
 import { EnrollmentStatus, UserRole } from "@prisma/client";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -49,11 +53,13 @@ enrollmentRoutes.post("/enrollments", async (c) => {
   });
   ensureFound(child, "Child not found");
 
+  // Only published programs are enrollable — draft programs are invisible to parents
   const program = await prisma.clubProgram.findFirst({
     where: { id: body.clubProgramId, isPublished: true },
   });
   ensureFound(program, "Program not found");
 
+  // Unique constraint on (childId, clubProgramId) prevents duplicate enrollments
   const existing = await prisma.enrollmentRequest.findUnique({
     where: {
       childId_clubProgramId: {

@@ -1,3 +1,7 @@
+/**
+ * Prisma client singleton — prevents multiple client instances during
+ * dev hot reload by caching on `globalThis`.
+ */
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as typeof globalThis & {

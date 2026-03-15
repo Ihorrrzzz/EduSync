@@ -1,3 +1,7 @@
+/**
+ * Hono API server entry point.
+ * Sets up CORS, security headers, static file serving, and mounts all route modules.
+ */
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { serve } from "@hono/node-server";
@@ -47,6 +51,7 @@ app.onError((error, c) => {
   return c.json({ error: "Internal server error" }, 500);
 });
 
+// Serves uploaded PDF files only, cached for 24h (86400s).
 app.get("/uploads/*", async (c) => {
   const filePath = join(process.cwd(), c.req.path);
   try {
@@ -64,6 +69,7 @@ app.get("/uploads/*", async (c) => {
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 app.get("/health", (c) => c.json({ status: "ok" }));
+// Route mounting order matters: prefix-specific routes first, then catch-all `/api` routes last.
 app.route("/api/auth", authRoutes);
 app.route("/api/me", meRoutes);
 app.route("/api/catalog", catalogRoutes);

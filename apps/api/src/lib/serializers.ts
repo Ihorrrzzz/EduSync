@@ -1,3 +1,7 @@
+/**
+ * Transform Prisma models into API response shapes, normalizing JSON array columns.
+ * Keeps DB schema details out of the public API surface.
+ */
 import type { EnrollmentRequest, JournalEntry, Prisma, ProgramReviewRequest } from "@prisma/client";
 
 type ChildWithSchool = Prisma.ChildGetPayload<{
@@ -46,6 +50,8 @@ type ClubRequestWithRelations = Prisma.RecognitionRequestGetPayload<{
   };
 }>;
 
+// Safely coerce Prisma JsonValue columns (stored as JSON) into string arrays.
+// Prisma's JsonValue is `any` at runtime, so we filter to ensure type safety.
 function asStringArray(value: Prisma.JsonValue | null | undefined): string[] {
   if (!Array.isArray(value)) {
     return [];

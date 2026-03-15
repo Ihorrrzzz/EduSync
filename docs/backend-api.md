@@ -107,6 +107,12 @@ Authenticated:
 - `/api/club/requests*`
 - `/api/school/requests*`
 - `/api/ai/recommendation-band`
+- `/api/program-reviews*`
+- `/api/school/program-reviews*`
+- `/api/enrollments*`
+- `/api/club/enrollments*`
+- `/api/club/journal*`
+- `/api/school/model-plans*`
 
 ## Route Inventory
 
@@ -357,6 +363,26 @@ Returns:
 - the club-owned program
 - all recognition requests linked to that program
 
+#### `POST /api/programs/quick`
+
+Creates a minimal program draft.
+
+Input:
+
+- `title`
+- `subjectArea`
+- `audience` (optional)
+
+Sets `evaluationMethod` to "Не вказано" and `isPublished` to `false`.
+
+#### `POST /api/programs/:id/upload`
+
+Uploads a PDF file for a program. Max 10MB, PDF only. Returns the updated program.
+
+#### `DELETE /api/programs/:id`
+
+Deletes a program. Returns `409` if the program has linked requests, reviews, or enrollments.
+
 #### `POST /api/programs/:id/ai-preview`
 
 Runs AI preview for an existing program against:
@@ -438,6 +464,154 @@ Status mapping:
 - `PARTIAL` -> `PARTIALLY_APPROVED`
 - `REQUEST_CHANGES` -> `CHANGES_REQUESTED`
 - `REJECT` -> `REJECTED`
+
+### Program Review Routes
+
+Base path: `/api/program-reviews` and `/api/school/program-reviews`
+
+#### `POST /api/program-reviews`
+
+Role: `club`
+
+Creates a program review request.
+
+Input:
+
+- `clubProgramId`
+- `schoolId`
+
+Triggers async AI comparison if the school has a model plan for the subject. Unique per program+school pair.
+
+#### `GET /api/program-reviews`
+
+Role: `club`
+
+Lists the club's program review requests.
+
+#### `GET /api/school/program-reviews`
+
+Role: `school`
+
+Lists reviews submitted to the school.
+
+#### `POST /api/school/program-reviews/:id/decision`
+
+Role: `school`
+
+Input:
+
+- `decision`: `"APPROVE"`, `"REJECT"`, or `"RETURN"`
+- `comment` (optional)
+
+Only `PENDING` or `RETURNED` reviews can be decided.
+
+Rate limit: 120 requests / 15 minutes.
+
+### Enrollment Routes
+
+Base path: `/api/enrollments` and `/api/club/enrollments`
+
+#### `POST /api/enrollments`
+
+Role: `parent`
+
+Enrolls a child in a program.
+
+Input:
+
+- `childId`
+- `clubProgramId`
+- `note` (optional)
+
+Only published programs. Unique per child+program.
+
+#### `GET /api/enrollments`
+
+Role: `parent`
+
+Lists the parent's enrollment requests.
+
+#### `GET /api/club/enrollments`
+
+Role: `club`
+
+Lists enrollments for the club's programs.
+
+#### `POST /api/club/enrollments/:id/decision`
+
+Role: `club`
+
+Input:
+
+- `decision`: `"APPROVE"` or `"REJECT"`
+
+Only `PENDING` enrollments.
+
+Rate limit: 120 requests / 15 minutes.
+
+### Journal Routes
+
+Base path: `/api/club/enrollments/:id/journal` and `/api/club/journal`
+
+#### `GET /api/club/enrollments/:id/journal`
+
+Role: `club`
+
+Lists marks for an approved enrollment. Returns enrollment info plus entries.
+
+#### `POST /api/club/enrollments/:id/journal`
+
+Role: `club`
+
+Adds a mark.
+
+Input:
+
+- `subject`
+- `scoreValue`
+- `scoreMax`
+- `comment` (optional)
+- `date` (optional)
+
+Score value cannot exceed max.
+
+#### `PATCH /api/club/journal/:entryId`
+
+Role: `club`
+
+Updates a mark.
+
+#### `DELETE /api/club/journal/:entryId`
+
+Role: `club`
+
+Deletes a mark.
+
+Rate limit: 120 requests / 15 minutes.
+
+### School Model Plan Routes
+
+Base path: `/api/school/model-plans`
+
+#### `GET /api/school/model-plans`
+
+Role: `school`
+
+Lists the school's model plans.
+
+#### `POST /api/school/model-plans`
+
+Role: `school`
+
+Uploads a model plan (multipart form: `title`, `subjectArea`, `file`). Max 10MB PDF. One plan per subject area (upserts).
+
+#### `DELETE /api/school/model-plans/:id`
+
+Role: `school`
+
+Deletes a model plan.
+
+Rate limit: 120 requests / 15 minutes.
 
 ### Standalone AI Route
 
@@ -561,6 +735,10 @@ Current limits:
 | parent | 120 requests / 15 minutes |
 | club | 120 requests / 15 minutes |
 | school | 120 requests / 15 minutes |
+| program-review | 120 requests / 15 minutes |
+| enrollment | 120 requests / 15 minutes |
+| journal | 120 requests / 15 minutes |
+| school model-plans | 120 requests / 15 minutes |
 
 Important implementation detail:
 
@@ -601,10 +779,34 @@ Important implementation detail:
 - `RecognitionDecision`
   One-to-one with `RecognitionRequest`.
 
+### Program Review and Enrollment Layer
+
+- `SchoolModelPlan`
+  School's government-approved model plans per subject.
+
+- `ProgramReviewRequest`
+  Club-to-school program review with AI comparison fields (`aiVerdict`, `aiCoveragePercent`, `aiReportJson`).
+
+- `EnrollmentRequest`
+  Parent-to-club enrollment with status workflow.
+
+- `JournalEntry`
+  Score entries (`subject`, `scoreValue`/`scoreMax`) for enrolled students.
+
 ### Session Layer
 
 - `RefreshToken`
   Stores hashed refresh tokens and expiration timestamps.
+
+### Enums
+
+- `ProgramReviewStatus`: `PENDING`, `APPROVED`, `RETURNED`, `REJECTED`
+- `EnrollmentStatus`: `PENDING`, `APPROVED`, `REJECTED`
+
+### ClubProgram Additional Fields
+
+- `audience` (optional text)
+- `programFileUrl` (optional URL)
 
 ### Legacy Schema
 
@@ -633,7 +835,6 @@ Common statuses:
 
 The current backend does not implement:
 
-- file upload storage
 - messaging between actors
 - payments
 - official integrations with school systems

@@ -1,3 +1,7 @@
+/**
+ * React context for authentication state (login, logout, token management).
+ * Wraps the session API and syncs token/profile changes to all consumers.
+ */
 "use client";
 
 import { useRouter } from "next/navigation";

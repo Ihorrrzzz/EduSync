@@ -1,3 +1,8 @@
+/**
+ * JWT bearer token authentication middleware.
+ * Extracts and verifies the access token from the Authorization header,
+ * then attaches the decoded user to the request context.
+ */
 import type { UserRole } from "@prisma/client";
 import type { MiddlewareHandler } from "hono";
 import { verifyAccessToken } from "../lib/tokens.js";

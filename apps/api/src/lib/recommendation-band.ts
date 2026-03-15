@@ -1,3 +1,7 @@
+/**
+ * AI-powered and heuristic-fallback recommendation scoring for curriculum compatibility.
+ * Calls OpenAI for analysis with a 15s timeout, falls back to keyword-matching heuristic.
+ */
 import { RecognitionScope } from "@prisma/client";
 import { z } from "zod";
 import { env } from "./env.js";

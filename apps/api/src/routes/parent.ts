@@ -1,3 +1,8 @@
+/**
+ * Parent routes: children CRUD and recognition request submission.
+ * Parents create children profiles and then submit recognition requests
+ * on their behalf to specific schools.
+ */
 import { RecognitionRequestStatus, RecognitionScope, UserRole } from "@prisma/client";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -103,7 +108,7 @@ parentRoutes.post("/children", async (c) => {
       age: body.age,
       grade: body.grade,
       schoolId: school?.id ?? null,
-      schoolNameSnapshot: school?.name ?? null,
+      schoolNameSnapshot: school?.name ?? null, // Denormalized copy so the school name is preserved even if the school record changes
       notes: normalizeOptionalString(body.notes ?? null),
     },
     include: {
@@ -240,6 +245,8 @@ parentRoutes.post("/requests", async (c) => {
 
   ensureFound(program, "Program not found");
 
+  // Allow resubmission only if the previous request was REJECTED or CHANGES_REQUESTED;
+  // all other statuses indicate an active request that shouldn't be duplicated
   const existingRequest = await prisma.recognitionRequest.findFirst({
     where: {
       parentProfileId: parentProfile!.id,

@@ -1,3 +1,7 @@
+/**
+ * Public catalog endpoints — no authentication required.
+ * Exposes searchable/filterable lists of schools and published club programs.
+ */
 import type { Prisma } from "@prisma/client";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -125,6 +129,8 @@ catalogRoutes.get("/programs", async (c) => {
     });
   }
 
+  // Age/grade filters use OR-with-null so programs without explicit bounds are included
+  // (i.e. a null min/max means "no restriction" rather than "excluded from results")
   if (typeof parsedQuery.data.age === "number") {
     andFilters.push({
       AND: [

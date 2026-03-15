@@ -1,3 +1,7 @@
+/**
+ * School routes: review incoming recognition requests, issue decisions,
+ * and manage model plans (reference curricula) per subject area.
+ */
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -132,6 +136,8 @@ schoolRoutes.post("/requests/:id/mark-under-review", async (c) => {
   return c.json({ request: serializeRequest(updatedRequest) });
 });
 
+// Only allow decisions once AI analysis is complete or manual review has begun —
+// prevents premature decisions on requests that haven't been assessed yet
 const DECIDABLE_STATUSES: ReadonlySet<RecognitionRequestStatus> = new Set([
   RecognitionRequestStatus.AI_READY,
   RecognitionRequestStatus.UNDER_REVIEW,
@@ -157,6 +163,7 @@ schoolRoutes.post("/requests/:id/decision", async (c) => {
     );
   }
 
+  // Map the school's decision type to the corresponding request lifecycle status
   const nextStatus =
     body.decision === SchoolDecision.APPROVE
       ? RecognitionRequestStatus.APPROVED
@@ -265,6 +272,7 @@ schoolRoutes.post("/model-plans", async (c) => {
 
   const fileUrl = `/uploads/model-plans/${fileName}`;
 
+  // Upsert: each school has at most one model plan per subject area; uploading again replaces it
   const plan = await prisma.schoolModelPlan.upsert({
     where: {
       schoolId_subjectArea: {

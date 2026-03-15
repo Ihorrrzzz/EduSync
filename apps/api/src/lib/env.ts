@@ -1,3 +1,7 @@
+/**
+ * Zod-validated environment config — fails fast at startup if any required
+ * variable is missing or malformed.
+ */
 import { z } from "zod";
 
 const optionalNonEmptyString = z.preprocess(
@@ -30,6 +34,7 @@ if (!parsedEnv.success) {
   throw new Error(`Invalid API environment configuration. ${details}`);
 }
 
+// CORS_ORIGIN accepts comma-separated origins, e.g. "https://app.example.com,http://localhost:3000"
 const corsOrigins = parsedEnv.data.CORS_ORIGIN.split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

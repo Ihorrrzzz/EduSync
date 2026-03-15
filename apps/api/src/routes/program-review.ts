@@ -1,3 +1,8 @@
+/**
+ * Program review routes: club-to-school review workflow.
+ * Clubs submit their programs for school review; if a matching model plan exists,
+ * an AI comparison runs asynchronously to pre-populate a verdict.
+ */
 import { ProgramReviewStatus, UserRole } from "@prisma/client";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -77,7 +82,8 @@ programReviewRoutes.post("/program-reviews", async (c) => {
     include: reviewInclude,
   });
 
-  // Trigger AI comparison asynchronously - don't block the response
+  // Fire-and-forget: AI comparison can be slow/expensive, so we return the review
+  // immediately and update it in the background when the comparison completes
   const fullProgram = await prisma.clubProgram.findUnique({
     where: { id: program.id },
   });
@@ -155,6 +161,7 @@ programReviewRoutes.get("/school/program-reviews", async (c) => {
   });
 });
 
+// Schools can only decide on reviews that are new (PENDING) or sent back for revision (RETURNED)
 const DECIDABLE_REVIEW_STATUSES: ReadonlySet<ProgramReviewStatus> = new Set([
   ProgramReviewStatus.PENDING,
   ProgramReviewStatus.RETURNED,

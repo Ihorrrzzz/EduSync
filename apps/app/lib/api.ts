@@ -1,3 +1,8 @@
+/**
+ * Central API client with session management and automatic token refresh.
+ * All authenticated requests go through `apiFetch`, which transparently
+ * retries on 401 after refreshing the access token.
+ */
 import { getApiBaseUrl } from "./public-env";
 
 export type ProfileRole = "parent" | "school" | "club";
@@ -36,6 +41,8 @@ let sessionState: AuthSession = {
   profile: null,
 };
 
+// Deduplication guard: only one refresh request runs at a time.
+// Concurrent 401 handlers await this same promise instead of stampeding the server.
 let refreshPromise: Promise<AuthSession | null> | null = null;
 
 function notifySessionListeners() {
@@ -46,6 +53,8 @@ function notifySessionListeners() {
   }
 }
 
+// Decodes the JWT payload for display purposes only — no signature verification here.
+// Signature is verified server-side; this just extracts claims for the UI.
 function decodeBase64Url(value: string) {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
   const padding = (4 - (normalized.length % 4)) % 4;
@@ -201,6 +210,7 @@ export async function logoutSession() {
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}) {
   const response = await executeRequest(path, options, sessionState.accessToken);
 
+  // Auto-retry on 401: refresh the token and replay the request once.
   if (
     response.status === 401 &&
     sessionState.accessToken &&

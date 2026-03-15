@@ -1,3 +1,7 @@
+/**
+ * Typed API client — all endpoint wrappers and response types for the dashboard.
+ * Each function maps 1:1 to an API route, keeping networking details out of components.
+ */
 "use client";
 
 import {
@@ -212,6 +216,8 @@ function buildQueryString(params: Record<string, QueryValue>) {
   return queryString ? `?${queryString}` : "";
 }
 
+// --- Dashboard & Profile ---
+
 export async function fetchMe() {
   return apiFetch<DashboardMe>("/api/me");
 }
@@ -229,6 +235,8 @@ export async function updateMyProfile(input: {
     body: JSON.stringify(input),
   });
 }
+
+// --- Catalog ---
 
 export async function fetchSchools(filters: {
   city?: string;
@@ -251,6 +259,8 @@ export async function fetchCatalogPrograms(filters: {
 
   return apiFetch<{ programs: ProgramRecord[] }>(`/api/catalog/programs${query}`);
 }
+
+// --- Children ---
 
 export async function fetchChildren() {
   return apiFetch<{ children: ChildRecord[] }>("/api/children");
@@ -282,6 +292,8 @@ export async function deleteChild(id: string) {
   });
 }
 
+// --- Recognition Requests ---
+
 export async function fetchParentRequests() {
   return apiFetch<{ requests: RecognitionRequestRecord[] }>("/api/requests");
 }
@@ -307,6 +319,8 @@ export async function createRecognitionRequest(input: {
     body: JSON.stringify(input),
   });
 }
+
+// --- Club Programs ---
 
 export async function fetchPrograms() {
   return apiFetch<{ programs: ProgramRecord[] }>("/api/programs");
@@ -379,6 +393,8 @@ export async function submitClubEvidence(
     body: JSON.stringify(input),
   });
 }
+
+// --- School Review ---
 
 export async function fetchSchoolRequests(filters: {
   status?: RecognitionRequestRecord["status"];

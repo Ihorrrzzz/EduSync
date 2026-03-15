@@ -1,3 +1,8 @@
+/**
+ * Profile and dashboard summary endpoint.
+ * Returns the current user's profile, role-specific entity, and aggregated
+ * dashboard counters tailored to each role.
+ */
 import { RecognitionRequestStatus, UserRole } from "@prisma/client";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -40,6 +45,7 @@ meRoutes.get("/", async (c) => {
     },
   });
 
+  // Parent summary: how many children, in-progress requests, and successful recognitions
   if (user.role === UserRole.parent) {
     const parentProfile = await ensureParentActor(user);
     const [childrenCount, activeRequests, approvedRequests, pendingRequests] =
@@ -102,6 +108,7 @@ meRoutes.get("/", async (c) => {
     });
   }
 
+  // Club summary: program counts, how many requests still need club evidence, unique students
   if (user.role === UserRole.club) {
     const club = await ensureClubActor(user);
     const [
@@ -161,6 +168,7 @@ meRoutes.get("/", async (c) => {
     });
   }
 
+  // School summary: requests awaiting review, approved count, and items needing attention
   const school = await ensureSchoolActor(user);
   const [pendingReviews, approvedRequests, attentionRequired] = await Promise.all([
     prisma.recognitionRequest.count({

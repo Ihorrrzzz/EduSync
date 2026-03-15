@@ -1,3 +1,7 @@
+/**
+ * React context providing /api/me data to all dashboard pages.
+ * Fetches once after auth resolves, then exposes refreshMe() for manual reloads.
+ */
 "use client";
 
 import {

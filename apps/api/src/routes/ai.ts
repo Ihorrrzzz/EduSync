@@ -1,3 +1,8 @@
+/**
+ * Standalone AI analysis endpoint.
+ * Lets authenticated users request a recommendation band analysis
+ * without creating a full recognition request.
+ */
 import { RecognitionScope } from "@prisma/client";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -28,6 +33,8 @@ const recommendationBandSchema = z.object({
 });
 
 aiRoutes.use("*", authMiddleware);
+// Lower rate limit than other endpoints (60 vs 120 per 15 min) because each
+// request triggers an LLM call with significant cost and latency
 aiRoutes.use(
   "*",
   createRateLimitMiddleware({

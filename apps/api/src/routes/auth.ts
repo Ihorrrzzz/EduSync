@@ -1,3 +1,7 @@
+/**
+ * Authentication routes: register, login, refresh, and logout.
+ * Uses httpOnly cookies for refresh tokens and short-lived JWTs for access.
+ */
 import { Prisma, UserRole } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
@@ -15,6 +19,7 @@ import { createRateLimitMiddleware } from "../middleware/rate-limit.js";
 
 const authRoutes = new Hono();
 
+// Ukrainian national curriculum subject categories that clubs can teach
 const SUBJECT_OPTIONS = [
   "Англійська мова",
   "Мистецтво",
@@ -26,8 +31,12 @@ const SUBJECT_OPTIONS = [
 ] as const;
 
 const REFRESH_COOKIE_NAME = "refresh_token";
+// 7 days in seconds — must match the refresh JWT expiry so cookie and token expire together
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
+// Cap concurrent sessions per user to bound DB storage and limit credential-stuffing blast radius
 const MAX_ACTIVE_REFRESH_TOKENS = 5;
+// Used when the user doesn't exist so bcrypt.compare still runs in constant time,
+// preventing timing-based user enumeration attacks
 const DUMMY_PASSWORD_HASH =
   "$2b$12$F54/V62C/TUoUwIsE302e.2g/tpCLzSxOuvSA14sbeWIH/bJ35bGq";
 
@@ -169,6 +178,10 @@ async function createSession(profile: SessionProfile): Promise<SessionTokens> {
   return { accessToken, refreshToken, expiresAt };
 }
 
+/**
+ * Sliding-window token cleanup: purges expired tokens, stores the new one,
+ * then evicts the oldest sessions beyond MAX_ACTIVE_REFRESH_TOKENS.
+ */
 async function persistRefreshToken(
   tx: Prisma.TransactionClient,
   profileId: string,
@@ -228,6 +241,7 @@ authRoutes.post("/register", async (c) => {
 
   const { email, password, role, city, schoolName, subjects, fullName } =
     parsedBody.data;
+  // Schools use schoolName as their display name; parents and clubs use fullName
   const resolvedFullName =
     role === UserRole.school ? schoolName ?? null : fullName ?? null;
 

@@ -1,3 +1,7 @@
+/**
+ * Journal routes: student marks/scores management for club enrollments.
+ * Clubs record per-student scores against enrolled programs.
+ */
 import { EnrollmentStatus, UserRole } from "@prisma/client";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -13,6 +17,7 @@ const journalRoutes = new Hono<AuthBindings>();
 
 const journalEntrySchema = z.object({
   subject: z.string().trim().min(1).max(120),
+  // scoreValue/scoreMax form a fraction (e.g. 85/100); validated server-side that value <= max
   scoreValue: z.number().int().min(0).max(1000),
   scoreMax: z.number().int().min(1).max(1000),
   comment: z.string().trim().max(500).optional().nullable(),
@@ -32,6 +37,7 @@ journalRoutes.get("/club/enrollments/:id/journal", async (c) => {
   const user = requireRole(c, UserRole.club);
   const club = await ensureClubActor(user);
 
+  // Journal entries are only meaningful for approved enrollments — rejected/pending ones can't have marks
   const enrollment = await prisma.enrollmentRequest.findFirst({
     where: {
       id: c.req.param("id"),

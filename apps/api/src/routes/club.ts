@@ -1,3 +1,7 @@
+/**
+ * Club routes: program CRUD, program file upload, and evidence submission
+ * for recognition requests.
+ */
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -178,7 +182,7 @@ clubRoutes.post("/programs/quick", async (c) => {
       audience: body.audience?.trim() || null,
       modules: [],
       learningOutcomes: [],
-      evaluationMethod: "Не вказано",
+      evaluationMethod: "Не вказано", // "Not specified" — default placeholder for quick-created programs
       isPublished: false,
     },
     include: {
@@ -314,6 +318,7 @@ clubRoutes.post("/programs/:id/upload", async (c) => {
     throw new HTTPException(400, { message: "File is required" });
   }
 
+  // 10 MB cap keeps storage costs predictable; PDF-only prevents executable uploads
   if (file.size > 10 * 1024 * 1024) {
     throw new HTTPException(400, { message: "File must be under 10 MB" });
   }
@@ -363,6 +368,7 @@ clubRoutes.delete("/programs/:id", async (c) => {
 
   ensureFound(program, "Program not found");
 
+  // Guard: deleting a program with existing requests/reviews/enrollments would orphan records
   const total =
     program._count.recognitionRequests +
     program._count.programReviewRequests +
@@ -444,6 +450,7 @@ clubRoutes.post("/requests/:id/evidence", async (c) => {
     });
   }
 
+  // Re-submitting evidence after school feedback or initial submission triggers a new AI analysis pass
   const nextStatus =
     request.status === RecognitionRequestStatus.CHANGES_REQUESTED ||
     request.status === RecognitionRequestStatus.SUBMITTED

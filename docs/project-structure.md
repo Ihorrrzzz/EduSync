@@ -104,6 +104,9 @@ apps/api/
 - `src/lib/serializers.ts`
   Normalizes Prisma entities into consistent API response shapes.
 
+- `src/lib/program-comparison.ts`
+  AI-powered comparison of club programs against school model plans.
+
 - `src/middleware/auth.ts`
   Requires a Bearer token and exposes the authenticated user in Hono bindings.
 
@@ -119,6 +122,9 @@ apps/api/
 - `src/routes/parent.ts`: child CRUD and parent request creation/detail
 - `src/routes/club.ts`: club program CRUD, AI preview, club request detail, evidence updates
 - `src/routes/school.ts`: school review queue, detail, and decision submission
+- `src/routes/enrollment.ts`: enrollment request routes (parent creates, club approves/rejects)
+- `src/routes/journal.ts`: journal/marks routes (club manages student grades)
+- `src/routes/program-review.ts`: program review routes (club sends program to school for review)
 - `src/routes/ai.ts`: authenticated standalone recommendation-band preview
 - `src/routes/utils.ts`: shared parsing and role helper utilities
 
@@ -140,6 +146,10 @@ Active MVP models:
 - `RecognitionRequest`
 - `RecognitionAiAnalysis`
 - `RecognitionDecision`
+- `ProgramReviewRequest`
+- `EnrollmentRequest`
+- `JournalEntry`
+- `SchoolModelPlan`
 - `RefreshToken`
 
 `apps/api/prisma/migrations/` contains the migration history used by both local development and the Docker runtime.
@@ -265,6 +275,12 @@ Protected routes:
 
 - `app/dashboard/(protected)/school-students/page.tsx`
   School-only page listing students who submitted recognition requests, grouped by child.
+
+- `app/dashboard/(protected)/standards/page.tsx`
+  School-only model plan management page.
+
+- `app/dashboard/(protected)/students/journal/page.tsx`
+  Club-only student journal/marks page.
 
 - `app/dashboard/(protected)/review/detail/page.tsx`
   School-only review detail and decision form.

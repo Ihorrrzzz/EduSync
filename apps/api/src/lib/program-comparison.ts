@@ -1,3 +1,7 @@
+/**
+ * AI-powered comparison of club programs against school government-approved model plans.
+ * Uses OpenAI to analyze alignment and generate coverage reports.
+ */
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";

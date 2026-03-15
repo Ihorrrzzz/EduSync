@@ -1,3 +1,7 @@
+/**
+ * Shared dashboard layout, navigation, and reusable UI components
+ * (badges, cards, headings) used across all role-specific dashboard pages.
+ */
 "use client";
 
 import {
@@ -49,6 +53,7 @@ function isActiveLink(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+// Ukrainian i18n label resolvers — map internal status/decision/band enums to UI labels.
 export function formatRequestStatus(status: string) {
   const labels: Record<string, string> = {
     DRAFT: "Чернетка",

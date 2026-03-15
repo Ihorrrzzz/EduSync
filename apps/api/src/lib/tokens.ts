@@ -1,3 +1,7 @@
+/**
+ * JWT signing and verification for access (15 min) and refresh (7 day) tokens.
+ * Uses HS256 with separate secrets for each token type.
+ */
 import { randomUUID } from "node:crypto";
 import { UserRole } from "@prisma/client";
 import { SignJWT, jwtVerify } from "jose";
@@ -35,11 +39,12 @@ export async function signAccessToken(input: AccessTokenInput) {
     .setAudience(ACCESS_TOKEN_AUDIENCE)
     .setSubject(input.profileId)
     .setIssuedAt()
-    .setExpirationTime("15m")
+    .setExpirationTime("15m") // Short-lived: forces frequent refresh, limits exposure window.
     .sign(getAccessSecret());
 }
 
 export async function signRefreshToken(profileId: string) {
+  // 7-day TTL — stored in an httpOnly cookie on the client.
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   const token = await new SignJWT({ type: "refresh" })
@@ -65,6 +70,8 @@ export async function verifyAccessToken(token: string) {
   const email = payload.email;
   const type = payload.type;
 
+  // Defense-in-depth: runtime type checks guard against tampered or malformed payloads
+  // even though jose already verified the signature.
   if (
     typeof payload.sub !== "string" ||
     typeof email !== "string" ||

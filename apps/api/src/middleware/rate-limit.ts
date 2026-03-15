@@ -1,3 +1,7 @@
+/**
+ * In-memory per-IP rate limiting.
+ * Per-process only — not shared across cluster workers or multiple instances.
+ */
 import type { MiddlewareHandler } from "hono";
 
 type RateLimitOptions = {
@@ -10,9 +14,13 @@ type RateLimitEntry = {
   resetAt: number;
 };
 
+// Cap memory usage: once exceeded, oldest entries are evicted FIFO-style.
 const MAX_STORE_SIZE = 10_000;
+// Resets on process restart; not suitable for multi-instance deployments.
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
+// Rightmost-IP trust model: the trusted reverse proxy (nginx) sets x-real-ip.
+// Falls back to the last x-forwarded-for entry to resist client-spoofed headers.
 function resolveClientIp(c: { req: { header: (name: string) => string | undefined } }) {
   const connInfo = c.req.header("x-real-ip");
 
@@ -30,6 +38,7 @@ function resolveClientIp(c: { req: { header: (name: string) => string | undefine
   return "unknown";
 }
 
+// Collapse UUIDs to `:id` so /items/abc-123 and /items/def-456 share one bucket.
 function normalizeRoutePath(path: string) {
   return path.replace(
     /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,

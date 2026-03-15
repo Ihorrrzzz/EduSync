@@ -1,3 +1,7 @@
+/**
+ * "Actor" pattern — ensures the role-specific entity (parent / school / club)
+ * exists for an authenticated user, auto-creating it if missing.
+ */
 import { UserRole } from "@prisma/client";
 import type { AuthenticatedUser } from "../middleware/auth.js";
 import { prisma } from "./prisma.js";
@@ -45,6 +49,7 @@ export async function ensureParentActor(user: AuthenticatedUser) {
       profileId: profile.id,
       displayName:
         profile.fullName?.trim() ||
+        // Ukrainian fallback display name when user hasn't set a real name.
         getFallbackDisplayName(profile.email, "Батьківський профіль"),
     },
   });
@@ -57,6 +62,7 @@ export async function ensureSchoolActor(user: AuthenticatedUser) {
 
   const profile = await requireProfile(user.profileId);
 
+  // Idempotent find-or-create: empty `update` means "just return if exists".
   return prisma.school.upsert({
     where: { profileId: profile.id },
     update: {},
@@ -76,6 +82,7 @@ export async function ensureClubActor(user: AuthenticatedUser) {
 
   const profile = await requireProfile(user.profileId);
 
+  // Idempotent find-or-create: empty `update` means "just return if exists".
   return prisma.club.upsert({
     where: { profileId: profile.id },
     update: {},

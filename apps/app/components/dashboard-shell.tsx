@@ -7,7 +7,6 @@ import {
   Layers3,
   LogOut,
   Paintbrush,
-  ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -255,7 +254,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   aria-label={item.label}
                   className={`flex items-center justify-center gap-3 rounded-[1.15rem] px-0 py-3.5 text-sm font-medium transition sm:justify-start sm:px-4 ${
                     isActiveLink(pathname, item.href)
-                      ? "bg-slate-950 text-white"
+                      ? "bg-blue-600 text-white shadow-[0_8px_20px_rgba(37,99,255,0.25)]"
                       : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                   }`}
                 >

@@ -1763,9 +1763,17 @@ button {
 .register-top {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 18px;
   margin-bottom: 40px;
+}
+
+.register-back {
+  flex-shrink: 0;
+}
+
+#registerBrand {
+  margin-left: auto;
 }
 
 .role-grid {
@@ -1783,6 +1791,7 @@ button {
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .role-top {
@@ -1838,7 +1847,7 @@ button {
 }
 
 .role-top h3 {
-  margin: 0 0 14px;
+  margin: 0;
   font-size: 24px;
   line-height: 1.15;
 }
@@ -1851,6 +1860,13 @@ button {
   max-width: 340px;
 }
 
+.role-top-copy {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 128px;
+}
+
 .role-body {
   padding: 32px 34px 34px;
   display: flex;
@@ -1858,10 +1874,15 @@ button {
   flex: 1;
 }
 
+.role-footer {
+  display: grid;
+  gap: 16px;
+  margin-top: auto;
+}
+
 .role-actions {
   display: grid;
   gap: 12px;
-  margin-top: auto;
 }
 
 .role-body ul {
@@ -1934,9 +1955,8 @@ button {
 }
 
 .role-note-small {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e6ebf5;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6ebf5;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.55;
@@ -2290,6 +2310,10 @@ button {
     padding: 28px 28px 24px;
   }
 
+  .role-top-copy {
+    min-height: 118px;
+  }
+
   .role-body {
     padding: 28px;
   }
@@ -2462,6 +2486,16 @@ button {
 
   .register-top {
     margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .register-back {
+    order: 1;
+  }
+
+  #registerBrand {
+    order: 2;
+    margin-left: 0;
   }
 
   .trust-group {
@@ -2487,5 +2521,9 @@ button {
   .role-body {
     padding-left: 24px;
     padding-right: 24px;
+  }
+
+  .role-top-copy {
+    min-height: 0;
   }
 }

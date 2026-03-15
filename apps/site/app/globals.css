@@ -1763,9 +1763,17 @@ button {
 .register-top {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 18px;
   margin-bottom: 40px;
+}
+
+.register-back {
+  flex-shrink: 0;
+}
+
+#registerBrand {
+  margin-left: auto;
 }
 
 .role-grid {
@@ -1839,7 +1847,7 @@ button {
 }
 
 .role-top h3 {
-  margin: 0 0 14px;
+  margin: 0;
   font-size: 24px;
   line-height: 1.15;
 }
@@ -1850,6 +1858,13 @@ button {
   font-size: 16px;
   line-height: 1.5;
   max-width: 340px;
+}
+
+.role-top-copy {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 128px;
 }
 
 .role-body {
@@ -2295,6 +2310,10 @@ button {
     padding: 28px 28px 24px;
   }
 
+  .role-top-copy {
+    min-height: 118px;
+  }
+
   .role-body {
     padding: 28px;
   }
@@ -2467,6 +2486,16 @@ button {
 
   .register-top {
     margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .register-back {
+    order: 1;
+  }
+
+  #registerBrand {
+    order: 2;
+    margin-left: 0;
   }
 
   .trust-group {
@@ -2492,5 +2521,9 @@ button {
   .role-body {
     padding-left: 24px;
     padding-right: 24px;
+  }
+
+  .role-top-copy {
+    min-height: 0;
   }
 }

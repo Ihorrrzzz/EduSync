@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   Github,
   GraduationCap,
   Linkedin,
@@ -645,6 +646,10 @@ export default function SiteHomePage() {
       >
         <div className="register-wrap px-4 md:px-8">
           <div className="register-top">
+            <button className="btn btn-secondary register-back" type="button" onClick={showLandingPage}>
+              <ArrowLeft strokeWidth={2.1} />
+              Повернутися на головну
+            </button>
             <button
               className="brand brand-button"
               id="registerBrand"
@@ -669,8 +674,10 @@ export default function SiteHomePage() {
                     <div className="role-icon">
                       <Icon strokeWidth={2.1} />
                     </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
+                    <div className="role-top-copy">
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
+                    </div>
                   </div>
 
                   <div className="role-body">

@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   Building2,
+  Info,
   Mail,
   MapPin,
   RotateCcw,
@@ -160,13 +161,20 @@ function OverviewCard({
     <div
       className={`rounded-[1.6rem] border p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] ${className}`}
     >
-      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-        {label}
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          {label}
+        </div>
+        <div className="group relative">
+          <Info className="h-3.5 w-3.5 cursor-help text-slate-300 transition group-hover:text-slate-500" strokeWidth={2.1} />
+          <div className="pointer-events-none absolute right-0 top-6 z-10 w-56 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs leading-5 text-slate-600 opacity-0 shadow-lg transition group-hover:pointer-events-auto group-hover:opacity-100">
+            {hint}
+          </div>
+        </div>
       </div>
       <div className="mt-3 break-words text-3xl font-semibold leading-tight tracking-[-0.05em] text-slate-950">
         {value}
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-600">{hint}</p>
       {children ? <div className="mt-4 space-y-2">{children}</div> : null}
     </div>
   );
@@ -378,20 +386,13 @@ function ClubOverview({
         hint="Тут показані школи, які вже погодили або частково погодили ваші заявки."
         className={theme.metricSurfaceClass}
       >
-        {acceptedSchools.length === 0 ? (
+        {acceptedSchools.slice(0, 4).map((school) => (
           <OverviewListItem
-            title="Позитивних рішень поки немає"
-            subtitle="Коли школа погодить заявку, вона з'явиться в цьому списку."
+            key={school.id}
+            title={school.name}
+            subtitle={`Погоджених заявок: ${school.approvalsCount}`}
           />
-        ) : (
-          acceptedSchools.slice(0, 4).map((school) => (
-            <OverviewListItem
-              key={school.id}
-              title={school.name}
-              subtitle={`Погоджених заявок: ${school.approvalsCount}`}
-            />
-          ))
-        )}
+        ))}
       </OverviewCard>
 
       <OverviewCard
@@ -892,38 +893,39 @@ export default function DashboardAccountPage() {
           title={getDisplayNameLabel(role)}
           description={guide.completionHint}
         >
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px]">
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
-                {getDisplayNameLabel(role)}
-              </label>
-              <input
-                id="displayName"
-                className={inputClassName}
-                value={displayName}
-                onChange={(event) => {
-                  clearFeedback();
-                  setDisplayName(event.target.value);
-                }}
-                required
-              />
-            </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
+                  {getDisplayNameLabel(role)}
+                </label>
+                <input
+                  id="displayName"
+                  className={inputClassName}
+                  value={displayName}
+                  onChange={(event) => {
+                    clearFeedback();
+                    setDisplayName(event.target.value);
+                  }}
+                  required
+                />
+              </div>
 
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="city">
-                Місто
-              </label>
-              <input
-                id="city"
-                className={inputClassName}
-                value={city}
-                onChange={(event) => {
-                  clearFeedback();
-                  setCity(event.target.value);
-                }}
-                placeholder="Наприклад, Київ"
-              />
-              <p className="text-xs leading-5 text-slate-500">{guide.cityHint}</p>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="city">
+                  Місто
+                </label>
+                <input
+                  id="city"
+                  className={inputClassName}
+                  value={city}
+                  onChange={(event) => {
+                    clearFeedback();
+                    setCity(event.target.value);
+                  }}
+                  placeholder="Наприклад, Київ"
+                />
+              </div>
             </div>
 
             <div className={`rounded-[1.6rem] border p-4 ${theme.sectionSurfaceClass}`}>
@@ -998,50 +1000,42 @@ export default function DashboardAccountPage() {
           </WorkspaceSection>
         ) : null}
 
-        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              className={`inline-flex h-14 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
-              type="submit"
-              disabled={!canSubmit}
-            >
-              <Save className="h-4 w-4" strokeWidth={2.1} />
-              {isSubmitting
-                ? "Збереження..."
-                : hasChanges
-                  ? "Зберегти зміни"
-                  : "Дані синхронізовано"}
-            </button>
+        {hasChanges ? (
+          <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                className={`inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
+                type="submit"
+                disabled={!canSubmit}
+              >
+                <Save className="h-4 w-4" strokeWidth={2.1} />
+                {isSubmitting ? "Збереження..." : "Зберегти зміни"}
+              </button>
 
-            <button
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
-              type="button"
-              onClick={resetForm}
-              disabled={!hasChanges || isSubmitting}
-            >
-              <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
-              Скасувати зміни
-            </button>
-
-            <div className="text-sm text-slate-500">
-              {hasChanges
-                ? "Поточні зміни ще не збережені."
-                : "Профіль готовий до роботи без додаткових дій."}
+              <button
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
+                type="button"
+                onClick={resetForm}
+                disabled={isSubmitting}
+              >
+                <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
+                Скасувати
+              </button>
             </div>
-          </div>
 
-          {error ? (
-            <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          ) : null}
+            {error ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </div>
+            ) : null}
 
-          {status ? (
-            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-              {status}
-            </div>
-          ) : null}
-        </SurfaceCard>
+            {status ? (
+              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {status}
+              </div>
+            ) : null}
+          </SurfaceCard>
+        ) : null}
       </form>
 
       <WorkspaceSection

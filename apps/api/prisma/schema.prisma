@@ -83,6 +83,7 @@ model School {
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
+  @@index([city])
   @@map("schools")
 }
 
@@ -99,6 +100,7 @@ model Club {
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
+  @@index([city])
   @@map("clubs")
 }
 
@@ -153,6 +155,7 @@ model ClubProgram {
   learningOutcomes    Json                 @map("learning_outcomes")
   evaluationMethod    String               @map("evaluation_method")
   reportFormatSummary String?              @map("report_format_summary")
+  programFileUrl      String?              @map("program_file_url")
   isPublished         Boolean              @default(false) @map("is_published")
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
@@ -162,6 +165,7 @@ model ClubProgram {
 
   @@index([clubId])
   @@index([subjectArea])
+  @@index([isPublished])
   @@map("club_programs")
 }
 

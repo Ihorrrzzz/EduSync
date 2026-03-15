@@ -136,22 +136,6 @@ export default function DashboardStudentsPage() {
         eyebrow="Учні"
         title="Список учнів гуртка"
         description="Тут ви бачите дітей, які навчаються за вашими програмами, та можете перейти до пов'язаних заявок."
-        actions={
-          <>
-            <Link
-              href="/dashboard/requests"
-              className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              До запитів
-            </Link>
-            <Link
-              href="/dashboard/programs"
-              className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              До програм
-            </Link>
-          </>
-        }
       />
 
       <div className="grid gap-4 md:grid-cols-3">

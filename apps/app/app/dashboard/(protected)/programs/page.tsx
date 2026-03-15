@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { FileText, Plus, Upload, X } from "lucide-react";
 import {
   AdvisoryNote,
   BandBadge,
@@ -12,9 +12,11 @@ import {
 import { ScreenSpinner } from "../../../../components/screen-spinner";
 import {
   createProgram,
+  createQuickProgram,
   fetchPrograms,
   runProgramAiPreview,
   updateProgram,
+  uploadProgramFile,
   type AiAnalysisRecord,
   type ProgramRecord,
 } from "../../../../lib/mvp-api";
@@ -80,6 +82,53 @@ export default function DashboardProgramsPage() {
   const [isFetching, setIsFetching] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
+
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogSubject, setDialogSubject] = useState("");
+  const [dialogAgeMin, setDialogAgeMin] = useState("");
+  const [dialogAgeMax, setDialogAgeMax] = useState("");
+  const [dialogFile, setDialogFile] = useState<File | null>(null);
+  const [dialogSubmitting, setDialogSubmitting] = useState(false);
+  const [dialogError, setDialogError] = useState("");
+  const dialogFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQuickCreate = async () => {
+    setDialogError("");
+    setDialogSubmitting(true);
+
+    try {
+      const response = await createQuickProgram({
+        title: dialogTitle,
+        subjectArea: dialogSubject,
+        ageMin: dialogAgeMin ? Number(dialogAgeMin) : null,
+        ageMax: dialogAgeMax ? Number(dialogAgeMax) : null,
+      });
+
+      if (dialogFile) {
+        await uploadProgramFile(response.program.id, dialogFile);
+      }
+
+      await loadPrograms();
+      await refreshMe();
+
+      setShowDialog(false);
+      setDialogTitle("");
+      setDialogSubject("");
+      setDialogAgeMin("");
+      setDialogAgeMax("");
+      setDialogFile(null);
+      setDialogError("");
+    } catch (quickCreateError) {
+      setDialogError(
+        quickCreateError instanceof Error
+          ? quickCreateError.message
+          : "Не вдалося створити програму",
+      );
+    } finally {
+      setDialogSubmitting(false);
+    }
+  };
 
   const loadPrograms = async () => {
     setIsFetching(true);
@@ -242,14 +291,171 @@ export default function DashboardProgramsPage() {
         title="Структуруйте програму для шкільного розгляду"
         description="Тут ви додаєте модулі, очікувані результати навчання, спосіб оцінювання і тримаєте каталог в актуальному стані."
         actions={
-          <Link
-            href="/dashboard/requests"
-            className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.22)] transition hover:bg-blue-700"
+            onClick={() => setShowDialog(true)}
           >
-            Запити до програм
-          </Link>
+            <Plus className="h-4 w-4" strokeWidth={2.1} />
+            Додати програму
+          </button>
         }
       />
+
+      {showDialog ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40">
+          <div className="w-full max-w-lg rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.15)]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-950">Нова програма</h2>
+              <button
+                type="button"
+                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                onClick={() => {
+                  setShowDialog(false);
+                  setDialogError("");
+                }}
+              >
+                <X className="h-5 w-5" strokeWidth={2.1} />
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="dialogTitle">
+                  Назва програми
+                </label>
+                <input
+                  id="dialogTitle"
+                  className="h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  value={dialogTitle}
+                  onChange={(event) => setDialogTitle(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="dialogSubject">
+                  Предметний напрям
+                </label>
+                <input
+                  id="dialogSubject"
+                  className="h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  value={dialogSubject}
+                  onChange={(event) => setDialogSubject(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-slate-700" htmlFor="dialogAgeMin">
+                    Вік від
+                  </label>
+                  <input
+                    id="dialogAgeMin"
+                    type="number"
+                    min={4}
+                    max={19}
+                    className="h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    value={dialogAgeMin}
+                    onChange={(event) => setDialogAgeMin(event.target.value)}
+                    placeholder="від"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-slate-700" htmlFor="dialogAgeMax">
+                    Вік до
+                  </label>
+                  <input
+                    id="dialogAgeMax"
+                    type="number"
+                    min={4}
+                    max={19}
+                    className="h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    value={dialogAgeMax}
+                    onChange={(event) => setDialogAgeMax(event.target.value)}
+                    placeholder="до"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700">
+                  Завантажити PDF
+                </label>
+                <input
+                  ref={dialogFileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setDialogFile(file);
+                  }}
+                />
+                {dialogFile ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <FileText className="h-5 w-5 text-blue-600" strokeWidth={2.1} />
+                    <span className="flex-1 truncate text-sm text-slate-700">
+                      {dialogFile.name}
+                    </span>
+                    <button
+                      type="button"
+                      className="rounded-lg p-1 text-slate-400 hover:text-slate-600"
+                      onClick={() => {
+                        setDialogFile(null);
+                        if (dialogFileInputRef.current) {
+                          dialogFileInputRef.current.value = "";
+                        }
+                      }}
+                    >
+                      <X className="h-4 w-4" strokeWidth={2.1} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30"
+                    onClick={() => dialogFileInputRef.current?.click()}
+                  >
+                    <Upload className="mx-auto h-6 w-6 text-slate-400" strokeWidth={2.1} />
+                    <span className="mt-2 block text-sm text-slate-500">
+                      Натисніть, щоб обрати PDF файл
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {dialogError ? (
+                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {dialogError}
+                </div>
+              ) : null}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  className="flex-1 rounded-2xl border border-slate-200 h-14 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  onClick={() => {
+                    setShowDialog(false);
+                    setDialogError("");
+                  }}
+                >
+                  Скасувати
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 bg-blue-600 text-white rounded-2xl h-14 px-5 text-sm font-semibold hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed"
+                  disabled={dialogSubmitting || !dialogTitle || !dialogSubject}
+                  onClick={handleQuickCreate}
+                >
+                  {dialogSubmitting ? "Створення..." : "Створити програму"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {pageError ? (
         <SurfaceCard>

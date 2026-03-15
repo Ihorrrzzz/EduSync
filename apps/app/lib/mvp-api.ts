@@ -51,6 +51,7 @@ export type ProgramRecord = {
   learningOutcomes: string[];
   evaluationMethod: string;
   reportFormatSummary: string | null;
+  programFileUrl: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -208,10 +209,6 @@ function buildQueryString(params: Record<string, QueryValue>) {
   const queryString = searchParams.toString();
 
   return queryString ? `?${queryString}` : "";
-}
-
-export function isRoleAllowed(currentRole: ProfileRole | null | undefined, allowedRoles: ProfileRole[]) {
-  return currentRole ? allowedRoles.includes(currentRole) : false;
 }
 
 export async function fetchMe() {
@@ -392,13 +389,16 @@ export async function fetchSchoolRequests(filters: {
   );
 }
 
-export async function fetchSchoolRequest(id: string, options?: { markUnderReview?: boolean }) {
-  const query = buildQueryString({
-    markUnderReview: options?.markUnderReview ? "true" : undefined,
-  });
-
+export async function fetchSchoolRequest(id: string) {
   return apiFetch<{ request: RecognitionRequestRecord }>(
-    `/api/school/requests/${id}${query}`,
+    `/api/school/requests/${id}`,
+  );
+}
+
+export async function markRequestUnderReview(id: string) {
+  return apiFetch<{ request: RecognitionRequestRecord }>(
+    `/api/school/requests/${id}/mark-under-review`,
+    { method: "POST" },
   );
 }
 
@@ -422,29 +422,30 @@ export async function submitSchoolDecision(
   );
 }
 
-export async function requestRecommendationBand(input: {
-  programTitle: string;
-  subjectArea?: string | null;
-  shortDescription?: string | null;
-  fullDescription: string;
-  modules: string[];
-  learningOutcomes: string[];
-  evaluationMethod: string;
-  reportFormatSummary?: string | null;
-  clubEvidenceSummary?: string | null;
-  targetSubject: string;
-  targetGrade: number;
-  recognitionScope: "FULL" | "PARTIAL";
+export async function createQuickProgram(input: {
+  title: string;
+  subjectArea: string;
   ageMin?: number | null;
   ageMax?: number | null;
-  gradeMin?: number | null;
-  gradeMax?: number | null;
 }) {
-  return apiFetch<{ analysis: AiAnalysisRecord }>("/api/ai/recommendation-band", {
+  return apiFetch<{ program: ProgramRecord }>("/api/programs/quick", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(input),
   });
+}
+
+export async function uploadProgramFile(programId: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiFetch<{ program: ProgramRecord }>(
+    `/api/programs/${programId}/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
 }

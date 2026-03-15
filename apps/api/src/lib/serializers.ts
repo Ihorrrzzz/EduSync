@@ -91,6 +91,7 @@ export function serializeProgram(program: ProgramWithClub) {
     learningOutcomes: asStringArray(program.learningOutcomes),
     evaluationMethod: program.evaluationMethod,
     reportFormatSummary: program.reportFormatSummary,
+    programFileUrl: program.programFileUrl,
     isPublished: program.isPublished,
     createdAt: program.createdAt,
     updatedAt: program.updatedAt,

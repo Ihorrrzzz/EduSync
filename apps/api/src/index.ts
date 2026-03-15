@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import { Hono } from "hono";
@@ -40,6 +42,21 @@ app.onError((error, c) => {
   console.error(error);
 
   return c.json({ error: "Internal server error" }, 500);
+});
+
+app.get("/uploads/*", async (c) => {
+  const filePath = join(process.cwd(), c.req.path);
+  try {
+    const content = await readFile(filePath);
+    return new Response(content, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  } catch {
+    return c.json({ error: "File not found" }, 404);
+  }
 });
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));

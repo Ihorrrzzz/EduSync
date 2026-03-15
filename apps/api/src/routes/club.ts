@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import {
   RecognitionRequestStatus,
   RecognitionScope,
@@ -40,6 +43,7 @@ const programSchema = z
     learningOutcomes: z.array(z.string().trim().min(1).max(220)).min(1).max(12),
     evaluationMethod: z.string().trim().min(10).max(800),
     reportFormatSummary: z.string().trim().max(300).optional().nullable(),
+    programFileUrl: z.string().trim().max(500).optional().nullable(),
     isPublished: z.boolean(),
   })
   .superRefine((value, ctx) => {
@@ -67,6 +71,13 @@ const programSchema = z
       });
     }
   });
+
+const quickProgramSchema = z.object({
+  title: z.string().trim().min(2).max(160),
+  subjectArea: z.string().trim().min(2).max(120),
+  ageMin: z.number().int().min(4).max(19).optional().nullable(),
+  ageMax: z.number().int().min(4).max(19).optional().nullable(),
+});
 
 const aiPreviewSchema = z.object({
   targetSubject: z.string().trim().min(2).max(120),
@@ -143,7 +154,34 @@ clubRoutes.post("/programs", async (c) => {
       learningOutcomes: normalizeStringArray(body.learningOutcomes),
       evaluationMethod: body.evaluationMethod.trim(),
       reportFormatSummary: normalizeOptionalString(body.reportFormatSummary ?? null),
+      programFileUrl: normalizeOptionalString(body.programFileUrl ?? null),
       isPublished: body.isPublished,
+    },
+    include: {
+      club: true,
+    },
+  });
+
+  return c.json({ program: serializeProgram(program) }, 201);
+});
+
+clubRoutes.post("/programs/quick", async (c) => {
+  const user = requireRole(c, UserRole.club);
+  const club = await ensureClubActor(user);
+  const body = await parseBody(c, quickProgramSchema);
+  const program = await prisma.clubProgram.create({
+    data: {
+      clubId: club!.id,
+      title: body.title.trim(),
+      subjectArea: body.subjectArea.trim(),
+      shortDescription: body.title.trim(),
+      fullDescription: body.title.trim(),
+      ageMin: body.ageMin ?? null,
+      ageMax: body.ageMax ?? null,
+      modules: [],
+      learningOutcomes: [],
+      evaluationMethod: "Не вказано",
+      isPublished: false,
     },
     include: {
       club: true,
@@ -181,6 +219,7 @@ clubRoutes.patch("/programs/:id", async (c) => {
       learningOutcomes: normalizeStringArray(body.learningOutcomes),
       evaluationMethod: body.evaluationMethod.trim(),
       reportFormatSummary: normalizeOptionalString(body.reportFormatSummary ?? null),
+      programFileUrl: normalizeOptionalString(body.programFileUrl ?? null),
       isPublished: body.isPublished,
     },
     include: {
@@ -256,6 +295,52 @@ clubRoutes.post("/programs/:id/ai-preview", async (c) => {
   });
 
   return c.json({ analysis });
+});
+
+clubRoutes.post("/programs/:id/upload", async (c) => {
+  const user = requireRole(c, UserRole.club);
+  const club = await ensureClubActor(user);
+  const program = await prisma.clubProgram.findFirst({
+    where: {
+      id: c.req.param("id"),
+      clubId: club!.id,
+    },
+  });
+
+  ensureFound(program, "Program not found");
+
+  const formData = await c.req.formData();
+  const file = formData.get("file");
+
+  if (!(file instanceof File)) {
+    throw new HTTPException(400, { message: "File is required" });
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    throw new HTTPException(400, { message: "File must be under 10 MB" });
+  }
+
+  const allowedTypes = ["application/pdf"];
+  if (!allowedTypes.includes(file.type)) {
+    throw new HTTPException(400, { message: "Only PDF files are allowed" });
+  }
+
+  const uploadsDir = join(process.cwd(), "uploads", "programs");
+  await mkdir(uploadsDir, { recursive: true });
+
+  const fileName = `${randomUUID()}.pdf`;
+  const filePath = join(uploadsDir, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(filePath, buffer);
+
+  const fileUrl = `/uploads/programs/${fileName}`;
+  const updatedProgram = await prisma.clubProgram.update({
+    where: { id: program.id },
+    data: { programFileUrl: fileUrl },
+    include: { club: true },
+  });
+
+  return c.json({ program: serializeProgram(updatedProgram) });
 });
 
 clubRoutes.get("/club/requests", async (c) => {

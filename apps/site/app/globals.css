@@ -1630,6 +1630,13 @@ button {
   box-shadow: 0 20px 42px rgba(15, 23, 42, 0.08);
 }
 
+.legal-brand {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
 .legal-hero h1 {
   margin: 18px 0 14px;
   font-size: clamp(34px, 4vw, 58px);

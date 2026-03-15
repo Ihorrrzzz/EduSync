@@ -20,7 +20,7 @@ export default function LegalPage() {
         </div>
 
         <section className="legal-hero">
-          <Link className="brand brand-button" href="/">
+          <Link className="brand brand-button legal-brand" href="/">
             <span className="brand-mark">
               <GraduationCap strokeWidth={2.2} />
             </span>

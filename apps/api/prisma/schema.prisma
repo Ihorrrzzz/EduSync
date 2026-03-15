@@ -57,6 +57,7 @@ enum SchoolDecision {
 model Profile {
   id            String         @id @default(uuid())
   email         String         @unique
+  login         String?        @unique
   passwordHash  String         @map("password_hash")
   role          UserRole
   fullName      String?        @map("full_name")
@@ -75,6 +76,8 @@ model School {
   profileId            String                @unique @map("profile_id")
   name                 String
   city                 String?
+  principalFullName    String?               @map("principal_full_name")
+  phone                String?
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @default(now()) @updatedAt @map("updated_at")
   children             Child[]
@@ -92,6 +95,8 @@ model Club {
   profileId           String               @unique @map("profile_id")
   name                String
   city                String?
+  adminFullName       String?              @map("admin_full_name")
+  phone               String?
   subjects            String[]
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
@@ -109,6 +114,7 @@ model ParentProfile {
   profileId           String               @unique @map("profile_id")
   displayName         String               @map("display_name")
   city                String?
+  phone               String?
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
   children            Child[]

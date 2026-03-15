@@ -23,7 +23,7 @@ const loginHighlights = [
 export default function LoginPage() {
   const router = useRouter();
   const { isLoading, profile, login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +48,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          identifier,
           password,
         }),
       });
@@ -135,7 +135,7 @@ export default function LoginPage() {
                   Вхід до EduSync
                 </h2>
                 <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">
-                  Вкажіть email та пароль, щоб перейти до власного кабінету.
+                  Вкажіть логін або email та пароль, щоб перейти до власного кабінету.
                 </p>
               </div>
 
@@ -149,15 +149,16 @@ export default function LoginPage() {
 
             <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
               <div className="grid gap-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="email">
-                  Email
+                <label className="text-sm font-medium text-slate-700" htmlFor="identifier">
+                  Логін або email
                 </label>
                 <input
                   className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  id="identifier"
+                  type="text"
+                  value={identifier}
+                  onChange={(event) => setIdentifier(event.target.value)}
                   required
                 />
               </div>

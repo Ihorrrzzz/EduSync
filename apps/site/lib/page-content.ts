@@ -269,7 +269,7 @@ export const registerRoles = [
     role: "school",
     tone: "blue",
     icon: School,
-    eyebrow: "Школа",
+    eyebrow: "Профіль школи",
     title: "Для шкіл",
     description: "Черга розгляду, AI-панель і фінальне рішення школи в одному кабінеті.",
     features: [

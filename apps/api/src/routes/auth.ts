@@ -31,72 +31,153 @@ const MAX_ACTIVE_REFRESH_TOKENS = 5;
 const DUMMY_PASSWORD_HASH =
   "$2b$12$F54/V62C/TUoUwIsE302e.2g/tpCLzSxOuvSA14sbeWIH/bJ35bGq";
 
-const optionalTrimmedString = z
-  .string()
-  .trim()
-  .min(1)
-  .max(120)
-  .optional();
+const optionalTrimmedString = z.preprocess(
+  (value) => (typeof value === "string" ? value.trim() || undefined : value),
+  z.string().min(1).max(120).optional(),
+);
+
+const optionalPhoneString = z.preprocess(
+  (value) => (typeof value === "string" ? value.trim() || undefined : value),
+  z.string().min(5, "Вкажіть коректний номер телефону").max(32).optional(),
+);
+
+const optionalLoginString = z.preprocess(
+  (value) =>
+    typeof value === "string" ? value.trim().toLowerCase() || undefined : value,
+  z
+    .string()
+    .min(3, "Логін має містити щонайменше 3 символи")
+    .max(64, "Логін занадто довгий")
+    .refine((value) => !/\s/.test(value), "Логін не може містити пробіли")
+    .optional(),
+);
 
 const registerSchema = z
   .object({
     email: z
       .string()
       .trim()
-      .max(320)
-      .email()
+      .max(320, "Email занадто довгий")
+      .email("Вкажіть коректний email")
       .transform((value) => value.toLowerCase()),
-    password: z.string().min(8).max(72),
+    login: optionalLoginString,
+    password: z
+      .string()
+      .min(8, "Пароль має містити щонайменше 8 символів")
+      .max(72, "Пароль занадто довгий"),
+    repeatPassword: z
+      .string()
+      .min(8, "Повторіть пароль")
+      .max(72, "Пароль занадто довгий"),
     role: z.nativeEnum(UserRole),
     fullName: optionalTrimmedString,
     schoolName: optionalTrimmedString,
+    clubName: optionalTrimmedString,
     city: optionalTrimmedString,
+    phone: optionalPhoneString,
     subjects: z
       .array(z.enum(SUBJECT_OPTIONS))
       .max(SUBJECT_OPTIONS.length)
       .refine(
         (subjects) => new Set(subjects).size === subjects.length,
-        "Subjects must be unique",
+        "Предмети не можуть дублюватися",
       )
       .optional(),
   })
   .superRefine((value, ctx) => {
+    if (value.password !== value.repeatPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Паролі не збігаються",
+        path: ["repeatPassword"],
+      });
+    }
+
+    if (value.role === UserRole.parent && !value.fullName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть ПІБ",
+        path: ["fullName"],
+      });
+    }
+
     if (value.role === UserRole.school && !value.schoolName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "School name is required",
+        message: "Вкажіть назву школи",
         path: ["schoolName"],
+      });
+    }
+
+    if (value.role === UserRole.school && !value.city) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть місто",
+        path: ["city"],
+      });
+    }
+
+    if (value.role === UserRole.school && !value.fullName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть ПІБ директора",
+        path: ["fullName"],
+      });
+    }
+
+    if (value.role === UserRole.club && !value.clubName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть назву гуртка",
+        path: ["clubName"],
+      });
+    }
+
+    if (value.role === UserRole.club && !value.city) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть місто",
+        path: ["city"],
       });
     }
 
     if (value.role === UserRole.club && !value.fullName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Club name is required",
+        message: "Вкажіть ПІБ адміністратора",
         path: ["fullName"],
       });
     }
 
-    if (
-      value.role === UserRole.club &&
-      (!value.subjects || value.subjects.length < 1)
-    ) {
+    if (!value.phone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "At least one subject is required",
-        path: ["subjects"],
+        message:
+          value.role === UserRole.club ? "Вкажіть телефон" : "Вкажіть мобільний телефон",
+        path: ["phone"],
+      });
+    }
+
+    if (value.role !== UserRole.club && !value.login) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Вкажіть логін",
+        path: ["login"],
       });
     }
   });
 
 const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
     .trim()
-    .max(320)
-    .email()
+    .min(1, "Вкажіть логін або email")
+    .max(320, "Логін або email занадто довгий")
     .transform((value) => value.toLowerCase()),
-  password: z.string().min(8).max(72),
+  password: z
+    .string()
+    .min(8, "Пароль має містити щонайменше 8 символів")
+    .max(72, "Пароль занадто довгий"),
 });
 
 authRoutes.use(
@@ -213,22 +294,40 @@ authRoutes.post("/register", async (c) => {
 
   if (!parsedBody.success) {
     return c.json(
-      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { error: parsedBody.error.issues[0]?.message ?? "Некоректний запит" },
       400,
     );
   }
 
-  const { email, password, role, city, schoolName, subjects, fullName } =
-    parsedBody.data;
-  const resolvedFullName =
-    role === UserRole.school ? schoolName ?? null : fullName ?? null;
+  const {
+    email,
+    login,
+    password,
+    role,
+    city,
+    schoolName,
+    clubName,
+    phone,
+    subjects,
+    fullName,
+  } = parsedBody.data;
 
   const existingProfile = await prisma.profile.findUnique({
     where: { email },
   });
 
   if (existingProfile) {
-    return c.json({ error: "Email already in use" }, 409);
+    return c.json({ error: "Email уже використовується" }, 409);
+  }
+
+  if (login) {
+    const existingLogin = await prisma.profile.findUnique({
+      where: { login },
+    });
+
+    if (existingLogin) {
+      return c.json({ error: "Логін уже використовується" }, 409);
+    }
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -237,9 +336,10 @@ authRoutes.post("/register", async (c) => {
     const profile = await tx.profile.create({
       data: {
         email,
+        login: login ?? null,
         passwordHash,
         role,
-        fullName: resolvedFullName,
+        fullName: fullName ?? null,
       },
     });
 
@@ -247,8 +347,9 @@ authRoutes.post("/register", async (c) => {
       await tx.parentProfile.create({
         data: {
           profileId: profile.id,
-          displayName: resolvedFullName ?? email.split("@")[0] ?? "Батьківський профіль",
+          displayName: fullName ?? email.split("@")[0] ?? "Батьківський профіль",
           city: city ?? null,
+          phone: phone ?? null,
         },
       });
     }
@@ -259,6 +360,8 @@ authRoutes.post("/register", async (c) => {
           profileId: profile.id,
           name: schoolName!,
           city: city ?? null,
+          principalFullName: fullName ?? null,
+          phone: phone ?? null,
         },
       });
     }
@@ -267,8 +370,10 @@ authRoutes.post("/register", async (c) => {
       await tx.club.create({
         data: {
           profileId: profile.id,
-          name: resolvedFullName!,
+          name: clubName!,
           city: city ?? null,
+          adminFullName: fullName ?? null,
+          phone: phone ?? null,
           subjects: subjects ?? [],
         },
       });
@@ -302,13 +407,18 @@ authRoutes.post("/login", async (c) => {
 
   if (!parsedBody.success) {
     return c.json(
-      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { error: parsedBody.error.issues[0]?.message ?? "Некоректний запит" },
       400,
     );
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { email: parsedBody.data.email },
+  const profile = await prisma.profile.findFirst({
+    where: {
+      OR: [
+        { email: parsedBody.data.identifier },
+        { login: parsedBody.data.identifier },
+      ],
+    },
   });
 
   const isPasswordValid = await bcrypt.compare(
@@ -317,7 +427,7 @@ authRoutes.post("/login", async (c) => {
   );
 
   if (!profile || !isPasswordValid) {
-    return c.json({ error: "Invalid credentials" }, 401);
+    return c.json({ error: "Невірний логін, email або пароль" }, 401);
   }
 
   const session = await prisma.$transaction(async (tx) => {

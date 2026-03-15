@@ -1783,6 +1783,7 @@ button {
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .role-top {
@@ -1858,10 +1859,15 @@ button {
   flex: 1;
 }
 
+.role-footer {
+  display: grid;
+  gap: 16px;
+  margin-top: auto;
+}
+
 .role-actions {
   display: grid;
   gap: 12px;
-  margin-top: auto;
 }
 
 .role-body ul {
@@ -1934,9 +1940,8 @@ button {
 }
 
 .role-note-small {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e6ebf5;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6ebf5;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.55;

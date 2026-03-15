@@ -680,21 +680,23 @@ export default function SiteHomePage() {
                       ))}
                     </ul>
 
-                    <div className="role-actions">
-                      <Link
-                        className={`btn-role ${item.tone}`}
-                        href={`${appUrl}/auth/register?role=${item.role}`}
-                      >
-                        {item.actionLabel} →
-                      </Link>
-                      <Link
-                        className="btn-role btn-role-ghost"
-                        href={`${appUrl}/dashboard?guest=${item.role}`}
-                      >
-                        {item.guestLabel}
-                      </Link>
+                    <div className="role-footer">
+                      <div className="role-note-small">{item.note}</div>
+                      <div className="role-actions">
+                        <Link
+                          className={`btn-role ${item.tone}`}
+                          href={`${appUrl}/auth/register?role=${item.role}`}
+                        >
+                          {item.actionLabel} →
+                        </Link>
+                        <Link
+                          className="btn-role btn-role-ghost"
+                          href={`${appUrl}/dashboard?guest=${item.role}`}
+                        >
+                          {item.guestLabel}
+                        </Link>
+                      </div>
                     </div>
-                    <div className="role-note-small">{item.note}</div>
                   </div>
                 </article>
               );

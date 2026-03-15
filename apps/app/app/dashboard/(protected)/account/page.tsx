@@ -241,8 +241,8 @@ function ParentOverview({
           {me.account.displayName}
         </h3>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          У цьому блоці зібрано базову інформацію родини, прив'язані шкільні дані
-          та короткий стан участі дітей у гуртках.
+          Тут ви бачите основну інформацію вашої родини, прив'язані школи
+          та поточний стан участі дітей у гуртках.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <div
@@ -278,7 +278,7 @@ function ParentOverview({
                 ? linkedSchools[0]
                 : `${linkedSchools.length} шкіл у профілях`
           }
-          hint="Школи, які зараз прив'язані до профілів ваших дітей."
+          hint="Тут відображаються школи, прив'язані до профілів ваших дітей."
           className={theme.metricSurfaceClass}
         >
           {childSummaries.length === 0 ? (
@@ -300,7 +300,7 @@ function ParentOverview({
         <OverviewCard
           label="Гуртки дітей"
           value={totalClubAttendances}
-          hint="Скільки унікальних гуртків зафіксовано у заявках ваших дітей."
+          hint="Тут ви бачите, скільки гуртків відвідують ваші діти за даними заявок."
           className={theme.metricSurfaceClass}
         >
           {childSummaries.length === 0 ? (
@@ -368,14 +368,14 @@ function ClubOverview({
       <OverviewCard
         label="Учні"
         value={studentsCount}
-        hint="Унікальні діти, які вже проходять через програми або заявки вашого гуртка."
+        hint="Тут ви бачите кількість дітей, які навчаються за вашими програмами."
         className={theme.metricSurfaceClass}
       />
 
       <OverviewCard
         label="Школи, що прийняли"
         value={acceptedSchools.length}
-        hint="Школи, де вже є позитивне або частково позитивне рішення щодо ваших заявок."
+        hint="Тут показані школи, які вже погодили або частково погодили ваші заявки."
         className={theme.metricSurfaceClass}
       >
         {acceptedSchools.length === 0 ? (
@@ -397,7 +397,7 @@ function ClubOverview({
       <OverviewCard
         label="Запити на розгляді"
         value={underReviewCount}
-        hint="Заявки, які школа ще не завершила фінальним рішенням."
+        hint="Тут ви бачите заявки, які ще очікують на рішення школи."
         className={theme.metricSurfaceClass}
       />
     </div>
@@ -473,7 +473,7 @@ function SchoolOverview({
       <OverviewCard
         label="Заявки без розгляду"
         value={pendingRequests.length}
-        hint="Заявки від гуртків, які ще чекають на перевірку або фінальне рішення."
+        hint="Тут ви бачите заявки від гуртків, які потребують вашого розгляду."
         className={theme.metricSurfaceClass}
       >
         {pendingClubs.length === 0 ? (
@@ -495,7 +495,7 @@ function SchoolOverview({
       <OverviewCard
         label="Інтегровані гуртки"
         value={acceptedClubs.length}
-        hint="Гуртки, з якими школа вже має погоджені або частково погоджені інтеграції."
+        hint="Тут показані гуртки, з якими ви вже маєте погоджені інтеграції."
         className={theme.metricSurfaceClass}
       >
         {acceptedClubs.length === 0 ? (
@@ -523,18 +523,18 @@ function getAccountCopy(role: AccountRole): AccountCopy {
       eyebrow: "Огляд родини",
       title: "Огляд батьківського кабінету",
       description:
-        "Короткий зріз по дітях, школах і гуртках разом із швидким доступом до основних робочих розділів.",
+        "Тут ви бачите зведення по дітях, школах і гуртках та маєте швидкий доступ до основних розділів.",
       dashboardLabel: "Кабінет родини",
       actions: [
         {
           href: "/dashboard/children",
           label: "Керувати дітьми",
-          hint: "Додавайте профілі дітей і перевіряйте їхню шкільну прив'язку.",
+          hint: "Тут ви додаєте профілі дітей і перевіряєте їхню шкільну прив'язку.",
         },
         {
           href: "/dashboard/clubs",
           label: "Переглянути гуртки",
-          hint: "Подивіться, які гуртки відвідують ваші діти та стан заявок.",
+          hint: "Тут ви бачите, які гуртки відвідують ваші діти, та стан заявок.",
         },
       ],
     };
@@ -545,23 +545,23 @@ function getAccountCopy(role: AccountRole): AccountCopy {
       eyebrow: "Огляд гуртка",
       title: "Огляд кабінету гуртка",
       description:
-        "Головна сторінка з коротким зведенням по учнях, погоджених школах і запитах, які ще чекають на рішення.",
+        "Тут ви бачите зведення по учнях, погоджених школах і запитах, які ще чекають на рішення.",
       dashboardLabel: "Кабінет гуртка",
       actions: [
         {
           href: "/dashboard/students",
           label: "Відкрити учнів",
-          hint: "Перегляньте дітей, які вже проходять через програми та заявки гуртка.",
+          hint: "Тут ви переглядаєте дітей, які навчаються за вашими програмами.",
         },
         {
           href: "/dashboard/requests",
           label: "Відкрити запити",
-          hint: "Перевірте, де потрібні докази або відповіді гуртка.",
+          hint: "Тут ви перевіряєте, де потрібні докази або ваші відповіді.",
         },
         {
           href: "/dashboard/programs",
           label: "Керувати програмами",
-          hint: "Оновлюйте описи, структуру і статус публікації програм.",
+          hint: "Тут ви оновлюєте описи, структуру і статус публікації програм.",
         },
       ],
     };
@@ -571,18 +571,18 @@ function getAccountCopy(role: AccountRole): AccountCopy {
     eyebrow: "Огляд школи",
     title: "Огляд шкільного кабінету",
     description:
-      "Короткий зріз по заявках від гуртків: що ще не розглянуто і які гуртки вже інтегровані школою.",
+      "Тут ви бачите стан заявок від гуртків: що потребує вашого розгляду і які гуртки вже інтегровані.",
     dashboardLabel: "Кабінет школи",
     actions: [
       {
         href: "/dashboard/review",
         label: "Відкрити заявки",
-        hint: "Поверніться до кейсів, які зараз чекають розгляду.",
+        hint: "Тут ви переглядаєте заявки, які зараз чекають на ваше рішення.",
       },
       {
         href: "/dashboard/school-students",
         label: "Переглянути учнів",
-        hint: "Перегляньте учнів, які подали запити на визнання.",
+        hint: "Тут ви бачите учнів, які подали запити на визнання до вашої школи.",
       },
     ],
   };
@@ -603,22 +603,22 @@ function getDisplayNameLabel(role: AccountRole) {
 function getProfileGuide(role: AccountRole) {
   if (role === "parent") {
     return {
-      cityHint: "Місто допомагає швидше підбирати школу та програми для дітей.",
-      completionHint: "Базовий профіль достатній для створення дітей і нових запитів.",
+      cityHint: "Вкажіть місто, щоб швидше підбирати школу та програми для дітей.",
+      completionHint: "Заповніть базовий профіль, щоб створювати дітей і нові запити.",
     };
   }
 
   if (role === "club") {
     return {
-      cityHint: "Місто впливає на локальні фільтри та видимість гуртка в каталозі.",
+      cityHint: "Вкажіть місто, щоб ваш гурток з'являвся у локальних фільтрах каталогу.",
       completionHint:
-        "Для гуртка важливо позначити предметні напрями, щоб програми знаходилися швидше.",
+        "Позначте предметні напрями, щоб ваші програми знаходилися швидше.",
     };
   }
 
   return {
-    cityHint: "Місто допомагає родинам коректно знаходити школу під час створення профілю дитини.",
-    completionHint: "Заповнений профіль школи спрощує розпізнавання організації в усіх запитах.",
+    cityHint: "Вкажіть місто, щоб родини могли коректно знайти вашу школу.",
+    completionHint: "Заповніть профіль школи, щоб вас легше було розпізнати в запитах.",
   };
 }
 
@@ -973,7 +973,7 @@ export default function DashboardAccountPage() {
           <WorkspaceSection
             eyebrow="Предметні напрями"
             title="Навчальні напрями гуртка"
-            description="Позначені напрями використовуються в каталозі та в огляді програм для шкіл і батьків."
+            description="Оберіть напрями, за якими працює ваш гурток — вони відображаються в каталозі для шкіл і батьків."
           >
             <div className="flex flex-wrap gap-2">
               {subjectOptions.map((subject) => {
@@ -1047,7 +1047,7 @@ export default function DashboardAccountPage() {
       <WorkspaceSection
         eyebrow="Швидкий доступ"
         title="Що відкрити далі"
-        description="Основні переходи для наступних дій у персональному кабінеті."
+        description="Перейдіть до потрібного розділу вашого кабінету."
       >
         <div className="grid gap-3">
           {copy.actions.map((action) => (

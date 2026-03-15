@@ -240,7 +240,7 @@ export default function DashboardProgramsPage() {
       <PageHeading
         eyebrow="Програми гуртка"
         title="Структуруйте програму для шкільного розгляду"
-        description="Додайте модулі, очікувані результати навчання, спосіб оцінювання і тримайте опубліковану версію каталогу в актуальному стані."
+        description="Тут ви додаєте модулі, очікувані результати навчання, спосіб оцінювання і тримаєте каталог в актуальному стані."
         actions={
           <Link
             href="/dashboard/requests"
@@ -267,7 +267,7 @@ export default function DashboardProgramsPage() {
                 {editingProgramId ? "Редагування програми" : "Нова програма"}
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Використовуйте короткі, але перевірні формулювання. Школа бачитиме саме ці поля.
+                Пишіть коротко і точно — школа бачитиме саме ці поля при розгляді.
               </p>
             </div>
 
@@ -562,7 +562,7 @@ export default function DashboardProgramsPage() {
               {programs.length === 0 ? (
                 <EmptyState
                   title="Ще немає програм"
-                  description="Створіть першу програму, щоб додати її до каталогу та запускати AI-аналіз."
+                  description="Додайте вашу першу програму, щоб вона з'явилася в каталозі та ви могли запускати AI-аналіз."
                 />
               ) : (
                 programs.map((program) => (
@@ -619,8 +619,8 @@ export default function DashboardProgramsPage() {
             {selectedProgram ? (
               <>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Перевірте, як виглядає рекомендаційний рівень для обраної програми ще
-                  до подачі батьківського запиту.
+                  Тут ви можете перевірити рекомендаційний рівень для обраної програми
+                  ще до подачі батьківського запиту.
                 </p>
 
                 <form className="mt-6 grid gap-4" onSubmit={handlePreviewSubmit}>
@@ -706,7 +706,7 @@ export default function DashboardProgramsPage() {
             ) : (
               <EmptyState
                 title="Оберіть програму"
-                description="AI-аналіз працює для однієї збереженої програми з вашого списку."
+                description="Оберіть збережену програму зі списку, щоб запустити AI-аналіз."
               />
             )}
           </SurfaceCard>

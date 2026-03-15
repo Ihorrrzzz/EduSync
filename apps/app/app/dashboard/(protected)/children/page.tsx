@@ -169,7 +169,7 @@ export default function DashboardChildrenPage() {
       <PageHeading
         eyebrow="Дитина"
         title="Відомості про дитину"
-        description="Додайте дитину, оновіть її відомості, прив'яжіть школу та використовуйте профіль для нових запитів."
+        description="Тут ви додаєте дитину, оновлюєте її відомості, прив'язуєте школу та використовуєте профіль для нових запитів."
         actions={
           <Link
             href="/dashboard/discover"
@@ -194,8 +194,8 @@ export default function DashboardChildrenPage() {
             {editingChildId ? "Редагування профілю" : "Додати дитину"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Якщо школа дитини вже є в системі, прив'яжіть її одразу. Інакше можна
-            залишити поле порожнім і вибрати школу під час створення запиту.
+            Якщо школа дитини вже є в системі, ви можете прив'язати її одразу. Інакше
+            залиште поле порожнім і оберіть школу під час створення запиту.
           </p>
 
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
@@ -346,7 +346,7 @@ export default function DashboardChildrenPage() {
           {children.length === 0 ? (
             <EmptyState
               title="Ще немає дітей"
-              description="Після додавання дитини можна одразу переходити до пошуку програм і створення першого запиту."
+              description="Додайте дитину, щоб перейти до пошуку програм і створити перший запит."
             />
           ) : (
             children.map((child) => (

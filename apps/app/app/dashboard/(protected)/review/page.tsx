@@ -83,7 +83,7 @@ export default function DashboardReviewPage() {
       <PageHeading
         eyebrow="Розгляд"
         title="Черга заявок на розгляд"
-        description="Школа бачить структуровані докази, AI-рекомендацію та працює з рішеннями на кшталт підтвердження, скасування або повернення на доопрацювання."
+        description="Тут ви переглядаєте вхідні запити, бачите AI-рекомендацію та приймаєте рішення: підтвердити, скасувати або повернути на доопрацювання."
       />
 
       <SurfaceCard>
@@ -119,7 +119,7 @@ export default function DashboardReviewPage() {
       {requests.length === 0 ? (
         <EmptyState
           title="Черга порожня"
-          description="Запити з обраним фільтром не знайдено."
+          description="За обраним фільтром запитів не знайдено. Спробуйте інший фільтр."
         />
       ) : (
         <div className="grid gap-4">

@@ -237,10 +237,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const navigationItems = navigationByRole[profile.role];
 
   return (
-    <div className="min-h-screen px-4 py-5 md:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl items-start gap-6 md:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-[0_18px_42px_rgba(15,23,42,0.05)] md:sticky md:top-5">
-          <nav className="grid gap-2">
+    <div className="min-h-screen px-3 py-4 sm:px-4 md:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-[88px_minmax(0,1fr)] items-start gap-4 sm:grid-cols-[220px_minmax(0,1fr)] md:gap-6">
+        <aside className="sticky top-4 flex min-h-[calc(100vh-2rem)] flex-col rounded-[1.9rem] border border-slate-200 bg-white p-3 shadow-[0_18px_42px_rgba(15,23,42,0.05)] sm:p-4">
+          <nav className="flex flex-1 flex-col gap-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
 
@@ -248,28 +248,30 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                  aria-label={item.label}
+                  className={`flex items-center justify-center gap-3 rounded-[1.15rem] px-0 py-3.5 text-sm font-medium transition sm:justify-start sm:px-4 ${
                     isActiveLink(pathname, item.href)
                       ? "bg-slate-950 text-white"
                       : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                   }`}
                 >
                   <Icon className="h-4 w-4" strokeWidth={2.1} />
-                  <span>{item.label}</span>
+                  <span className="hidden sm:inline">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
           <button
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            aria-label="Вийти"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-slate-200 px-0 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:justify-start sm:px-4"
             type="button"
             onClick={() => {
               void logout();
             }}
           >
             <LogOut className="h-4 w-4" strokeWidth={2.1} />
-            Вийти
+            <span className="hidden sm:inline">Вийти</span>
           </button>
         </aside>
 

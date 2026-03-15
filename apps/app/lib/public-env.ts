@@ -1,10 +1,30 @@
+const LOCAL_PUBLIC_HOSTS = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "::1",
+  "[::1]",
+]);
+
 function normalizePublicUrl(value: string, name: string) {
   try {
     const url = new URL(value);
 
+    if (
+      process.env.NODE_ENV === "production" &&
+      url.protocol !== "https:" &&
+      !LOCAL_PUBLIC_HOSTS.has(url.hostname)
+    ) {
+      throw new Error(`${name} must use https in production`);
+    }
+
     return url.toString().replace(/\/$/, "");
-  } catch {
-    throw new Error(`${name} must be a valid URL`);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`${name} must be a valid URL`);
+    }
+
+    throw error;
   }
 }
 

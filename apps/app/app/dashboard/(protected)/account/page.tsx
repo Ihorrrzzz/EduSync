@@ -1,14 +1,22 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Mail, MapPin, RotateCcw } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
 import {
-  EmptyState,
-  MetricCard,
-  PageHeading,
-  SurfaceCard,
-} from "../../../../components/dashboard-shell";
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  Compass,
+  Mail,
+  MapPin,
+  RotateCcw,
+  Save,
+  School,
+  Sparkles,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { EmptyState, SurfaceCard } from "../../../../components/dashboard-shell";
 import { ScreenSpinner } from "../../../../components/screen-spinner";
 import { subjectOptions } from "../../../../lib/subject-options";
 import { updateMyProfile } from "../../../../lib/mvp-api";
@@ -16,34 +24,221 @@ import { useRoleAccess } from "../../../../lib/use-role-access";
 
 type AccountRole = "parent" | "club" | "school";
 
-function getAccountCopy(role: AccountRole) {
+type AccountMetric = {
+  label: string;
+  valueKey: string;
+  hint: string;
+};
+
+type AccountAction = {
+  href: string;
+  label: string;
+  hint: string;
+};
+
+type AccountTheme = {
+  heroSurfaceClass: string;
+  badgeClass: string;
+  iconSurfaceClass: string;
+  infoPillClass: string;
+  metricSurfaceClass: string;
+  sectionSurfaceClass: string;
+  progressClass: string;
+  primaryButtonClass: string;
+  activeSubjectClass: string;
+  actionHoverClass: string;
+};
+
+type AccountCopy = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  readinessLabel: string;
+  metrics: AccountMetric[];
+  actions: AccountAction[];
+};
+
+type SectionNavigationItem = {
+  id: string;
+  label: string;
+  hint: string;
+};
+
+const roleIcons: Record<AccountRole, LucideIcon> = {
+  parent: Users,
+  club: Building2,
+  school: School,
+};
+
+const roleThemes: Record<AccountRole, AccountTheme> = {
+  parent: {
+    heroSurfaceClass:
+      "border-sky-200/80 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.2),transparent_36%),linear-gradient(180deg,#ffffff_0%,#eff6ff_55%,#f0fdf9_100%)]",
+    badgeClass: "border-sky-200 bg-sky-950 text-sky-50",
+    iconSurfaceClass:
+      "border-sky-200 bg-white text-sky-800 shadow-[0_18px_42px_rgba(14,165,233,0.16)]",
+    infoPillClass: "border-sky-200/80 bg-sky-50 text-sky-950",
+    metricSurfaceClass: "border-sky-100 bg-white/90",
+    sectionSurfaceClass: "border-sky-100 bg-sky-50/55",
+    progressClass: "bg-sky-700",
+    primaryButtonClass:
+      "bg-sky-700 text-white shadow-[0_18px_35px_rgba(3,105,161,0.2)] hover:bg-sky-800 disabled:bg-sky-300",
+    activeSubjectClass:
+      "border-sky-200 bg-sky-100 text-sky-900 shadow-[0_10px_24px_rgba(14,165,233,0.14)]",
+    actionHoverClass: "hover:border-sky-200 hover:bg-sky-50 hover:text-sky-900",
+  },
+  club: {
+    heroSurfaceClass:
+      "border-amber-200/80 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.22),transparent_36%),linear-gradient(180deg,#fffef8_0%,#fff8eb_55%,#f0fdf4_100%)]",
+    badgeClass: "border-amber-200 bg-amber-950 text-amber-50",
+    iconSurfaceClass:
+      "border-amber-200 bg-white text-amber-800 shadow-[0_18px_42px_rgba(245,158,11,0.16)]",
+    infoPillClass: "border-amber-200/80 bg-amber-50 text-amber-950",
+    metricSurfaceClass: "border-amber-100 bg-white/90",
+    sectionSurfaceClass: "border-amber-100 bg-amber-50/55",
+    progressClass: "bg-amber-700",
+    primaryButtonClass:
+      "bg-amber-700 text-white shadow-[0_18px_35px_rgba(180,83,9,0.2)] hover:bg-amber-800 disabled:bg-amber-300",
+    activeSubjectClass:
+      "border-amber-200 bg-amber-100 text-amber-900 shadow-[0_10px_24px_rgba(245,158,11,0.14)]",
+    actionHoverClass: "hover:border-amber-200 hover:bg-amber-50 hover:text-amber-900",
+  },
+  school: {
+    heroSurfaceClass:
+      "border-indigo-200/80 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.22),transparent_36%),linear-gradient(180deg,#ffffff_0%,#eef2ff_55%,#eff6ff_100%)]",
+    badgeClass: "border-indigo-200 bg-indigo-950 text-indigo-50",
+    iconSurfaceClass:
+      "border-indigo-200 bg-white text-indigo-800 shadow-[0_18px_42px_rgba(99,102,241,0.16)]",
+    infoPillClass: "border-indigo-200/80 bg-indigo-50 text-indigo-950",
+    metricSurfaceClass: "border-indigo-100 bg-white/90",
+    sectionSurfaceClass: "border-indigo-100 bg-indigo-50/55",
+    progressClass: "bg-indigo-700",
+    primaryButtonClass:
+      "bg-indigo-700 text-white shadow-[0_18px_35px_rgba(79,70,229,0.2)] hover:bg-indigo-800 disabled:bg-indigo-300",
+    activeSubjectClass:
+      "border-indigo-200 bg-indigo-100 text-indigo-900 shadow-[0_10px_24px_rgba(99,102,241,0.14)]",
+    actionHoverClass: "hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-900",
+  },
+};
+
+const sectionNavigationByRole: Record<AccountRole, SectionNavigationItem[]> = {
+  parent: [
+    { id: "overview", label: "Огляд", hint: "Готовність і ключові показники" },
+    { id: "identity", label: "Основні дані", hint: "Ім'я, місто, email" },
+    { id: "family-context", label: "Діти та сім'я", hint: "Склад кабінету та контекст" },
+    { id: "request-progress", label: "Запити", hint: "Активність і прогрес рішень" },
+    { id: "actions", label: "Наступні дії", hint: "Робочі переходи для батьків" },
+  ],
+  club: [
+    { id: "overview", label: "Огляд", hint: "Присутність і готовність гуртка" },
+    { id: "identity", label: "Організація", hint: "Назва, місто, email" },
+    { id: "subjects", label: "Напрями", hint: "Редагування предметних напрямів" },
+    { id: "catalog-programs", label: "Каталог і програми", hint: "Публікація та доказова черга" },
+    { id: "actions", label: "Наступні дії", hint: "Операційні переходи гуртка" },
+  ],
+  school: [
+    { id: "overview", label: "Огляд", hint: "Стан профілю й операцій" },
+    { id: "identity", label: "Дані школи", hint: "Назва, місто, email" },
+    { id: "review-queue", label: "Черга розгляду", hint: "Активна перевірка кейсів" },
+    { id: "decision-signals", label: "Рішення", hint: "Фінальні сигнали та контекст" },
+    { id: "actions", label: "Наступні дії", hint: "Основні переходи для школи" },
+  ],
+};
+
+function WorkspaceSection({
+  id,
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section id={id} className="scroll-mt-24">
+      <SurfaceCard className="overflow-hidden border-slate-200/90 bg-white/92 p-0 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+        <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-5">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+            {eyebrow}
+          </div>
+          <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
+            {title}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+        </div>
+        <div className="px-6 py-6">{children}</div>
+      </SurfaceCard>
+    </section>
+  );
+}
+
+function MetricPanel({
+  label,
+  value,
+  hint,
+  className,
+}: {
+  label: string;
+  value: number | string;
+  hint: string;
+  className: string;
+}) {
+  return (
+    <div className={`rounded-[1.6rem] border p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] ${className}`}>
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </div>
+      <div className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">{value}</div>
+      <p className="mt-3 text-sm leading-6 text-slate-600">{hint}</p>
+    </div>
+  );
+}
+
+function getAccountCopy(role: AccountRole): AccountCopy {
   if (role === "parent") {
     return {
       eyebrow: "Акаунт родини",
       title: "Профіль батьківського кабінету",
       description:
-        "Оновіть основні дані профілю та швидко переходьте до дітей, каталогу програм і власних запитів.",
+        "Керуйте базовими даними родини, швидко переходьте до дітей і тримайте під рукою актуальну картину запитів після входу.",
+      readinessLabel: "Профіль родини",
       metrics: [
         {
           label: "Діти",
           valueKey: "childrenCount",
-          hint: "Керування профілями дітей і прив'язкою до школи.",
+          hint: "Профілі дітей, прив'язані до цього сімейного кабінету.",
         },
         {
           label: "Активні запити",
           valueKey: "activeRequests",
-          hint: "Запити, де процес ще не завершився фінальним рішенням.",
+          hint: "Подання, які ще проходять розгляд або очікують рішення.",
         },
         {
           label: "Погоджені",
           valueKey: "approvedRequests",
-          hint: "Запити, де школа вже зберегла своє рішення.",
+          hint: "Запити, за якими школа вже зберегла фінальний висновок.",
         },
       ],
       actions: [
-        { href: "/dashboard/children", label: "Додати дитину" },
-        { href: "/dashboard/discover", label: "Знайти програму" },
-        { href: "/dashboard/requests", label: "Перейти до запитів" },
+        {
+          href: "/dashboard/children",
+          label: "Керувати дітьми",
+          hint: "Додавайте профілі дітей і перевіряйте їхню шкільну прив'язку.",
+        },
+        {
+          href: "/dashboard/discover",
+          label: "Знайти програму",
+          hint: "Підбирайте гуртки та програми за предметом, віком або містом.",
+        },
+        {
+          href: "/dashboard/requests",
+          label: "Переглянути запити",
+          hint: "Слідкуйте за етапами подань і рішеннями шкіл.",
+        },
       ],
     };
   }
@@ -53,28 +248,41 @@ function getAccountCopy(role: AccountRole) {
       eyebrow: "Акаунт гуртка",
       title: "Профіль організації",
       description:
-        "Тут оновлюються контактні дані гуртка, ключові предметні напрями та швидкі переходи до програм і запитів.",
+        "Підтримуйте публічне представлення гуртка, керуйте предметними напрямами та контролюйте, як організація виглядає в каталозі й заявках.",
+      readinessLabel: "Профіль гуртка",
       metrics: [
         {
           label: "Програми",
           valueKey: "programsCount",
-          hint: "Усі програми, які гурток додав до платформи.",
+          hint: "Усі програми, які гурток уже створив на платформі.",
         },
         {
           label: "Опубліковані",
           valueKey: "publishedProgramsCount",
-          hint: "Програми, видимі батькам у каталозі.",
+          hint: "Програми, видимі родинам у каталозі й пошуку.",
         },
         {
           label: "Потрібні докази",
           valueKey: "requestsNeedingEvidenceCount",
-          hint: "Запити, де школа або батьки ще чекають підсумок доказів.",
+          hint: "Запити, де гурток ще має оновити або додати підсумки.",
         },
       ],
       actions: [
-        { href: "/dashboard/programs", label: "Додати програму" },
-        { href: "/dashboard/programs", label: "AI-аналіз" },
-        { href: "/dashboard/requests", label: "Відкрити запити" },
+        {
+          href: "/dashboard/programs",
+          label: "Керувати програмами",
+          hint: "Оновлюйте описи, структуру і статус публікації програм.",
+        },
+        {
+          href: "/dashboard/programs",
+          label: "Додати нову програму",
+          hint: "Розгорніть новий навчальний напрям для каталогу та подань.",
+        },
+        {
+          href: "/dashboard/requests",
+          label: "Відкрити запити",
+          hint: "Перевірте, де потрібні докази або відповіді гуртка.",
+        },
       ],
     };
   }
@@ -83,27 +291,36 @@ function getAccountCopy(role: AccountRole) {
     eyebrow: "Акаунт школи",
     title: "Профіль шкільного кабінету",
     description:
-      "Оновіть назву та місто школи, а далі працюйте з чергою розгляду і фінальними рішеннями.",
+      "Підтримуйте шкільний профіль у робочому стані, щоб черга розгляду, фінальні рішення і прив'язка дітей не втрачали контекст організації.",
+    readinessLabel: "Профіль школи",
     metrics: [
       {
         label: "Очікують розгляду",
         valueKey: "pendingReviews",
-        hint: "Запити, які чекають первинного або активного розгляду школи.",
+        hint: "Запити, які вже в черзі та потребують старту або продовження перевірки.",
       },
       {
         label: "Погоджені",
         valueKey: "approvedRequests",
-        hint: "Запити зі збереженим позитивним або частковим рішенням.",
+        hint: "Заявки з позитивним або частково позитивним рішенням школи.",
       },
       {
         label: "Увага потрібна",
         valueKey: "attentionRequired",
-        hint: "Відхилені запити або запити з вимогою доопрацювання.",
+        hint: "Відхилені або повернуті на доопрацювання кейси.",
       },
     ],
     actions: [
-      { href: "/dashboard/review", label: "Відкрити чергу" },
-      { href: "/dashboard/review", label: "Подивитися рішення" },
+      {
+        href: "/dashboard/review",
+        label: "Відкрити чергу",
+        hint: "Поверніться до кейсів, які зараз чекають розгляду.",
+      },
+      {
+        href: "/dashboard/review",
+        label: "Переглянути рішення",
+        hint: "Оцініть поточний стан уже оброблених запитів.",
+      },
     ],
   };
 }
@@ -124,7 +341,7 @@ function getProfileGuide(role: AccountRole) {
   if (role === "parent") {
     return {
       summaryDescription:
-        "Профіль родини показує школі та гурткам, хто створює запити, до якого міста належить кабінет і де шукати наступні дії.",
+        "Профіль родини допомагає швидко зрозуміти, хто створює запити, скільки дітей у кабінеті та наскільки все готово до наступних дій.",
       cityHint: "Місто допомагає швидше підбирати школу та програми для дітей.",
       completionHint: "Базовий профіль достатній для створення дітей і нових запитів.",
     };
@@ -133,8 +350,8 @@ function getProfileGuide(role: AccountRole) {
   if (role === "club") {
     return {
       summaryDescription:
-        "Цей профіль формує представлення гуртка в каталозі, у списку програм і в комунікації зі школами.",
-      cityHint: "Місто впливає на видимість у каталозі та локальні фільтри для батьків.",
+        "Профіль гуртка працює як візитка в каталозі, у списку програм і в комунікації зі школами та батьками.",
+      cityHint: "Місто впливає на локальні фільтри та видимість гуртка в каталозі.",
       completionHint:
         "Для гуртка важливо позначити предметні напрями, щоб програми знаходилися швидше.",
     };
@@ -142,7 +359,7 @@ function getProfileGuide(role: AccountRole) {
 
   return {
     summaryDescription:
-      "Дані профілю школи використовуються в черзі розгляду, у прив'язці дітей та в остаточних рішеннях по запитах.",
+      "Дані профілю школи використовуються в черзі розгляду, у прив'язці дітей і у фінальних рішеннях по кожному запиту.",
     cityHint: "Місто допомагає родинам коректно знаходити школу під час створення профілю дитини.",
     completionHint: "Заповнений профіль школи спрощує розпізнавання організації в усіх запитах.",
   };
@@ -195,14 +412,17 @@ export default function DashboardAccountPage() {
     );
   }
 
-  const copy = getAccountCopy(me.profile.role);
-  const guide = getProfileGuide(me.profile.role);
+  const role = me.profile.role;
+  const copy = getAccountCopy(role);
+  const guide = getProfileGuide(role);
+  const theme = roleThemes[role];
+  const RoleIcon = roleIcons[role];
+  const sectionNavigation = sectionNavigationByRole[role];
   const initialDisplayName = me.account.displayName.trim();
   const initialCity = (me.account.city ?? "").trim();
   const normalizedDisplayName = displayName.trim();
   const normalizedCity = city.trim();
-  const hasSubjectChanges =
-    me.profile.role === "club" ? !areSubjectsEqual(subjects, me.account.subjects) : false;
+  const hasSubjectChanges = role === "club" ? !areSubjectsEqual(subjects, me.account.subjects) : false;
   const hasChanges =
     normalizedDisplayName !== initialDisplayName ||
     normalizedCity !== initialCity ||
@@ -215,7 +435,7 @@ export default function DashboardAccountPage() {
       isComplete: true,
     },
     {
-      label: getDisplayNameLabel(me.profile.role),
+      label: getDisplayNameLabel(role),
       value: normalizedDisplayName || "Додайте основну назву профілю.",
       isComplete: normalizedDisplayName.length > 0,
     },
@@ -229,7 +449,7 @@ export default function DashboardAccountPage() {
       value: normalizedCity || guide.cityHint,
       isComplete: normalizedCity.length > 0,
     },
-    ...(me.profile.role === "club"
+    ...(role === "club"
       ? [
           {
             label: "Предметні напрями",
@@ -243,9 +463,10 @@ export default function DashboardAccountPage() {
       : []),
   ];
   const completedItemsCount = completionItems.filter((item) => item.isComplete).length;
-  const completionProgress = Math.round(
-    (completedItemsCount / completionItems.length) * 100,
-  );
+  const completionProgress = Math.round((completedItemsCount / completionItems.length) * 100);
+  const primaryAction = copy.actions[0];
+  const inputClassName =
+    "h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-950/5";
 
   const resetForm = () => {
     setDisplayName(me.account.displayName);
@@ -284,15 +505,13 @@ export default function DashboardAccountPage() {
       await updateMyProfile({
         displayName: normalizedDisplayName,
         city: normalizedCity || null,
-        subjects: me.profile.role === "club" ? subjects : undefined,
+        subjects: role === "club" ? subjects : undefined,
       });
       await refreshMe();
       setStatus("Профіль оновлено.");
     } catch (submitError) {
       setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Не вдалося оновити профіль",
+        submitError instanceof Error ? submitError.message : "Не вдалося оновити профіль",
       );
     } finally {
       setIsSubmitting(false);
@@ -300,173 +519,268 @@ export default function DashboardAccountPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeading
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
-        actions={copy.actions.map((action) => (
-          <Link
-            key={action.href + action.label}
-            href={action.href}
-            className="inline-flex items-center rounded-2xl border border-slate-900/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(15,23,42,0.16)] transition hover:bg-slate-800"
-          >
-            {action.label}
-          </Link>
-        ))}
-      />
+    <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+        <SurfaceCard
+          className={`overflow-hidden border-slate-200/90 p-0 shadow-[0_18px_52px_rgba(15,23,42,0.06)] ${theme.heroSurfaceClass}`}
+        >
+          <div className="px-5 py-5">
+            <div
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${theme.badgeClass}`}
+            >
+              <RoleIcon className="h-3.5 w-3.5" strokeWidth={2.1} />
+              {copy.eyebrow}
+            </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
-        {copy.metrics.map((metric) => (
-          <MetricCard
-            key={metric.label}
-            label={metric.label}
-            value={me.summary[metric.valueKey] ?? 0}
-            hint={metric.hint}
-          />
-        ))}
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_360px]">
-        <SurfaceCard className="overflow-hidden p-0">
-          <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">
-                  Редагування профілю
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Оновіть основні дані кабінету. Email використовується для входу й змінюється
-                  окремо.
-                </p>
-              </div>
+            <div className="mt-4 flex items-start gap-4">
               <div
-                className={`inline-flex rounded-full border px-4 py-2 text-xs font-semibold ${
-                  hasChanges
-                    ? "border-amber-200 bg-amber-50 text-amber-700"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                }`}
+                className={`grid h-14 w-14 place-items-center rounded-[1.4rem] border ${theme.iconSurfaceClass}`}
               >
-                {hasChanges ? "Є незбережені зміни" : "Усі зміни збережені"}
+                <RoleIcon className="h-6 w-6" strokeWidth={2.1} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xl font-semibold tracking-[-0.04em] text-slate-950">
+                  {normalizedDisplayName || me.account.displayName}
+                </div>
+                <div className="mt-1 text-sm text-slate-600">{me.profile.email}</div>
+                {normalizedCity ? (
+                  <div
+                    className={`mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${theme.infoPillClass}`}
+                  >
+                    <MapPin className="h-3.5 w-3.5" strokeWidth={2.1} />
+                    {normalizedCity}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white/85 p-4">
+              <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                <span>Готовність профілю</span>
+                <span>{completionProgress}%</span>
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-slate-200">
+                <div
+                  className={`h-2 rounded-full transition-all ${theme.progressClass}`}
+                  style={{ width: `${completionProgress}%` }}
+                />
+              </div>
+              <div className="mt-3 text-sm text-slate-600">
+                {completedItemsCount} з {completionItems.length} блоків профілю заповнено.
+              </div>
+            </div>
+
+            <Link
+              href={primaryAction.href}
+              className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
+            >
+              {primaryAction.label}
+              <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+            </Link>
+          </div>
+        </SurfaceCard>
+
+        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+            Навігація профілю
+          </div>
+          <nav className="mt-4 grid gap-2">
+            {sectionNavigation.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={`rounded-[1.35rem] border border-slate-200 bg-slate-50/80 px-4 py-3 transition ${theme.actionHoverClass}`}
+              >
+                <div className="text-sm font-semibold text-slate-900">{item.label}</div>
+                <div className="mt-1 text-xs leading-5 text-slate-500">{item.hint}</div>
+              </a>
+            ))}
+          </nav>
+        </SurfaceCard>
+
+        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+            Стан редагування
+          </div>
+          <div
+            className={`mt-3 rounded-[1.35rem] border px-4 py-4 text-sm ${
+              error
+                ? "border-red-200 bg-red-50 text-red-700"
+                : status
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : hasChanges
+                    ? "border-amber-200 bg-amber-50 text-amber-800"
+                    : "border-slate-200 bg-slate-50 text-slate-700"
+            }`}
+          >
+            {error ||
+              status ||
+              (hasChanges
+                ? "Є незбережені зміни. Після редагування перейдіть до блоку основних даних і збережіть їх."
+                : "Профіль синхронізований і готовий до роботи.")}
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-600">{guide.summaryDescription}</p>
+        </SurfaceCard>
+      </aside>
+
+      <div className="space-y-6">
+        <WorkspaceSection
+          id="overview"
+          eyebrow={copy.eyebrow}
+          title={copy.title}
+          description={copy.description}
+        >
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="grid gap-4 md:grid-cols-3">
+              {copy.metrics.map((metric) => (
+                <MetricPanel
+                  key={metric.label}
+                  label={metric.label}
+                  value={me.summary[metric.valueKey] ?? 0}
+                  hint={metric.hint}
+                  className={theme.metricSurfaceClass}
+                />
+              ))}
+            </div>
+
+            <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
+              <div className="flex items-start gap-3">
+                <div
+                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
+                >
+                  <Sparkles className="h-5 w-5" strokeWidth={2.1} />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-950">Операційний фокус</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{guide.summaryDescription}</p>
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <div
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+                >
+                  <Mail className="h-4 w-4" strokeWidth={2.1} />
+                  {me.profile.email}
+                </div>
+                <div
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+                >
+                  <RoleIcon className="h-4 w-4" strokeWidth={2.1} />
+                  {copy.readinessLabel}
+                </div>
+                {normalizedCity ? (
+                  <div
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
+                  >
+                    <MapPin className="h-4 w-4" strokeWidth={2.1} />
+                    {normalizedCity}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
+        </WorkspaceSection>
 
-          <form className="grid gap-6 px-6 py-6" onSubmit={handleSubmit}>
-            <div className="grid gap-6 rounded-[1.6rem] border border-slate-200 bg-white p-5">
-              <div>
-                <h3 className="text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                  Основні дані
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">{guide.completionHint}</p>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
-                    {getDisplayNameLabel(me.profile.role)}
-                  </label>
-                  <input
-                    id="displayName"
-                    className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-                    value={displayName}
-                    onChange={(event) => {
-                      clearFeedback();
-                      setDisplayName(event.target.value);
-                    }}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-slate-700" htmlFor="city">
-                    Місто
-                  </label>
-                  <input
-                    id="city"
-                    className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-                    value={city}
-                    onChange={(event) => {
-                      clearFeedback();
-                      setCity(event.target.value);
-                    }}
-                    placeholder="Наприклад, Київ"
-                  />
-                  <p className="text-xs leading-5 text-slate-500">{guide.cityHint}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 rounded-[1.6rem] border border-slate-200 bg-slate-50/70 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <WorkspaceSection
+            id="identity"
+            eyebrow="Основні дані"
+            title={getDisplayNameLabel(role)}
+            description={guide.completionHint}
+          >
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
               <div className="grid gap-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="email">
+                <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
+                  {getDisplayNameLabel(role)}
+                </label>
+                <input
+                  id="displayName"
+                  className={inputClassName}
+                  value={displayName}
+                  onChange={(event) => {
+                    clearFeedback();
+                    setDisplayName(event.target.value);
+                  }}
+                  required
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="city">
+                  Місто
+                </label>
+                <input
+                  id="city"
+                  className={inputClassName}
+                  value={city}
+                  onChange={(event) => {
+                    clearFeedback();
+                    setCity(event.target.value);
+                  }}
+                  placeholder="Наприклад, Київ"
+                />
+                <p className="text-xs leading-5 text-slate-500">{guide.cityHint}</p>
+              </div>
+
+              <div className={`rounded-[1.6rem] border p-4 ${theme.sectionSurfaceClass}`}>
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Доступ
+                </div>
+                <label className="mt-3 block text-sm font-medium text-slate-700" htmlFor="email">
                   Email для входу
                 </label>
                 <input
                   id="email"
-                  className="h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-500"
+                  className="mt-2 h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
                   value={me.profile.email}
                   readOnly
                 />
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
-                <Mail className="h-4 w-4 text-blue-600" strokeWidth={2.1} />
-                Тільки перегляд
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
+                  <Mail className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.1} />
+                  Тільки перегляд
+                </div>
               </div>
             </div>
+          </WorkspaceSection>
 
-            {me.profile.role === "club" ? (
-              <div className="grid gap-4 rounded-[1.6rem] border border-slate-200 bg-white p-5">
-                <div>
-                  <h3 className="text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                    Предметні напрями
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Відзначте напрями, які пов'язані з програмами гуртка та пошуком у каталозі.
-                  </p>
-                </div>
+          {role === "club" ? (
+            <WorkspaceSection
+              id="subjects"
+              eyebrow="Предметні напрями"
+              title="Навчальні напрями гуртка"
+              description="Окремий блок для керування предметними напрямами, щоб програми точніше знаходилися в каталозі."
+            >
+              <div className="flex flex-wrap gap-2">
+                {subjectOptions.map((subject) => {
+                  const isActive = subjects.includes(subject);
 
-                <div className="flex flex-wrap gap-2">
-                  {subjectOptions.map((subject) => {
-                    const isActive = subjects.includes(subject);
-
-                    return (
-                      <button
-                        key={subject}
-                        type="button"
-                        className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                          isActive
-                            ? "border-blue-200 bg-blue-50 text-blue-700 shadow-[0_10px_24px_rgba(37,99,255,0.12)]"
-                            : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                        }`}
-                        onClick={() => toggleSubject(subject)}
-                      >
-                        {subject}
-                      </button>
-                    );
-                  })}
-                </div>
+                  return (
+                    <button
+                      key={subject}
+                      type="button"
+                      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                        isActive
+                          ? theme.activeSubjectClass
+                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                      onClick={() => toggleSubject(subject)}
+                    >
+                      {subject}
+                    </button>
+                  );
+                })}
               </div>
-            ) : null}
+            </WorkspaceSection>
+          ) : null}
 
-            {error ? (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            ) : null}
-
-            {status ? (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {status}
-              </div>
-            ) : null}
-
-            <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6">
+          <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+            <div className="flex flex-wrap items-center gap-3">
               <button
-                className="inline-flex h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.22)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                className={`inline-flex h-14 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
                 type="submit"
                 disabled={!canSubmit}
               >
+                <Save className="h-4 w-4" strokeWidth={2.1} />
                 {isSubmitting
                   ? "Збереження..."
                   : hasChanges
@@ -490,95 +804,285 @@ export default function DashboardAccountPage() {
                   : "Профіль готовий до роботи без додаткових дій."}
               </div>
             </div>
-          </form>
-        </SurfaceCard>
 
-        <div className="space-y-6">
-          <SurfaceCard className="overflow-hidden p-0">
-            <div className="bg-[linear-gradient(135deg,#0f172a,#123a7c_62%,#2563ff)] px-6 py-6 text-white">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
-                Стан профілю
+            {error ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
               </div>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                {normalizedDisplayName || me.account.displayName}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-white/78">{guide.summaryDescription}</p>
-            </div>
+            ) : null}
 
-            <div className="space-y-5 px-6 py-6">
-              <div>
-                <div className="flex items-center justify-between text-sm font-semibold text-slate-950">
-                  <span>Готовність профілю</span>
-                  <span className="text-blue-700">{completionProgress}%</span>
-                </div>
-                <div className="mt-3 h-2 rounded-full bg-slate-100">
-                  <div
-                    className="h-2 rounded-full bg-blue-600 transition-all"
-                    style={{ width: `${completionProgress}%` }}
-                  />
-                </div>
+            {status ? (
+              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {status}
               </div>
+            ) : null}
+          </SurfaceCard>
+        </form>
 
-              <div className="space-y-3">
-                {completionItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-4"
-                  >
-                    <CheckCircle2
-                      className={`mt-0.5 h-5 w-5 ${
-                        item.isComplete ? "text-emerald-600" : "text-slate-300"
-                      }`}
-                      strokeWidth={2.1}
-                    />
+        {role === "parent" ? (
+          <>
+            <WorkspaceSection
+              id="family-context"
+              eyebrow="Діти та сім'я"
+              title="Сімейний контекст кабінету"
+              description="Окремий блок про склад сімейного кабінету та логіку прив'язки дітей до шкіл."
+            >
+              <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
+                <MetricPanel
+                  label="Профілі дітей"
+                  value={me.summary.childrenCount ?? 0}
+                  hint="Саме цей блок визначає, скільки профілів доступно для нових заявок і шкільних зв'язків."
+                  className={theme.metricSurfaceClass}
+                />
+                <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
+                    >
+                      <Users className="h-5 w-5" strokeWidth={2.1} />
+                    </div>
                     <div>
-                      <div className="text-sm font-semibold text-slate-950">{item.label}</div>
-                      <div className="mt-1 text-sm leading-6 text-slate-500">{item.value}</div>
+                      <div className="text-sm font-semibold text-slate-950">
+                        Керування дітьми винесене в окремий робочий блок
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        У профілі батьків зберігаються лише базові дані родини. Додавання дитини,
+                        школа, вік і примітки живуть у спеціальному розділі для дітей, щоб не
+                        змішувати персональні дані з робочими записами.
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
-                <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
-                  <Mail className="h-3.5 w-3.5 text-blue-600" strokeWidth={2.1} />
-                  {me.profile.email}
+                  <Link
+                    href="/dashboard/children"
+                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                  >
+                    Перейти до дітей
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                  </Link>
                 </div>
-                {normalizedCity ? (
-                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-blue-600" strokeWidth={2.1} />
-                    {normalizedCity}
+              </div>
+            </WorkspaceSection>
+
+            <WorkspaceSection
+              id="request-progress"
+              eyebrow="Запити"
+              title="Активність і прогрес заявок"
+              description="Блок для швидкого розуміння, де сім'я зараз у процесі подань і рішень."
+            >
+              <div className="grid gap-4 lg:grid-cols-3">
+                <MetricPanel
+                  label="Активні запити"
+                  value={me.summary.activeRequests ?? 0}
+                  hint="Кейси, у яких ще триває розгляд, збір доказів або очікується рішення."
+                  className={theme.metricSurfaceClass}
+                />
+                <MetricPanel
+                  label="Погоджені"
+                  value={me.summary.approvedRequests ?? 0}
+                  hint="Кількість позитивно завершених заявок, де школа вже зафіксувала висновок."
+                  className={theme.metricSurfaceClass}
+                />
+                <div className={`rounded-[1.6rem] border p-5 ${theme.sectionSurfaceClass}`}>
+                  <div className="text-sm font-semibold text-slate-950">Що далі</div>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    Якщо сім'я шукає нові можливості, маршрут починається з каталогу програм, а
+                    потім повертається в розділ запитів для контролю статусів.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      href="/dashboard/discover"
+                      className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                    >
+                      Каталог програм
+                      <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                    </Link>
+                    <Link
+                      href="/dashboard/requests"
+                      className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                    >
+                      Відкрити запити
+                      <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                    </Link>
                   </div>
-                ) : null}
+                </div>
+              </div>
+            </WorkspaceSection>
+          </>
+        ) : null}
+
+        {role === "club" ? (
+          <WorkspaceSection
+            id="catalog-programs"
+            eyebrow="Каталог і програми"
+            title="Присутність гуртка в каталозі"
+            description="Окремий операційний блок для програм, публікації та черги запитів, де потрібні докази."
+          >
+            <div className="grid gap-4 lg:grid-cols-3">
+              <MetricPanel
+                label="Усі програми"
+                value={me.summary.programsCount ?? 0}
+                hint="Загальна кількість програм, що належать вашій організації."
+                className={theme.metricSurfaceClass}
+              />
+              <MetricPanel
+                label="Опубліковані"
+                value={me.summary.publishedProgramsCount ?? 0}
+                hint="Програми, які зараз доступні в каталозі для пошуку батьками."
+                className={theme.metricSurfaceClass}
+              />
+              <MetricPanel
+                label="Черга доказів"
+                value={me.summary.requestsNeedingEvidenceCount ?? 0}
+                hint="Запити, де гуртку ще потрібно додати пояснення або підтвердження."
+                className={theme.metricSurfaceClass}
+              />
+            </div>
+
+            <div className={`mt-4 rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
+              <div className="flex items-start gap-3">
+                <div
+                  className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
+                >
+                  <Compass className="h-5 w-5" strokeWidth={2.1} />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-950">
+                    Програми і профіль працюють як одна система
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Назва організації, місто та предметні напрями напряму впливають на те, як
+                    гурток виглядає в каталозі. Окремий розділ програм залишається робочим центром
+                    для створення та оновлення наповнення.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href="/dashboard/programs"
+                  className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                >
+                  Керувати програмами
+                  <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                </Link>
+                <Link
+                  href="/dashboard/requests"
+                  className={`inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                >
+                  Відкрити запити
+                  <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                </Link>
               </div>
             </div>
-          </SurfaceCard>
+          </WorkspaceSection>
+        ) : null}
 
-          <SurfaceCard>
-            <h2 className="text-xl font-semibold tracking-[-0.03em] text-slate-950">
-              Швидкі переходи
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Після оновлення профілю одразу переходьте до наступних задач вашого кабінету.
-            </p>
+        {role === "school" ? (
+          <>
+            <WorkspaceSection
+              id="review-queue"
+              eyebrow="Черга розгляду"
+              title="Стан активної перевірки"
+              description="Окремий блок для контролю навантаження на розгляд і кейсів, які не можна пропустити."
+            >
+              <div className="grid gap-4 lg:grid-cols-3">
+                <MetricPanel
+                  label="Очікують розгляду"
+                  value={me.summary.pendingReviews ?? 0}
+                  hint="Запити, які мають зайти в роботу або вже знаходяться на розгляді."
+                  className={theme.metricSurfaceClass}
+                />
+                <MetricPanel
+                  label="Потрібна увага"
+                  value={me.summary.attentionRequired ?? 0}
+                  hint="Кейси, де є відхилення або потрібно повернення на доопрацювання."
+                  className={theme.metricSurfaceClass}
+                />
+                <div className={`rounded-[1.6rem] border p-5 ${theme.sectionSurfaceClass}`}>
+                  <div className="text-sm font-semibold text-slate-950">Робочий фокус школи</div>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    Профіль школи має залишатися лаконічним, а операційна логіка живе в черзі
+                    розгляду. Саме там команда рухається по кейсах і повертається до рішень.
+                  </p>
+                  <Link
+                    href="/dashboard/review"
+                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                  >
+                    Перейти до черги
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                  </Link>
+                </div>
+              </div>
+            </WorkspaceSection>
 
-            <div className="mt-5 grid gap-3">
-              {copy.actions.map((action) => (
-                <Link
-                  key={`sidebar-${action.href}-${action.label}`}
-                  href={action.href}
-                  className="group flex items-center justify-between rounded-[1.4rem] border border-slate-200 bg-slate-50/70 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span>{action.label}</span>
+            <WorkspaceSection
+              id="decision-signals"
+              eyebrow="Рішення"
+              title="Фінальні сигнали та контекст"
+              description="Окремий блок для підсумкових рішень, щоб відділити профіль школи від операційної логіки кейсів."
+            >
+              <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
+                <MetricPanel
+                  label="Погоджені заявки"
+                  value={me.summary.approvedRequests ?? 0}
+                  hint="Кількість позитивних або частково позитивних рішень, які школа вже зафіксувала."
+                  className={theme.metricSurfaceClass}
+                />
+                <div className={`rounded-[1.75rem] border p-5 ${theme.sectionSurfaceClass}`}>
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`grid h-11 w-11 place-items-center rounded-2xl border ${theme.iconSurfaceClass}`}
+                    >
+                      <CheckCircle2 className="h-5 w-5" strokeWidth={2.1} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-950">
+                        Профіль не дублює систему рішень
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        У профілі зберігаються реквізити школи, а історія оцінки та фінальні
+                        висновки залишаються в розділі розгляду. Так кабінет не змішує довідкові
+                        дані з робочою перевіркою кейсів.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/dashboard/review"
+                    className={`mt-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition ${theme.actionHoverClass}`}
+                  >
+                    Переглянути рішення
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                  </Link>
+                </div>
+              </div>
+            </WorkspaceSection>
+          </>
+        ) : null}
+
+        <WorkspaceSection
+          id="actions"
+          eyebrow="Наступні дії"
+          title="Швидкі переходи"
+          description="Окремий блок для задач, які найчастіше виконуються після оновлення профілю."
+        >
+          <div className="grid gap-3">
+            {copy.actions.map((action) => (
+              <Link
+                key={`${action.href}-${action.label}`}
+                href={action.href}
+                className={`group rounded-[1.5rem] border border-slate-200 bg-slate-50/75 px-4 py-4 transition ${theme.actionHoverClass}`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold text-slate-900">{action.label}</span>
                   <ArrowRight
-                    className="h-4 w-4 transition group-hover:translate-x-1"
+                    className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-1"
                     strokeWidth={2.1}
                   />
-                </Link>
-              ))}
-            </div>
-          </SurfaceCard>
-        </div>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{action.hint}</p>
+              </Link>
+            ))}
+          </div>
+        </WorkspaceSection>
       </div>
     </div>
   );

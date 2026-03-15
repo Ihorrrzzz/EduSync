@@ -104,7 +104,12 @@ meRoutes.get("/", async (c) => {
 
   if (user.role === UserRole.club) {
     const club = await ensureClubActor(user);
-    const [programsCount, publishedProgramsCount, requestsNeedingEvidenceCount] =
+    const [
+      programsCount,
+      publishedProgramsCount,
+      requestsNeedingEvidenceCount,
+      studentsInRequests,
+    ] =
       await Promise.all([
         prisma.clubProgram.count({
           where: { clubId: club!.id },
@@ -128,6 +133,15 @@ meRoutes.get("/", async (c) => {
             },
           },
         }),
+        prisma.recognitionRequest.findMany({
+          where: {
+            clubId: club!.id,
+          },
+          distinct: ["childId"],
+          select: {
+            childId: true,
+          },
+        }),
       ]);
 
     return c.json({
@@ -139,6 +153,7 @@ meRoutes.get("/", async (c) => {
         subjects: club!.subjects,
       },
       summary: {
+        studentsCount: studentsInRequests.length,
         programsCount,
         publishedProgramsCount,
         requestsNeedingEvidenceCount,

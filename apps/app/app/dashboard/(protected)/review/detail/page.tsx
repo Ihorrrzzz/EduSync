@@ -24,10 +24,10 @@ const decisionOptions: Array<{
   value: DecisionRecord["decision"];
   label: string;
 }> = [
-  { value: "APPROVE", label: "Погодити" },
-  { value: "PARTIAL", label: "Частково погодити" },
-  { value: "REQUEST_CHANGES", label: "Попросити зміни" },
-  { value: "REJECT", label: "Відхилити" },
+  { value: "APPROVE", label: "Підтверджено" },
+  { value: "PARTIAL", label: "Підтверджено частково" },
+  { value: "REQUEST_CHANGES", label: "Повернено" },
+  { value: "REJECT", label: "Скасовано" },
 ];
 
 function DashboardReviewDetailContent() {
@@ -131,9 +131,9 @@ function DashboardReviewDetailContent() {
   return (
     <div className="space-y-6">
       <PageHeading
-        eyebrow="Шкільний розгляд"
+        eyebrow="Розгляд"
         title={`${request.child.fullName} · ${request.targetSubject}`}
-        description="AI-панель і пакет доказів наведені нижче. Фінальне рішення має заповнити школа."
+        description="AI-панель і пакет доказів наведені нижче. Школа фіксує підсумкове рішення та, за потреби, повертає заявку на доопрацювання."
       />
 
       <div className="flex flex-wrap gap-2">

@@ -58,12 +58,6 @@ type AccountCopy = {
   actions: AccountAction[];
 };
 
-type SectionNavigationItem = {
-  id: string;
-  label: string;
-  hint: string;
-};
-
 const roleIcons: Record<AccountRole, LucideIcon> = {
   parent: Users,
   club: Building2,
@@ -121,45 +115,19 @@ const roleThemes: Record<AccountRole, AccountTheme> = {
   },
 };
 
-const sectionNavigationByRole: Record<AccountRole, SectionNavigationItem[]> = {
-  parent: [
-    { id: "overview", label: "Огляд", hint: "Готовність і ключові показники" },
-    { id: "identity", label: "Основні дані", hint: "Ім'я, місто, email" },
-    { id: "family-context", label: "Діти та сім'я", hint: "Склад кабінету та контекст" },
-    { id: "request-progress", label: "Запити", hint: "Активність і прогрес рішень" },
-    { id: "actions", label: "Наступні дії", hint: "Робочі переходи для батьків" },
-  ],
-  club: [
-    { id: "overview", label: "Огляд", hint: "Присутність і готовність гуртка" },
-    { id: "identity", label: "Організація", hint: "Назва, місто, email" },
-    { id: "subjects", label: "Напрями", hint: "Редагування предметних напрямів" },
-    { id: "catalog-programs", label: "Каталог і програми", hint: "Публікація та доказова черга" },
-    { id: "actions", label: "Наступні дії", hint: "Операційні переходи гуртка" },
-  ],
-  school: [
-    { id: "overview", label: "Огляд", hint: "Стан профілю й операцій" },
-    { id: "identity", label: "Дані школи", hint: "Назва, місто, email" },
-    { id: "review-queue", label: "Черга розгляду", hint: "Активна перевірка кейсів" },
-    { id: "decision-signals", label: "Рішення", hint: "Фінальні сигнали та контекст" },
-    { id: "actions", label: "Наступні дії", hint: "Основні переходи для школи" },
-  ],
-};
-
 function WorkspaceSection({
-  id,
   eyebrow,
   title,
   description,
   children,
 }: {
-  id: string;
   eyebrow: string;
   title: string;
   description: string;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24">
+    <section>
       <SurfaceCard className="overflow-hidden border-slate-200/90 bg-white/92 p-0 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
         <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-5">
           <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
@@ -201,11 +169,11 @@ function MetricPanel({
 function getAccountCopy(role: AccountRole): AccountCopy {
   if (role === "parent") {
     return {
-      eyebrow: "Акаунт родини",
-      title: "Профіль батьківського кабінету",
+      eyebrow: "Огляд родини",
+      title: "Огляд батьківського кабінету",
       description:
-        "Керуйте базовими даними родини, швидко переходьте до дітей і тримайте під рукою актуальну картину запитів після входу.",
-      readinessLabel: "Профіль родини",
+        "Головна сторінка батьків після входу: базові дані родини, короткий стан дітей і швидкі переходи до наступних дій.",
+      readinessLabel: "Кабінет родини",
       metrics: [
         {
           label: "Діти",
@@ -245,54 +213,54 @@ function getAccountCopy(role: AccountRole): AccountCopy {
 
   if (role === "club") {
     return {
-      eyebrow: "Акаунт гуртка",
-      title: "Профіль організації",
+      eyebrow: "Огляд гуртка",
+      title: "Огляд кабінету гуртка",
       description:
-        "Підтримуйте публічне представлення гуртка, керуйте предметними напрямами та контролюйте, як організація виглядає в каталозі й заявках.",
-      readinessLabel: "Профіль гуртка",
+        "Головна сторінка гуртка після входу: короткий стан учнів, програм і запитів разом із налаштуванням профілю організації.",
+      readinessLabel: "Кабінет гуртка",
       metrics: [
+        {
+          label: "Учні",
+          valueKey: "studentsCount",
+          hint: "Діти, які вже проходять через програми та запити вашого гуртка.",
+        },
         {
           label: "Програми",
           valueKey: "programsCount",
           hint: "Усі програми, які гурток уже створив на платформі.",
         },
         {
-          label: "Опубліковані",
-          valueKey: "publishedProgramsCount",
-          hint: "Програми, видимі родинам у каталозі й пошуку.",
-        },
-        {
-          label: "Потрібні докази",
+          label: "Запити в роботі",
           valueKey: "requestsNeedingEvidenceCount",
-          hint: "Запити, де гурток ще має оновити або додати підсумки.",
+          hint: "Запити, де гуртку ще потрібно оновити докази або підсумки.",
         },
       ],
       actions: [
         {
-          href: "/dashboard/programs",
-          label: "Керувати програмами",
-          hint: "Оновлюйте описи, структуру і статус публікації програм.",
-        },
-        {
-          href: "/dashboard/programs",
-          label: "Додати нову програму",
-          hint: "Розгорніть новий навчальний напрям для каталогу та подань.",
+          href: "/dashboard/students",
+          label: "Відкрити учнів",
+          hint: "Перегляньте дітей, які вже проходять через програми та заявки гуртка.",
         },
         {
           href: "/dashboard/requests",
           label: "Відкрити запити",
           hint: "Перевірте, де потрібні докази або відповіді гуртка.",
         },
+        {
+          href: "/dashboard/programs",
+          label: "Керувати програмами",
+          hint: "Оновлюйте описи, структуру і статус публікації програм.",
+        },
       ],
     };
   }
 
   return {
-    eyebrow: "Акаунт школи",
-    title: "Профіль шкільного кабінету",
+    eyebrow: "Огляд школи",
+    title: "Огляд шкільного кабінету",
     description:
-      "Підтримуйте шкільний профіль у робочому стані, щоб черга розгляду, фінальні рішення і прив'язка дітей не втрачали контекст організації.",
-    readinessLabel: "Профіль школи",
+      "Головна сторінка школи після входу: короткий стан розгляду заявок, профілю школи та швидкі переходи до черги.",
+    readinessLabel: "Кабінет школи",
     metrics: [
       {
         label: "Очікують розгляду",
@@ -417,7 +385,6 @@ export default function DashboardAccountPage() {
   const guide = getProfileGuide(role);
   const theme = roleThemes[role];
   const RoleIcon = roleIcons[role];
-  const sectionNavigation = sectionNavigationByRole[role];
   const initialDisplayName = me.account.displayName.trim();
   const initialCity = (me.account.city ?? "").trim();
   const normalizedDisplayName = displayName.trim();
@@ -519,117 +486,8 @@ export default function DashboardAccountPage() {
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-      <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-        <SurfaceCard
-          className={`overflow-hidden border-slate-200/90 p-0 shadow-[0_18px_52px_rgba(15,23,42,0.06)] ${theme.heroSurfaceClass}`}
-        >
-          <div className="px-5 py-5">
-            <div
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${theme.badgeClass}`}
-            >
-              <RoleIcon className="h-3.5 w-3.5" strokeWidth={2.1} />
-              {copy.eyebrow}
-            </div>
-
-            <div className="mt-4 flex items-start gap-4">
-              <div
-                className={`grid h-14 w-14 place-items-center rounded-[1.4rem] border ${theme.iconSurfaceClass}`}
-              >
-                <RoleIcon className="h-6 w-6" strokeWidth={2.1} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl font-semibold tracking-[-0.04em] text-slate-950">
-                  {normalizedDisplayName || me.account.displayName}
-                </div>
-                <div className="mt-1 text-sm text-slate-600">{me.profile.email}</div>
-                {normalizedCity ? (
-                  <div
-                    className={`mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${theme.infoPillClass}`}
-                  >
-                    <MapPin className="h-3.5 w-3.5" strokeWidth={2.1} />
-                    {normalizedCity}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white/85 p-4">
-              <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
-                <span>Готовність профілю</span>
-                <span>{completionProgress}%</span>
-              </div>
-              <div className="mt-3 h-2 rounded-full bg-slate-200">
-                <div
-                  className={`h-2 rounded-full transition-all ${theme.progressClass}`}
-                  style={{ width: `${completionProgress}%` }}
-                />
-              </div>
-              <div className="mt-3 text-sm text-slate-600">
-                {completedItemsCount} з {completionItems.length} блоків профілю заповнено.
-              </div>
-            </div>
-
-            <Link
-              href={primaryAction.href}
-              className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
-            >
-              {primaryAction.label}
-              <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-            </Link>
-          </div>
-        </SurfaceCard>
-
-        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
-          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-            Навігація профілю
-          </div>
-          <nav className="mt-4 grid gap-2">
-            {sectionNavigation.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                className={`rounded-[1.35rem] border border-slate-200 bg-slate-50/80 px-4 py-3 transition ${theme.actionHoverClass}`}
-              >
-                <div className="text-sm font-semibold text-slate-900">{item.label}</div>
-                <div className="mt-1 text-xs leading-5 text-slate-500">{item.hint}</div>
-              </a>
-            ))}
-          </nav>
-        </SurfaceCard>
-
-        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
-          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-            Стан редагування
-          </div>
-          <div
-            className={`mt-3 rounded-[1.35rem] border px-4 py-4 text-sm ${
-              error
-                ? "border-red-200 bg-red-50 text-red-700"
-                : status
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : hasChanges
-                    ? "border-amber-200 bg-amber-50 text-amber-800"
-                    : "border-slate-200 bg-slate-50 text-slate-700"
-            }`}
-          >
-            {error ||
-              status ||
-              (hasChanges
-                ? "Є незбережені зміни. Після редагування перейдіть до блоку основних даних і збережіть їх."
-                : "Профіль синхронізований і готовий до роботи.")}
-          </div>
-          <p className="mt-4 text-sm leading-6 text-slate-600">{guide.summaryDescription}</p>
-        </SurfaceCard>
-      </aside>
-
-      <div className="space-y-6">
-        <WorkspaceSection
-          id="overview"
-          eyebrow={copy.eyebrow}
-          title={copy.title}
-          description={copy.description}
-        >
+    <div className="space-y-6">
+      <WorkspaceSection eyebrow={copy.eyebrow} title={copy.title} description={copy.description}>
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="grid gap-4 md:grid-cols-3">
               {copy.metrics.map((metric) => (
@@ -655,6 +513,21 @@ export default function DashboardAccountPage() {
                   <p className="mt-2 text-sm leading-6 text-slate-600">{guide.summaryDescription}</p>
                 </div>
               </div>
+              <div className="mt-5 rounded-[1.4rem] border border-slate-200 bg-white/90 p-4">
+                <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                  <span>Готовність профілю</span>
+                  <span>{completionProgress}%</span>
+                </div>
+                <div className="mt-3 h-2 rounded-full bg-slate-200">
+                  <div
+                    className={`h-2 rounded-full transition-all ${theme.progressClass}`}
+                    style={{ width: `${completionProgress}%` }}
+                  />
+                </div>
+                <div className="mt-3 text-sm text-slate-600">
+                  {completedItemsCount} з {completionItems.length} блоків профілю заповнено.
+                </div>
+              </div>
               <div className="mt-5 flex flex-wrap gap-2">
                 <div
                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${theme.infoPillClass}`}
@@ -677,17 +550,23 @@ export default function DashboardAccountPage() {
                   </div>
                 ) : null}
               </div>
+              <Link
+                href={primaryAction.href}
+                className={`mt-5 inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${theme.primaryButtonClass}`}
+              >
+                {primaryAction.label}
+                <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+              </Link>
             </div>
           </div>
-        </WorkspaceSection>
+      </WorkspaceSection>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <WorkspaceSection
-            id="identity"
-            eyebrow="Основні дані"
-            title={getDisplayNameLabel(role)}
-            description={guide.completionHint}
-          >
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <WorkspaceSection
+          eyebrow="Основні дані"
+          title={getDisplayNameLabel(role)}
+          description={guide.completionHint}
+        >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
               <div className="grid gap-2">
                 <label className="text-sm font-medium text-slate-700" htmlFor="displayName">
@@ -741,15 +620,14 @@ export default function DashboardAccountPage() {
                 </div>
               </div>
             </div>
-          </WorkspaceSection>
+        </WorkspaceSection>
 
-          {role === "club" ? (
-            <WorkspaceSection
-              id="subjects"
-              eyebrow="Предметні напрями"
-              title="Навчальні напрями гуртка"
-              description="Окремий блок для керування предметними напрямами, щоб програми точніше знаходилися в каталозі."
-            >
+        {role === "club" ? (
+          <WorkspaceSection
+            eyebrow="Предметні напрями"
+            title="Навчальні напрями гуртка"
+            description="Окремий блок для керування предметними напрямами, щоб програми точніше знаходилися в каталозі."
+          >
               <div className="flex flex-wrap gap-2">
                 {subjectOptions.map((subject) => {
                   const isActive = subjects.includes(subject);
@@ -770,59 +648,58 @@ export default function DashboardAccountPage() {
                   );
                 })}
               </div>
-            </WorkspaceSection>
+          </WorkspaceSection>
+        ) : null}
+
+        <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              className={`inline-flex h-14 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
+              type="submit"
+              disabled={!canSubmit}
+            >
+              <Save className="h-4 w-4" strokeWidth={2.1} />
+              {isSubmitting
+                ? "Збереження..."
+                : hasChanges
+                  ? "Зберегти зміни"
+                  : "Дані синхронізовано"}
+            </button>
+
+            <button
+              className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
+              type="button"
+              onClick={resetForm}
+              disabled={!hasChanges || isSubmitting}
+            >
+              <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
+              Скасувати зміни
+            </button>
+
+            <div className="text-sm text-slate-500">
+              {hasChanges
+                ? "Поточні зміни ще не збережені."
+                : "Профіль готовий до роботи без додаткових дій."}
+            </div>
+          </div>
+
+          {error ? (
+            <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
           ) : null}
 
-          <SurfaceCard className="border-slate-200/90 bg-white/92 shadow-[0_18px_52px_rgba(15,23,42,0.06)]">
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                className={`inline-flex h-14 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition disabled:cursor-not-allowed ${theme.primaryButtonClass}`}
-                type="submit"
-                disabled={!canSubmit}
-              >
-                <Save className="h-4 w-4" strokeWidth={2.1} />
-                {isSubmitting
-                  ? "Збереження..."
-                  : hasChanges
-                    ? "Зберегти зміни"
-                    : "Дані синхронізовано"}
-              </button>
-
-              <button
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
-                type="button"
-                onClick={resetForm}
-                disabled={!hasChanges || isSubmitting}
-              >
-                <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
-                Скасувати зміни
-              </button>
-
-              <div className="text-sm text-slate-500">
-                {hasChanges
-                  ? "Поточні зміни ще не збережені."
-                  : "Профіль готовий до роботи без додаткових дій."}
-              </div>
+          {status ? (
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {status}
             </div>
+          ) : null}
+        </SurfaceCard>
+      </form>
 
-            {error ? (
-              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            ) : null}
-
-            {status ? (
-              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {status}
-              </div>
-            ) : null}
-          </SurfaceCard>
-        </form>
-
-        {role === "parent" ? (
+      {role === "parent" ? (
           <>
             <WorkspaceSection
-              id="family-context"
               eyebrow="Діти та сім'я"
               title="Сімейний контекст кабінету"
               description="Окремий блок про склад сімейного кабінету та логіку прив'язки дітей до шкіл."
@@ -864,7 +741,6 @@ export default function DashboardAccountPage() {
             </WorkspaceSection>
 
             <WorkspaceSection
-              id="request-progress"
               eyebrow="Запити"
               title="Активність і прогрес заявок"
               description="Блок для швидкого розуміння, де сім'я зараз у процесі подань і рішень."
@@ -910,9 +786,8 @@ export default function DashboardAccountPage() {
           </>
         ) : null}
 
-        {role === "club" ? (
+      {role === "club" ? (
           <WorkspaceSection
-            id="catalog-programs"
             eyebrow="Каталог і програми"
             title="Присутність гуртка в каталозі"
             description="Окремий операційний блок для програм, публікації та черги запитів, де потрібні докази."
@@ -976,10 +851,9 @@ export default function DashboardAccountPage() {
           </WorkspaceSection>
         ) : null}
 
-        {role === "school" ? (
+      {role === "school" ? (
           <>
             <WorkspaceSection
-              id="review-queue"
               eyebrow="Черга розгляду"
               title="Стан активної перевірки"
               description="Окремий блок для контролю навантаження на розгляд і кейсів, які не можна пропустити."
@@ -1015,7 +889,6 @@ export default function DashboardAccountPage() {
             </WorkspaceSection>
 
             <WorkspaceSection
-              id="decision-signals"
               eyebrow="Рішення"
               title="Фінальні сигнали та контекст"
               description="Окремий блок для підсумкових рішень, щоб відділити профіль школи від операційної логіки кейсів."
@@ -1059,7 +932,6 @@ export default function DashboardAccountPage() {
         ) : null}
 
         <WorkspaceSection
-          id="actions"
           eyebrow="Наступні дії"
           title="Швидкі переходи"
           description="Окремий блок для задач, які найчастіше виконуються після оновлення профілю."
@@ -1083,7 +955,6 @@ export default function DashboardAccountPage() {
             ))}
           </div>
         </WorkspaceSection>
-      </div>
     </div>
   );
 }

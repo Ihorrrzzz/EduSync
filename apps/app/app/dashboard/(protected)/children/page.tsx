@@ -167,9 +167,9 @@ export default function DashboardChildrenPage() {
   return (
     <div className="space-y-6">
       <PageHeading
-        eyebrow="Діти"
-        title="Керуйте профілями дітей"
-        description="Додайте дитину, прив'яжіть школу та використовуйте цей профіль при створенні запиту на врахування."
+        eyebrow="Дитина"
+        title="Відомості про дитину"
+        description="Додайте дитину, оновіть її відомості, прив'яжіть школу та використовуйте профіль для нових запитів."
         actions={
           <Link
             href="/dashboard/discover"

@@ -1,9 +1,9 @@
 import type { ProfileRole } from "./api";
 
 const dashboardHomePathByRole: Record<ProfileRole, string> = {
-  parent: "/dashboard/children",
-  club: "/dashboard/programs",
-  school: "/dashboard/review",
+  parent: "/dashboard/account",
+  club: "/dashboard/account",
+  school: "/dashboard/account",
 };
 
 export function getDashboardHomePath(role: ProfileRole) {

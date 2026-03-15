@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   FileCheck2,
   GraduationCap,
   Home,
@@ -40,6 +41,7 @@ const navigationByRole: Record<ProfileRole, NavigationItem[]> = {
     { href: "/dashboard/account", label: "Огляд", icon: Home },
     { href: "/dashboard/review", label: "Заявки", icon: FileCheck2 },
     { href: "/dashboard/school-students", label: "Учні", icon: GraduationCap },
+    { href: "/dashboard/standards", label: "Стандарти", icon: BookOpen },
   ],
 };
 
@@ -57,6 +59,8 @@ export function formatRequestStatus(status: string) {
     PARTIALLY_APPROVED: "Частково погоджено",
     CHANGES_REQUESTED: "Потрібні зміни",
     REJECTED: "Відхилено",
+    PENDING: "Очікує",
+    RETURNED: "Повернено",
   };
 
   return labels[status] ?? status;

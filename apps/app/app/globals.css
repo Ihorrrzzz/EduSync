@@ -3,12 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --app-blue: #2563ff;
-  --app-blue-dark: #1239b8;
   --app-text: #0f172a;
-  --app-muted: #5b6577;
   --app-bg: #f6f8fc;
-  --app-line: #dfe5f0;
 }
 
 html {

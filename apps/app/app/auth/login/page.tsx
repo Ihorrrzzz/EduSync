@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { ScreenSpinner } from "../../../components/screen-spinner";
 import { apiFetch, type Profile } from "../../../lib/api";
 import { useAuth } from "../../../lib/auth-context";
+import { getDashboardHomePath } from "../../../lib/dashboard-role-config";
 import { getSiteUrl } from "../../../lib/public-env";
 
 type LoginResponse = {
@@ -32,7 +33,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && profile) {
-      router.replace("/dashboard");
+      router.replace(getDashboardHomePath(profile.role));
     }
   }, [isLoading, profile, router]);
 
@@ -54,7 +55,7 @@ export default function LoginPage() {
       });
 
       login(data.accessToken, data.profile);
-      router.push("/dashboard");
+      router.push(getDashboardHomePath(data.profile.role));
     } catch (submissionError) {
       setError(
         submissionError instanceof Error

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type { ProfileRole } from "./api";
 import { useDashboardData } from "./dashboard-data-context";
+import { getDashboardHomePath } from "./dashboard-role-config";
 
 export function useRoleAccess(allowedRoles: ProfileRole[]) {
   const router = useRouter();
@@ -13,7 +14,7 @@ export function useRoleAccess(allowedRoles: ProfileRole[]) {
 
   useEffect(() => {
     if (!isLoading && me && !isAllowed) {
-      router.replace("/dashboard/account");
+      router.replace(getDashboardHomePath(me.profile.role));
     }
   }, [isAllowed, isLoading, me, router]);
 

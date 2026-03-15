@@ -589,7 +589,8 @@ async function requestOpenAiRecommendation(
         parsed.safeBandExplanation.trim() || SAFE_BAND_EXPLANATION,
       rawResponse: payload,
     };
-  } catch {
+  } catch (error) {
+    console.error("[AI] OpenAI recommendation request failed:", error instanceof Error ? error.message : error);
     return null;
   } finally {
     clearTimeout(timeout);

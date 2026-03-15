@@ -13,7 +13,9 @@ import { ScreenSpinner } from "../../../../components/screen-spinner";
 import {
   fetchClubRequests,
   fetchParentRequests,
+  fetchProgramReviews,
   type ClubRequestRecord,
+  type ProgramReviewRecord,
   type RecognitionRequestRecord,
 } from "../../../../lib/mvp-api";
 import { useRoleAccess } from "../../../../lib/use-role-access";
@@ -22,6 +24,7 @@ export default function DashboardRequestsPage() {
   const { me, isLoading, isAllowed } = useRoleAccess(["parent", "club"]);
   const [parentRequests, setParentRequests] = useState<RecognitionRequestRecord[]>([]);
   const [clubRequests, setClubRequests] = useState<ClubRequestRecord[]>([]);
+  const [programReviews, setProgramReviews] = useState<ProgramReviewRecord[]>([]);
   const [pageError, setPageError] = useState("");
   const [isFetching, setIsFetching] = useState(true);
 
@@ -39,8 +42,12 @@ export default function DashboardRequestsPage() {
           const response = await fetchParentRequests();
           setParentRequests(response.requests);
         } else {
-          const response = await fetchClubRequests();
-          setClubRequests(response.requests);
+          const [requestsResponse, reviewsResponse] = await Promise.all([
+            fetchClubRequests(),
+            fetchProgramReviews(),
+          ]);
+          setClubRequests(requestsResponse.requests);
+          setProgramReviews(reviewsResponse.reviews);
         }
       } catch (loadError) {
         setPageError(
@@ -108,6 +115,41 @@ export default function DashboardRequestsPage() {
           </div>
         </SurfaceCard>
       ) : null}
+
+      {programReviews.length > 0 && (
+        <SurfaceCard>
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">
+            Розгляд програм школами
+          </h2>
+          <div className="mt-5 grid gap-4">
+            {programReviews.map((review) => (
+              <div
+                key={review.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-4 text-sm leading-6 text-slate-600"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="font-semibold text-slate-900">
+                      {review.clubProgram.title}
+                    </div>
+                    <div className="mt-1">{review.school.name}</div>
+                  </div>
+                  <StatusBadge status={review.status} />
+                </div>
+                {review.status === "RETURNED" && review.schoolComment && (
+                  <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <span className="font-semibold">Коментар школи:</span>{" "}
+                    {review.schoolComment}
+                  </div>
+                )}
+                <div className="mt-2 text-xs text-slate-400">
+                  {new Date(review.createdAt).toLocaleDateString("uk-UA")}
+                </div>
+              </div>
+            ))}
+          </div>
+        </SurfaceCard>
+      )}
 
       {records.length === 0 ? (
         <EmptyState

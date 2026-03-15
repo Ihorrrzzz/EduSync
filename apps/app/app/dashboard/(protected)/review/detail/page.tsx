@@ -14,6 +14,7 @@ import {
 import { ScreenSpinner } from "../../../../../components/screen-spinner";
 import {
   fetchSchoolRequest,
+  markRequestUnderReview,
   submitSchoolDecision,
   type DecisionRecord,
   type RecognitionRequestRecord,
@@ -55,9 +56,8 @@ function DashboardReviewDetailContent() {
       setPageError("");
 
       try {
-        const response = await fetchSchoolRequest(requestId, {
-          markUnderReview: true,
-        });
+        await markRequestUnderReview(requestId);
+        const response = await fetchSchoolRequest(requestId);
         setRequest(response.request);
         setComment(response.request.decision?.comment ?? "");
         setDecision(response.request.decision?.decision ?? "PARTIAL");

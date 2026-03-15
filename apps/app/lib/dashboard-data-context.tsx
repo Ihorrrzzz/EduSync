@@ -2,8 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -27,7 +29,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadMe = async () => {
+  const loadMe = useCallback(async () => {
     if (!profile) {
       setMe(null);
       setIsLoading(false);
@@ -49,7 +51,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [profile]);
 
   useEffect(() => {
     if (isAuthLoading) {
@@ -57,17 +59,20 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     }
 
     void loadMe();
-  }, [isAuthLoading, profile?.id]);
+  }, [isAuthLoading, loadMe]);
+
+  const value = useMemo<DashboardDataContextValue>(
+    () => ({
+      me,
+      isLoading: isAuthLoading || isLoading,
+      error,
+      refreshMe: loadMe,
+    }),
+    [me, isAuthLoading, isLoading, error, loadMe],
+  );
 
   return (
-    <DashboardDataContext.Provider
-      value={{
-        me,
-        isLoading: isAuthLoading || isLoading,
-        error,
-        refreshMe: loadMe,
-      }}
-    >
+    <DashboardDataContext.Provider value={value}>
       {children}
     </DashboardDataContext.Provider>
   );

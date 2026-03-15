@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { ScreenSpinner } from "../../components/screen-spinner";
 import { useAuth } from "../../lib/auth-context";
+import { getDashboardHomePath } from "../../lib/dashboard-role-config";
 import { parseProfileRole } from "../../lib/profile-utils";
 
 const demoContent = {
@@ -64,7 +65,7 @@ function DashboardEntryContent() {
     }
 
     if (!isLoading && profile) {
-      router.replace("/dashboard/account");
+      router.replace(getDashboardHomePath(profile.role));
       return;
     }
 

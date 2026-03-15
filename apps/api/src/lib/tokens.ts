@@ -10,8 +10,6 @@ type AccessTokenInput = {
   fullName: string | null;
 };
 
-export type AccessTokenPayload = AccessTokenInput;
-
 const textEncoder = new TextEncoder();
 const TOKEN_ISSUER = "edusync-api";
 const ACCESS_TOKEN_AUDIENCE = "edusync-app";

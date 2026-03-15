@@ -1,54 +1,136 @@
-# EduSync MVP
+# EduSync
 
-EduSync is a hackathon-ready decision-support platform for school review of
-extracurricular learning evidence. Parents create a recognition request,
-clubs provide structured program evidence, AI produces an advisory
-compatibility analysis, and the school stores the final decision.
+EduSync is a role-based MVP for handling school review of extracurricular learning.
+The repository currently contains:
 
-The product does not automate grade transfer, does not claim official
-government integration, and does not replace the final school decision.
+- a public marketing site
+- an authenticated dashboard for parents, clubs, and schools
+- a Hono + Prisma API backed by PostgreSQL
+- a backend-only Docker deployment bundle for VPS hosting
 
-## Stack
+The implemented workflow is:
 
-- `apps/site`: public Next.js site
-- `apps/app`: authenticated Next.js dashboard
-- `apps/api`: Hono API with Prisma and PostgreSQL
-- Monorepo with TypeScript and Tailwind CSS
+1. A club creates and publishes a structured program.
+2. A parent adds a child, selects a school and a club program, and submits a recognition request.
+3. The API generates and stores an AI advisory analysis, then moves the request to `AI_READY`.
+4. The club can add evidence, attendance, and an external performance band for the same request.
+5. The school reviews the package and stores the final decision.
 
-## Local setup
+The product is deliberately conservative. AI is advisory only, school decisions are final, and the current MVP does not automate grade transfer or government/school-system integrations.
 
-1. Install dependencies:
+## Documentation Map
+
+- [`docs/project-structure.md`](docs/project-structure.md): detailed directory map and source layout
+- [`docs/local-development.md`](docs/local-development.md): setup, env files, scripts, and demo data
+- [`docs/backend-api.md`](docs/backend-api.md): API routes, auth model, request lifecycle, and data model
+- [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md): backend VPS deployment bundle
+
+## Current Repository Layout
+
+```text
+.
+├── README.md
+├── docs/
+│   ├── backend-api.md
+│   ├── local-development.md
+│   └── project-structure.md
+├── apps/
+│   ├── api/
+│   ├── app/
+│   └── site/
+├── deploy/
+│   └── vps/backend/
+├── docker-compose.yml
+├── package.json
+└── .env.example
+```
+
+At the moment the workspace also contains generated output directories such as `apps/api/dist`, `apps/app/.next`, `apps/app/out`, `apps/site/.next`, `apps/site/out`, and root `dist/`. Those are build artifacts, not the primary source of truth.
+
+## What Exists Today
+
+### Public Site
+
+`apps/site` is a statically exported Next.js landing page. It does not implement the authenticated product workflow itself; instead it:
+
+- explains the product and role model
+- links users to the dashboard login and registration pages
+- exposes guest/demo entry points such as `/dashboard?guest=parent`
+
+### Authenticated Dashboard
+
+`apps/app` is a statically exported Next.js dashboard that runs entirely on the client and talks to the API over HTTP. The UI language is Ukrainian.
+
+Implemented dashboard areas:
+
+- `/auth/login`
+- `/auth/register`
+- `/dashboard` guest/demo entry or authenticated redirect
+- `/dashboard/account`
+- `/dashboard/children` for parents
+- `/dashboard/discover` for parents
+- `/dashboard/programs` for clubs
+- `/dashboard/requests` for parents and clubs
+- `/dashboard/requests/detail?id=...` for parents and clubs
+- `/dashboard/review` for schools
+- `/dashboard/review/detail?id=...` for schools
+
+### API
+
+`apps/api` is a Hono service with Prisma and PostgreSQL.
+
+Implemented route groups:
+
+- `GET /health`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `GET /api/me`
+- `PATCH /api/me/profile`
+- `GET /api/catalog/schools`
+- `GET /api/catalog/programs`
+- parent routes under `/api/children` and `/api/requests`
+- club routes under `/api/programs`, `/api/club/requests`, and `/api/requests/:id/evidence`
+- school routes under `/api/school/requests`
+- authenticated AI preview route at `/api/ai/recommendation-band`
+
+## Quick Start
+
+1. Install dependencies.
 
 ```bash
 npm install
 ```
 
-2. Create env files:
+2. Create local env files.
 
 ```bash
-cp apps/api/.env.example apps/api/.env
 cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/app/.env.example apps/app/.env
+cp apps/site/.env.example apps/site/.env
 ```
 
-3. Start PostgreSQL:
+3. Start PostgreSQL.
 
 ```bash
 npm run db:up
 ```
 
-4. Run the Prisma migration:
+4. Apply Prisma migrations.
 
 ```bash
 npm run prisma:migrate
 ```
 
-5. Seed demo data:
+5. Seed demo data.
 
 ```bash
 npm run prisma:seed
 ```
 
-6. Start all apps:
+6. Start all three apps.
 
 ```bash
 npm run dev
@@ -56,98 +138,28 @@ npm run dev
 
 Local URLs:
 
-- Site: `http://localhost:3000`
+- public site: `http://localhost:3000`
 - API: `http://localhost:3001`
-- App: `http://localhost:3002`
+- dashboard app: `http://localhost:3002`
 
-## Environment variables
+## Environment Files
 
-Root `.env` for Docker Compose:
+| File | Used by | Purpose |
+| --- | --- | --- |
+| `.env` | root `docker-compose.yml` | local Docker values for Postgres and the API container |
+| `apps/api/.env` | API dev server and Prisma | database URL, JWT secrets, CORS origins, OpenAI settings, host/port |
+| `apps/app/.env` | dashboard app | `NEXT_PUBLIC_API_URL` and optional `NEXT_PUBLIC_SITE_URL` |
+| `apps/site/.env` | public site | `NEXT_PUBLIC_APP_URL` for links into the dashboard |
 
-- `DB_USER`
-- `DB_PASSWORD`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `NODE_ENV`
-- `CORS_ORIGIN`
-- `OPENAI_API_KEY` optional
-- `OPENAI_MODEL` optional, defaults to `gpt-4.1-mini`
+Important details:
 
-`apps/api/.env`:
+- `OPENAI_API_KEY` is optional.
+- if `OPENAI_API_KEY` is missing, the API falls back to a deterministic heuristic
+- `CORS_ORIGIN` is a comma-separated list
+- in production, the dashboard app requires `NEXT_PUBLIC_API_URL`
+- both Next apps build with `output: "export"`, so public env values must be correct at build time
 
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `CORS_ORIGIN`
-- `OPENAI_API_KEY` optional
-- `OPENAI_MODEL` optional
-- `NODE_ENV`
-- `PORT`
-- `HOST`
-
-`OPENAI_API_KEY` is optional. If it is missing, EduSync still works and uses a
-deterministic fallback heuristic for the AI recommendation band.
-
-## AI recommendation band
-
-The API stores structured AI output with:
-
-- compatibility score
-- recommendation band
-- recommended school action
-- confidence
-- summary
-- matched outcomes
-- gaps
-- suggested evidence
-- safe-band explanation
-
-If OpenAI is configured, the API performs a server-side structured request.
-If not, the fallback heuristic compares the target subject and grade with the
-program title, description, modules, learning outcomes, and evaluation method.
-
-AI is advisory only. The final school decision is always stored separately.
-
-## MVP features
-
-- Parent account/profile editing
-- Child CRUD
-- Program catalog with filters
-- Recognition request creation and tracking
-- Club account/profile editing
-- Club program CRUD
-- Club evidence submission for linked requests
-- School account/profile editing
-- School review queue and final decision flow
-- Persistent PostgreSQL storage for the full request lifecycle
-
-## Intentionally out of scope
-
-- Official school MIS or journal integrations
-- Automatic grade conversion
-- Attendance sync from external systems
-- File uploads
-- Messaging or chat
-- Payments
-- E-signatures or contracts
-- Government registry integrations
-- Multi-school network agreements
-
-## Database changes
-
-The MVP adds clean domain models on top of the existing auth schema:
-
-- `ParentProfile`
-- `Child`
-- `ClubProgram`
-- `RecognitionRequest`
-- `RecognitionAiAnalysis`
-- `RecognitionDecision`
-
-Legacy institutional tables remain in the schema but are not used for the
-active MVP workflow.
-
-## Demo seed accounts
+## Demo Data
 
 Seed password for all demo accounts:
 
@@ -155,36 +167,58 @@ Seed password for all demo accounts:
 Demo12345!
 ```
 
-Parents:
+Seeded accounts:
 
-- `parent.olena@example.com`
-- `parent.andriy@example.com`
+- parents: `parent.olena@example.com`, `parent.andriy@example.com`
+- schools: `school.lyceum127@example.com`, `school.constellation@example.com`
+- clubs: `club.crescendo@example.com`, `club.horizon@example.com`, `club.vector@example.com`
 
-Schools:
-
-- `school.lyceum127@example.com`
-- `school.constellation@example.com`
-
-Clubs:
-
-- `club.crescendo@example.com`
-- `club.horizon@example.com`
-- `club.vector@example.com`
-
-The seed includes:
+Seeded records:
 
 - 2 schools
 - 3 clubs
-- 5 programs
+- 5 club programs
 - 2 parent accounts
 - 3 children
 - 4 recognition requests in different statuses
 
-## Verification
-
-Run the standard checks:
+## Build Outputs
 
 ```bash
 npm run typecheck
 npm run build
 ```
+
+Current build behavior:
+
+- `apps/site` exports static files into `apps/site/out`
+- `apps/app` exports static files into `apps/app/out`
+- `apps/api` bundles into `apps/api/dist`
+
+The repository does not currently include a frontend hosting bundle. The only deployment bundle in the repo is the backend stack in [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md).
+
+## Important Implementation Notes
+
+- The API access token lives in memory on the dashboard client and expires after 15 minutes.
+- A hashed refresh token is stored server-side and sent as an HTTP-only cookie with a 7-day lifetime.
+- Refresh cookies are scoped to `/api/auth`.
+- The dashboard restores the session by calling `/api/auth/refresh` on load.
+- Catalog endpoints are public; most other API routes require a Bearer access token.
+- The schema contains `DRAFT`, but the current parent flow creates a request and immediately advances it to `AI_READY` after analysis generation.
+- Club evidence updates request metadata, but the current implementation only creates a new AI analysis if the request does not already have one.
+- Role-specific actor records are auto-created on first authenticated access if a related row is missing.
+- There is no automated test suite or lint script configured yet.
+
+## Current MVP Boundaries
+
+Out of scope in the current codebase:
+
+- official school MIS or journal integrations
+- automatic grade conversion
+- attendance sync from third-party systems
+- file uploads
+- messaging/chat
+- payments
+- e-signatures
+- government registry integrations
+- multi-school network agreements

@@ -240,6 +240,28 @@ parentRoutes.post("/requests", async (c) => {
 
   ensureFound(program, "Program not found");
 
+  const existingRequest = await prisma.recognitionRequest.findFirst({
+    where: {
+      parentProfileId: parentProfile!.id,
+      childId: child.id,
+      schoolId: school.id,
+      clubProgramId: program.id,
+      status: {
+        notIn: [
+          RecognitionRequestStatus.REJECTED,
+          RecognitionRequestStatus.CHANGES_REQUESTED,
+        ],
+      },
+    },
+    select: { id: true },
+  });
+
+  if (existingRequest) {
+    throw new HTTPException(409, {
+      message: "A recognition request for this child, school, and program already exists",
+    });
+  }
+
   const request = await prisma.recognitionRequest.create({
     data: {
       parentProfileId: parentProfile!.id,

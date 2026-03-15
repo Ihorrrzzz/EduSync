@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -73,18 +73,20 @@ export default function DashboardDiscoverPage() {
   const [pageError, setPageError] = useState("");
   const [submitError, setSubmitError] = useState("");
 
-  const loadData = async () => {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const loadData = useCallback(async (currentFilters: typeof filters) => {
     setIsFetching(true);
     setPageError("");
 
     try {
       const [programsResponse, childrenResponse, schoolsResponse] = await Promise.all([
         fetchCatalogPrograms({
-          subject: filters.subject || undefined,
-          city: filters.city || undefined,
-          age: filters.age ? Number(filters.age) : undefined,
-          grade: filters.grade ? Number(filters.grade) : undefined,
-          search: filters.search || undefined,
+          subject: currentFilters.subject || undefined,
+          city: currentFilters.city || undefined,
+          age: currentFilters.age ? Number(currentFilters.age) : undefined,
+          grade: currentFilters.grade ? Number(currentFilters.grade) : undefined,
+          search: currentFilters.search || undefined,
         }),
         fetchChildren(),
         fetchSchools(),
@@ -102,15 +104,27 @@ export default function DashboardDiscoverPage() {
     } finally {
       setIsFetching(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!isAllowed) {
       return;
     }
 
-    void loadData();
-  }, [isAllowed, filters.subject, filters.city, filters.age, filters.grade, filters.search]);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      void loadData(filters);
+    }, 350);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [isAllowed, loadData, filters.subject, filters.city, filters.age, filters.grade, filters.search]);
 
   useEffect(() => {
     if (!selectedProgram) {

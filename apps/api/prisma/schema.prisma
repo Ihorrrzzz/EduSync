@@ -54,6 +54,19 @@ enum SchoolDecision {
   REJECT
 }
 
+enum ProgramReviewStatus {
+  PENDING
+  APPROVED
+  RETURNED
+  REJECTED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Profile {
   id            String         @id @default(uuid())
   email         String         @unique
@@ -80,9 +93,11 @@ model School {
   phone                String?
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @default(now()) @updatedAt @map("updated_at")
-  children             Child[]
-  recognitionRequests  RecognitionRequest[]
-  recognitionDecisions RecognitionDecision[]
+  children              Child[]
+  recognitionRequests   RecognitionRequest[]
+  recognitionDecisions  RecognitionDecision[]
+  schoolModelPlans      SchoolModelPlan[]
+  programReviewRequests ProgramReviewRequest[]
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
@@ -100,8 +115,10 @@ model Club {
   subjects            String[]
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
-  programs            ClubProgram[]
-  recognitionRequests RecognitionRequest[]
+  programs              ClubProgram[]
+  recognitionRequests   RecognitionRequest[]
+  programReviewRequests ProgramReviewRequest[]
+  enrollmentRequests    EnrollmentRequest[]
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
@@ -119,6 +136,7 @@ model ParentProfile {
   updatedAt           DateTime             @updatedAt @map("updated_at")
   children            Child[]
   recognitionRequests RecognitionRequest[]
+  enrollmentRequests  EnrollmentRequest[]
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
@@ -137,6 +155,7 @@ model Child {
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
   recognitionRequests RecognitionRequest[]
+  enrollmentRequests  EnrollmentRequest[]
 
   parentProfile ParentProfile @relation(fields: [parentProfileId], references: [id], onDelete: Cascade)
   school        School?       @relation(fields: [schoolId], references: [id], onDelete: SetNull)
@@ -162,10 +181,13 @@ model ClubProgram {
   evaluationMethod    String               @map("evaluation_method")
   reportFormatSummary String?              @map("report_format_summary")
   programFileUrl      String?              @map("program_file_url")
+  audience            String?
   isPublished         Boolean              @default(false) @map("is_published")
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
-  recognitionRequests RecognitionRequest[]
+  recognitionRequests  RecognitionRequest[]
+  programReviewRequests ProgramReviewRequest[]
+  enrollmentRequests   EnrollmentRequest[]
 
   club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
@@ -173,6 +195,22 @@ model ClubProgram {
   @@index([subjectArea])
   @@index([isPublished])
   @@map("club_programs")
+}
+
+model SchoolModelPlan {
+  id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
+  subjectArea String   @map("subject_area")
+  title       String
+  fileUrl     String   @map("file_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, subjectArea])
+  @@index([schoolId])
+  @@map("school_model_plans")
 }
 
 model RecognitionRequest {
@@ -247,6 +285,71 @@ model RecognitionDecision {
 
   @@index([schoolId])
   @@map("recognition_decisions")
+}
+
+model ProgramReviewRequest {
+  id            String              @id @default(uuid())
+  clubId        String              @map("club_id")
+  clubProgramId String              @map("club_program_id")
+  schoolId      String              @map("school_id")
+  status        ProgramReviewStatus @default(PENDING)
+  schoolComment     String?              @map("school_comment")
+  aiVerdict         String?              @map("ai_verdict")
+  aiCoveragePercent Int?                 @map("ai_coverage_percent")
+  aiReportJson      Json?                @map("ai_report_json")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @default(now()) @updatedAt @map("updated_at")
+
+  club        Club        @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubProgram ClubProgram @relation(fields: [clubProgramId], references: [id], onDelete: Cascade)
+  school      School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([clubProgramId, schoolId])
+  @@index([clubId, status])
+  @@index([schoolId, status])
+  @@map("program_review_requests")
+}
+
+model EnrollmentRequest {
+  id              String           @id @default(uuid())
+  childId         String           @map("child_id")
+  parentProfileId String           @map("parent_profile_id")
+  clubId          String           @map("club_id")
+  clubProgramId   String           @map("club_program_id")
+  status          EnrollmentStatus @default(PENDING)
+  note            String?
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @default(now()) @updatedAt @map("updated_at")
+
+  child         Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  parentProfile ParentProfile @relation(fields: [parentProfileId], references: [id], onDelete: Cascade)
+  club          Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubProgram   ClubProgram   @relation(fields: [clubProgramId], references: [id], onDelete: Cascade)
+
+  journalEntries JournalEntry[]
+
+  @@unique([childId, clubProgramId])
+  @@index([clubId, status])
+  @@index([parentProfileId])
+  @@index([clubProgramId])
+  @@map("enrollment_requests")
+}
+
+model JournalEntry {
+  id                  String   @id @default(uuid())
+  enrollmentRequestId String   @map("enrollment_request_id")
+  subject             String
+  scoreValue          Int      @map("score_value")
+  scoreMax            Int      @map("score_max")
+  comment             String?
+  date                DateTime @default(now())
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  enrollmentRequest EnrollmentRequest @relation(fields: [enrollmentRequestId], references: [id], onDelete: Cascade)
+
+  @@index([enrollmentRequestId])
+  @@map("journal_entries")
 }
 
 model RefreshToken {

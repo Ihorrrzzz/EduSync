@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import {
   RecognitionRequestStatus,
   SchoolDecision,
@@ -85,7 +88,24 @@ schoolRoutes.get("/requests", async (c) => {
 schoolRoutes.get("/requests/:id", async (c) => {
   const user = requireRole(c, UserRole.school);
   const school = await ensureSchoolActor(user);
-  const shouldMarkUnderReview = c.req.query("markUnderReview") === "true";
+  const request = await prisma.recognitionRequest.findFirst({
+    where: {
+      id: c.req.param("id"),
+      schoolId: school!.id,
+    },
+    include: requestInclude,
+  });
+
+  ensureFound(request, "Recognition request not found");
+
+  return c.json({
+    request: serializeRequest(request),
+  });
+});
+
+schoolRoutes.post("/requests/:id/mark-under-review", async (c) => {
+  const user = requireRole(c, UserRole.school);
+  const school = await ensureSchoolActor(user);
   const request = await prisma.recognitionRequest.findFirst({
     where: {
       id: c.req.param("id"),
@@ -97,32 +117,25 @@ schoolRoutes.get("/requests/:id", async (c) => {
   ensureFound(request, "Recognition request not found");
 
   if (
-    shouldMarkUnderReview &&
-    (request.status === RecognitionRequestStatus.SUBMITTED ||
-      request.status === RecognitionRequestStatus.AI_READY)
+    request.status !== RecognitionRequestStatus.SUBMITTED &&
+    request.status !== RecognitionRequestStatus.AI_READY
   ) {
-    await prisma.recognitionRequest.update({
-      where: { id: request.id },
-      data: {
-        status: RecognitionRequestStatus.UNDER_REVIEW,
-      },
-    });
-
-    const updatedRequest = await prisma.recognitionRequest.findUnique({
-      where: { id: request.id },
-      include: requestInclude,
-    });
-    ensureFound(updatedRequest, "Recognition request not found");
-
-    return c.json({
-      request: serializeRequest(updatedRequest),
-    });
+    return c.json({ request: serializeRequest(request) });
   }
 
-  return c.json({
-    request: serializeRequest(request),
+  const updatedRequest = await prisma.recognitionRequest.update({
+    where: { id: request.id },
+    data: { status: RecognitionRequestStatus.UNDER_REVIEW },
+    include: requestInclude,
   });
+
+  return c.json({ request: serializeRequest(updatedRequest) });
 });
+
+const DECIDABLE_STATUSES: ReadonlySet<RecognitionRequestStatus> = new Set([
+  RecognitionRequestStatus.AI_READY,
+  RecognitionRequestStatus.UNDER_REVIEW,
+]);
 
 schoolRoutes.post("/requests/:id/decision", async (c) => {
   const user = requireRole(c, UserRole.school);
@@ -136,6 +149,13 @@ schoolRoutes.post("/requests/:id/decision", async (c) => {
   });
 
   ensureFound(request, "Recognition request not found");
+
+  if (!DECIDABLE_STATUSES.has(request.status)) {
+    return c.json(
+      { error: `Cannot make a decision on a request with status "${request.status}"` },
+      409,
+    );
+  }
 
   const nextStatus =
     body.decision === SchoolDecision.APPROVE
@@ -194,6 +214,94 @@ schoolRoutes.post("/requests/:id/decision", async (c) => {
   return c.json({
     request: serializeRequest(updatedRequest),
   });
+});
+
+schoolRoutes.get("/model-plans", async (c) => {
+  const user = requireRole(c, UserRole.school);
+  const school = await ensureSchoolActor(user);
+  const plans = await prisma.schoolModelPlan.findMany({
+    where: { schoolId: school!.id },
+    orderBy: [{ subjectArea: "asc" }],
+  });
+
+  return c.json({ plans });
+});
+
+schoolRoutes.post("/model-plans", async (c) => {
+  const user = requireRole(c, UserRole.school);
+  const school = await ensureSchoolActor(user);
+  const formData = await c.req.formData();
+  const file = formData.get("file");
+  const title = formData.get("title");
+  const subjectArea = formData.get("subjectArea");
+
+  if (!(file instanceof File)) {
+    return c.json({ error: "File is required" }, 400);
+  }
+
+  if (typeof title !== "string" || title.trim().length < 2) {
+    return c.json({ error: "Title is required (min 2 chars)" }, 400);
+  }
+
+  if (typeof subjectArea !== "string" || subjectArea.trim().length < 2) {
+    return c.json({ error: "Subject area is required" }, 400);
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    return c.json({ error: "File must be under 10 MB" }, 400);
+  }
+
+  if (file.type !== "application/pdf") {
+    return c.json({ error: "Only PDF files are allowed" }, 400);
+  }
+
+  const uploadsDir = join(process.cwd(), "uploads", "model-plans");
+  await mkdir(uploadsDir, { recursive: true });
+
+  const fileName = `${randomUUID()}.pdf`;
+  const filePath = join(uploadsDir, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(filePath, buffer);
+
+  const fileUrl = `/uploads/model-plans/${fileName}`;
+
+  const plan = await prisma.schoolModelPlan.upsert({
+    where: {
+      schoolId_subjectArea: {
+        schoolId: school!.id,
+        subjectArea: subjectArea.trim(),
+      },
+    },
+    update: {
+      title: title.trim(),
+      fileUrl,
+    },
+    create: {
+      schoolId: school!.id,
+      subjectArea: subjectArea.trim(),
+      title: title.trim(),
+      fileUrl,
+    },
+  });
+
+  return c.json({ plan }, 201);
+});
+
+schoolRoutes.delete("/model-plans/:id", async (c) => {
+  const user = requireRole(c, UserRole.school);
+  const school = await ensureSchoolActor(user);
+  const plan = await prisma.schoolModelPlan.findFirst({
+    where: {
+      id: c.req.param("id"),
+      schoolId: school!.id,
+    },
+  });
+
+  ensureFound(plan, "Model plan not found");
+
+  await prisma.schoolModelPlan.delete({ where: { id: plan.id } });
+
+  return c.json({ ok: true });
 });
 
 export { schoolRoutes };

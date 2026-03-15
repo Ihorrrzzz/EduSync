@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "../lib/auth-context";
+import { getDashboardHomePath } from "../lib/dashboard-role-config";
 
 function SpinnerScreen() {
   return (
@@ -18,7 +19,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && profile) {
-      router.replace("/dashboard");
+      router.replace(getDashboardHomePath(profile.role));
       return;
     }
 

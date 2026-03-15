@@ -52,6 +52,7 @@ export type ProgramRecord = {
   evaluationMethod: string;
   reportFormatSummary: string | null;
   programFileUrl: string | null;
+  audience: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -425,8 +426,7 @@ export async function submitSchoolDecision(
 export async function createQuickProgram(input: {
   title: string;
   subjectArea: string;
-  ageMin?: number | null;
-  ageMax?: number | null;
+  audience?: string | null;
 }) {
   return apiFetch<{ program: ProgramRecord }>("/api/programs/quick", {
     method: "POST",
@@ -448,4 +448,248 @@ export async function uploadProgramFile(programId: string, file: File) {
       body: formData,
     },
   );
+}
+
+export async function deleteProgram(id: string) {
+  return apiFetch<{ ok: true }>(`/api/programs/${id}`, {
+    method: "DELETE",
+  });
+}
+
+// --- School Model Plans ---
+
+export type SchoolModelPlan = {
+  id: string;
+  schoolId: string;
+  subjectArea: string;
+  title: string;
+  fileUrl: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProgramComparisonReport = {
+  verdict: "FULLY_SUITABLE" | "PARTIALLY_SUITABLE" | "REJECT";
+  coveragePercent: number;
+  justification: string;
+  modelPlanRequirements: string[];
+  alignmentDetails: Array<{
+    requirement: string;
+    match: string;
+    status: "Full" | "Partial" | "Missing" | "Contradictory";
+    comment: string;
+  }>;
+  violations: string[];
+  recommendations: string[];
+};
+
+// --- Program Review ---
+
+export type ProgramReviewRecord = {
+  id: string;
+  clubId: string;
+  clubProgramId: string;
+  schoolId: string;
+  status: "PENDING" | "APPROVED" | "RETURNED" | "REJECTED";
+  schoolComment: string | null;
+  createdAt: string;
+  updatedAt: string;
+  club: { id: string; name: string; city: string | null };
+  clubProgram: {
+    id: string;
+    title: string;
+    subjectArea: string;
+    audience: string | null;
+    programFileUrl: string | null;
+  };
+  school: { id: string; name: string; city: string | null };
+  aiVerdict: string | null;
+  aiCoveragePercent: number | null;
+  aiReportJson: ProgramComparisonReport | null;
+};
+
+export async function createProgramReview(input: {
+  clubProgramId: string;
+  schoolId: string;
+}) {
+  return apiFetch<{ review: ProgramReviewRecord }>("/api/program-reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function fetchProgramReviews() {
+  return apiFetch<{ reviews: ProgramReviewRecord[] }>("/api/program-reviews");
+}
+
+export async function fetchSchoolProgramReviews() {
+  return apiFetch<{ reviews: ProgramReviewRecord[] }>("/api/school/program-reviews");
+}
+
+export async function submitProgramReviewDecision(
+  id: string,
+  input: { decision: "APPROVE" | "REJECT" | "RETURN"; comment?: string | null },
+) {
+  return apiFetch<{ review: ProgramReviewRecord }>(
+    `/api/school/program-reviews/${id}/decision`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+// --- Enrollment ---
+
+export type EnrollmentRecord = {
+  id: string;
+  childId: string;
+  parentProfileId: string;
+  clubId: string;
+  clubProgramId: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  child: { id: string; fullName: string; age: number; grade: number };
+  parent: { displayName: string; email: string };
+  club: { id: string; name: string };
+  clubProgram: { id: string; title: string; subjectArea: string };
+};
+
+export async function createEnrollment(input: {
+  childId: string;
+  clubProgramId: string;
+  note?: string | null;
+}) {
+  return apiFetch<{ enrollment: EnrollmentRecord }>("/api/enrollments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function fetchParentEnrollments() {
+  return apiFetch<{ enrollments: EnrollmentRecord[] }>("/api/enrollments");
+}
+
+export async function fetchClubEnrollments() {
+  return apiFetch<{ enrollments: EnrollmentRecord[] }>("/api/club/enrollments");
+}
+
+export async function submitEnrollmentDecision(
+  id: string,
+  input: { decision: "APPROVE" | "REJECT" },
+) {
+  return apiFetch<{ enrollment: EnrollmentRecord }>(
+    `/api/club/enrollments/${id}/decision`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+// --- Journal ---
+
+export type JournalEntryRecord = {
+  id: string;
+  enrollmentRequestId: string;
+  subject: string;
+  scoreValue: number;
+  scoreMax: number;
+  comment: string | null;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type JournalResponse = {
+  enrollment: {
+    id: string;
+    child: { id: string; fullName: string; grade: number };
+    clubProgram: { id: string; title: string; subjectArea: string };
+  };
+  entries: JournalEntryRecord[];
+};
+
+export async function fetchJournal(enrollmentId: string) {
+  return apiFetch<JournalResponse>(`/api/club/enrollments/${enrollmentId}/journal`);
+}
+
+export async function createJournalEntry(
+  enrollmentId: string,
+  input: {
+    subject: string;
+    scoreValue: number;
+    scoreMax: number;
+    comment?: string | null;
+    date?: string | null;
+  },
+) {
+  return apiFetch<{ entry: JournalEntryRecord }>(
+    `/api/club/enrollments/${enrollmentId}/journal`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export async function updateJournalEntry(
+  entryId: string,
+  input: {
+    subject: string;
+    scoreValue: number;
+    scoreMax: number;
+    comment?: string | null;
+    date?: string | null;
+  },
+) {
+  return apiFetch<{ entry: JournalEntryRecord }>(
+    `/api/club/journal/${entryId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export async function deleteJournalEntry(entryId: string) {
+  return apiFetch<{ ok: true }>(`/api/club/journal/${entryId}`, {
+    method: "DELETE",
+  });
+}
+
+// --- School Model Plans API ---
+
+export async function fetchSchoolModelPlans() {
+  return apiFetch<{ plans: SchoolModelPlan[] }>("/api/school/model-plans");
+}
+
+export async function uploadSchoolModelPlan(input: {
+  title: string;
+  subjectArea: string;
+  file: File;
+}) {
+  const formData = new FormData();
+  formData.append("title", input.title);
+  formData.append("subjectArea", input.subjectArea);
+  formData.append("file", input.file);
+
+  return apiFetch<{ plan: SchoolModelPlan }>("/api/school/model-plans", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function deleteSchoolModelPlan(id: string) {
+  return apiFetch<{ ok: true }>(`/api/school/model-plans/${id}`, {
+    method: "DELETE",
+  });
 }

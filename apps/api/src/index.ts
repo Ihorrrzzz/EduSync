@@ -10,8 +10,11 @@ import { env } from "./lib/env.js";
 import { authRoutes } from "./routes/auth.js";
 import { catalogRoutes } from "./routes/catalog.js";
 import { clubRoutes } from "./routes/club.js";
+import { enrollmentRoutes } from "./routes/enrollment.js";
+import { journalRoutes } from "./routes/journal.js";
 import { meRoutes } from "./routes/me.js";
 import { parentRoutes } from "./routes/parent.js";
+import { programReviewRoutes } from "./routes/program-review.js";
 import { schoolRoutes } from "./routes/school.js";
 
 const app = new Hono();
@@ -68,6 +71,9 @@ app.route("/api/school", schoolRoutes);
 app.route("/api/ai", aiRoutes);
 app.route("/api", parentRoutes);
 app.route("/api", clubRoutes);
+app.route("/api", programReviewRoutes);
+app.route("/api", enrollmentRoutes);
+app.route("/api", journalRoutes);
 
 serve({
   fetch: app.fetch,

@@ -75,8 +75,7 @@ const programSchema = z
 const quickProgramSchema = z.object({
   title: z.string().trim().min(2).max(160),
   subjectArea: z.string().trim().min(2).max(120),
-  ageMin: z.number().int().min(4).max(19).optional().nullable(),
-  ageMax: z.number().int().min(4).max(19).optional().nullable(),
+  audience: z.string().trim().max(200).optional().nullable(),
 });
 
 const aiPreviewSchema = z.object({
@@ -176,8 +175,7 @@ clubRoutes.post("/programs/quick", async (c) => {
       subjectArea: body.subjectArea.trim(),
       shortDescription: body.title.trim(),
       fullDescription: body.title.trim(),
-      ageMin: body.ageMin ?? null,
-      ageMax: body.ageMax ?? null,
+      audience: body.audience?.trim() || null,
       modules: [],
       learningOutcomes: [],
       evaluationMethod: "Не вказано",
@@ -341,6 +339,44 @@ clubRoutes.post("/programs/:id/upload", async (c) => {
   });
 
   return c.json({ program: serializeProgram(updatedProgram) });
+});
+
+clubRoutes.delete("/programs/:id", async (c) => {
+  const user = requireRole(c, UserRole.club);
+  const club = await ensureClubActor(user);
+  const program = await prisma.clubProgram.findFirst({
+    where: {
+      id: c.req.param("id"),
+      clubId: club!.id,
+    },
+    select: {
+      id: true,
+      _count: {
+        select: {
+          recognitionRequests: true,
+          programReviewRequests: true,
+          enrollmentRequests: true,
+        },
+      },
+    },
+  });
+
+  ensureFound(program, "Program not found");
+
+  const total =
+    program._count.recognitionRequests +
+    program._count.programReviewRequests +
+    program._count.enrollmentRequests;
+
+  if (total > 0) {
+    throw new HTTPException(409, {
+      message: "Cannot delete a program that has active requests or enrollments",
+    });
+  }
+
+  await prisma.clubProgram.delete({ where: { id: program.id } });
+
+  return c.json({ ok: true });
 });
 
 clubRoutes.get("/club/requests", async (c) => {

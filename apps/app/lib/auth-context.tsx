@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -58,28 +60,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = (nextAccessToken: string, nextProfile: Profile) => {
+  const login = useCallback((nextAccessToken: string, nextProfile: Profile) => {
     setSession({
       accessToken: nextAccessToken,
       profile: nextProfile,
     });
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await logoutSession();
     router.push("/auth/login");
-  };
+  }, [router]);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({ accessToken, profile, isLoading, login, logout }),
+    [accessToken, profile, isLoading, login, logout],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        accessToken,
-        profile,
-        isLoading,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -33,6 +33,11 @@ function DashboardForm({
   );
   const [status, setStatus] = useState("");
 
+  useEffect(() => {
+    setFormValues(Object.fromEntries(fields.map((field) => [field.name, ""])));
+    setStatus("");
+  }, [fields]);
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus(statusMessage ?? "Чернетку збережено. Інтеграцію відправлення можна підключити до API.");
@@ -503,6 +508,44 @@ function DashboardPageLayout({
                       className="flex items-start gap-3 rounded-[1.4rem] border border-white bg-white/80 px-4 py-4 text-sm leading-6 text-slate-700"
                     >
                       <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+                        <CircleCheck className="h-4 w-4" strokeWidth={2.1} />
+                      </span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </section>
+          ) : null}
+
+          {config.feedbackForm ? (
+            <section className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
+              <DashboardForm
+                description={config.feedbackForm.description}
+                fields={config.feedbackForm.fields}
+                statusMessage={config.feedbackForm.statusMessage}
+                submitLabel={config.feedbackForm.submitLabel}
+                title={config.feedbackForm.title}
+              />
+
+              <article className="rounded-[1.75rem] border border-amber-100 bg-[linear-gradient(180deg,#fffaf0,#fff4db)] p-6 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
+                <div className="inline-flex rounded-full border border-amber-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
+                  {config.feedbackForm.badgeLabel}
+                </div>
+                <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                  {config.feedbackForm.summaryTitle}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  {config.feedbackForm.summaryDescription}
+                </p>
+
+                <div className="mt-6 grid gap-4">
+                  {config.feedbackForm.highlights.map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-start gap-3 rounded-[1.4rem] border border-white/80 bg-white/82 px-4 py-4 text-sm leading-6 text-slate-700"
+                    >
+                      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700">
                         <CircleCheck className="h-4 w-4" strokeWidth={2.1} />
                       </span>
                       <span>{item}</span>

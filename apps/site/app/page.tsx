@@ -1,8 +1,16 @@
 "use client";
 
-import { Github, GraduationCap, Linkedin, Sparkles, Twitter } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Github,
+  GraduationCap,
+  Linkedin,
+  Sparkles,
+  Twitter,
+} from "lucide-react";
 import Link from "next/link";
-import { useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import {
   aiFeatures,
   dashboardData,
@@ -28,6 +36,7 @@ export default function SiteHomePage() {
   const [activePage, setActivePage] = useState<ActivePage>("landing");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDashboard, setActiveDashboard] = useState<DashboardTab>("school");
+  const testimonialsRef = useRef<HTMLDivElement | null>(null);
   const appUrl = getAppUrl();
 
   const showRegisterPage = () => {
@@ -44,6 +53,21 @@ export default function SiteHomePage() {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const scrollTestimonials = (direction: "prev" | "next") => {
+    const testimonialsNode = testimonialsRef.current;
+
+    if (!testimonialsNode) {
+      return;
+    }
+
+    const offset = Math.max(testimonialsNode.clientWidth * 0.82, 320);
+
+    testimonialsNode.scrollBy({
+      left: direction === "next" ? offset : -offset,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -569,9 +593,39 @@ export default function SiteHomePage() {
               </p>
             </div>
 
-            <div className="testimonials-grid">
+            <div className="testimonials-toolbar">
+              <p>
+                Гортайте картки відгуків, щоб переглянути історії різних типів
+                користувачів і побачити, як платформа працює для шкіл, родин та
+                освітніх провайдерів.
+              </p>
+              <div className="testimonials-actions">
+                <button
+                  aria-label="Прокрутити відгуки ліворуч"
+                  className="testimonial-control"
+                  type="button"
+                  onClick={() => scrollTestimonials("prev")}
+                >
+                  <ArrowLeft strokeWidth={2.1} />
+                </button>
+                <button
+                  aria-label="Прокрутити відгуки праворуч"
+                  className="testimonial-control"
+                  type="button"
+                  onClick={() => scrollTestimonials("next")}
+                >
+                  <ArrowRight strokeWidth={2.1} />
+                </button>
+              </div>
+            </div>
+
+            <div
+              ref={testimonialsRef}
+              aria-label="Відгуки користувачів EduSync"
+              className="testimonials-scroller"
+            >
               {testimonials.map((item) => (
-                <article key={item.name} className="testimonial-card">
+                <article key={item.name} className="testimonial-card testimonial-slide">
                   <div className="testimonial-top">
                     <div className="testimonial-avatar">{item.initials}</div>
                     <div className="testimonial-meta">

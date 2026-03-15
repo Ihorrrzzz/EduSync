@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck, GraduationCap } from "lucide-react";
+import { CircleCheck, Eye, EyeOff, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -25,6 +25,7 @@ export default function LoginPage() {
   const { isLoading, profile, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const siteUrl = getSiteUrl();
@@ -168,15 +169,29 @@ export default function LoginPage() {
                   </label>
                   <span className="text-xs text-slate-400">Мінімум 8 символів</span>
                 </div>
-                <input
-                  className="h-14 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  minLength={8}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 pr-14 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    minLength={8}
+                    required
+                  />
+                  <button
+                    aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
+                    className="absolute right-4 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                    type="button"
+                    onClick={() => setShowPassword((currentValue) => !currentValue)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" strokeWidth={2.1} />
+                    ) : (
+                      <Eye className="h-4 w-4" strokeWidth={2.1} />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {error ? (

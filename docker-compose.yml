@@ -35,6 +35,7 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       PORT: 3001
       HOST: 0.0.0.0
+      NODE_ENV: ${NODE_ENV:-production}
       CORS_ORIGIN: ${CORS_ORIGIN}
     ports:
       - "127.0.0.1:3001:3001"

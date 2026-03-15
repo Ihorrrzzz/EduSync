@@ -174,8 +174,6 @@ export default function SiteHomePage() {
                         </div>
                         <ul className="check-list">
                           <li>AI-збіг програми: 92%</li>
-                          <li>Школа бачить прогалини до погодження</li>
-                          <li>Батьки відстежують статус без дзвінків і листів</li>
                         </ul>
                       </div>
                     </div>

@@ -232,8 +232,14 @@ button {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 42px;
-  align-items: center;
+  align-items: stretch;
   min-height: calc(100vh - 110px);
+}
+
+.hero-copy {
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  align-content: start;
 }
 
 .hero-copy h1 {
@@ -302,7 +308,8 @@ button {
   position: relative;
   min-height: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  height: 100%;
 }
 
 .window-card {
@@ -310,11 +317,14 @@ button {
   inset: auto;
   width: min(100%, 640px);
   margin-left: auto;
+  height: 100%;
   background: #fff;
   border-radius: 28px;
   padding: 18px;
   box-shadow: var(--shadow);
   border: 1px solid rgba(223, 229, 240, 0.85);
+  display: flex;
+  flex-direction: column;
 }
 
 .window-top {
@@ -345,17 +355,18 @@ button {
   border-radius: 22px;
   overflow: hidden;
   background: linear-gradient(160deg, #e9edf5 0%, #f4f6fb 100%);
-  min-height: 330px;
+  min-height: 0;
   display: grid;
-  grid-template-rows: 128px 1fr;
+  grid-template-rows: auto 1fr;
   border: 1px solid rgba(223, 229, 240, 0.9);
+  flex: 1;
 }
 
 .preview-header {
   padding: 22px;
   background: linear-gradient(135deg, #dbebff, #f2f6fc);
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
@@ -410,9 +421,9 @@ button {
 .preview-body {
   padding: 18px;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .preview-stack {
@@ -474,6 +485,7 @@ button {
 
 .request-card {
   background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  height: 100%;
 }
 
 .request-rows {
@@ -573,9 +585,9 @@ button {
 .check-list {
   list-style: none;
   padding: 0;
-  margin: 16px 0 0;
+  margin: 12px 0 0;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .check-list li {
@@ -594,7 +606,8 @@ button {
 
 .compare-card {
   display: grid;
-  gap: 18px;
+  gap: 16px;
+  height: 100%;
 }
 
 .compare-notes {
@@ -732,17 +745,19 @@ button {
 
 .step-card .num {
   position: absolute;
-  right: -10px;
-  top: -10px;
+  right: 18px;
+  top: 18px;
   width: 58px;
   height: 58px;
   border-radius: 18px;
   background: var(--blue);
   color: #fff;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 800;
-  font-size: 24px;
+  font-size: 23px;
+  line-height: 1;
   box-shadow: 0 14px 26px rgba(37, 99, 255, 0.25);
 }
 

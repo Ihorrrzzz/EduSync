@@ -1,6 +1,5 @@
 import {
   BookOpenCheck,
-  BrainCircuit,
   ClipboardList,
   FileText,
   GraduationCap,
@@ -82,9 +81,9 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
       "Прогрес, відвідуваність і цифрові документи в одному місці",
     ],
     metrics: [
-      { icon: UserRound, label: "Підключені діти", value: "2", color: "#2563ff", border: "#bfd8ff" },
-      { icon: BrainCircuit, label: "AI-збіги", value: "14", color: "#9333ea", border: "#ead5ff" },
-      { icon: FileText, label: "Активні запити", value: "3", color: "#16a34a", border: "#bbf7d0" },
+      { icon: FileText, label: "Активні запити", value: "3", color: "#2563ff", border: "#bfd8ff" },
+      { icon: ClipboardList, label: "У очікуванні", value: "1", color: "#9333ea", border: "#ead5ff" },
+      { icon: UserRound, label: "Отримано відповідей", value: "2", color: "#16a34a", border: "#bbf7d0" },
     ],
     rowsTitle: "Активні маршрути та заявки",
     rowsDescription: "Поточні рішення школи та останні синхронізовані маршрути.",
@@ -113,7 +112,16 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
       "Підготуйте короткий запит для школи з даними про програму та предмет, який потрібно замінити.",
     formSubmitLabel: "Надіслати запит",
     fields: [
-      { name: "childName", label: "Учень", placeholder: "Ім'я дитини" },
+      {
+        name: "childName",
+        label: "Учень",
+        placeholder: "Оберіть дитину",
+        type: "select",
+        options: [
+          { value: "anna-petrova", label: "Анна Петрова, 9-Б" },
+          { value: "maksym-petrov", label: "Максим Петров, 6-А" },
+        ],
+      },
       { name: "subject", label: "Шкільний предмет", placeholder: "Наприклад, Англійська мова" },
       { name: "provider", label: "Заклад / гурток", placeholder: "Назва провайдера" },
       {

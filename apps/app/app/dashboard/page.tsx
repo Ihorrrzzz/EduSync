@@ -82,7 +82,7 @@ function DashboardForm({ config }: { config: DashboardConfig }) {
                     setStatus("");
                   }}
                 >
-                  <option value="">Оберіть значення</option>
+                  <option value="">{field.placeholder ?? "Оберіть значення"}</option>
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}

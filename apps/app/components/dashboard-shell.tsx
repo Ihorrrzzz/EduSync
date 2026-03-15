@@ -2,9 +2,11 @@
 
 import {
   FileCheck2,
+  GraduationCap,
   Home,
   Layers3,
   LogOut,
+  Paintbrush,
   ShieldCheck,
   Sparkles,
   Users,
@@ -27,6 +29,7 @@ const navigationByRole: Record<ProfileRole, NavigationItem[]> = {
   parent: [
     { href: "/dashboard/account", label: "Огляд", icon: Home },
     { href: "/dashboard/children", label: "Дитина", icon: Users },
+    { href: "/dashboard/clubs", label: "Гуртки", icon: Paintbrush },
   ],
   club: [
     { href: "/dashboard/account", label: "Огляд", icon: Home },
@@ -36,7 +39,8 @@ const navigationByRole: Record<ProfileRole, NavigationItem[]> = {
   ],
   school: [
     { href: "/dashboard/account", label: "Огляд", icon: Home },
-    { href: "/dashboard/review", label: "Розгляд", icon: ShieldCheck },
+    { href: "/dashboard/review", label: "Заявки", icon: FileCheck2 },
+    { href: "/dashboard/school-students", label: "Учні", icon: GraduationCap },
   ],
 };
 

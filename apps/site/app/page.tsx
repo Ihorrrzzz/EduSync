@@ -732,22 +732,6 @@ export default function SiteHomePage() {
               </span>
               <span>EduSync</span>
             </button>
-
-            <Link className="btn btn-secondary register-login" href={`${appUrl}/auth/login`}>
-              Увійти
-            </Link>
-          </div>
-
-          <div className="register-hero">
-            <h1>Почніть роботу з EduSync</h1>
-            <p>
-              Оберіть роль, щоб створити кабінет для запиту на врахування,
-              пакета доказів та шкільного розгляду.
-            </p>
-            <div className="register-helper">
-              Оберіть роль, яка найточніше відповідає вашим потребам, щоб побачити
-              релевантний кабінет, сценарії роботи та потрібні інструменти.
-            </div>
           </div>
 
           <div className="role-grid">

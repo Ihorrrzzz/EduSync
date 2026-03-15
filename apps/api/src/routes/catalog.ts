@@ -207,4 +207,33 @@ catalogRoutes.get("/programs", async (c) => {
   });
 });
 
+catalogRoutes.get("/clubs", async (c) => {
+  const clubs = await prisma.club.findMany({
+    select: {
+      id: true,
+      name: true,
+      city: true,
+      subjects: true,
+      programs: {
+        where: { isPublished: true },
+        select: {
+          id: true,
+          title: true,
+          subjectArea: true,
+          shortDescription: true,
+          ageMin: true,
+          ageMax: true,
+          gradeMin: true,
+          gradeMax: true,
+          programFileUrl: true,
+        },
+        orderBy: { updatedAt: "desc" },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return c.json({ clubs });
+});
+
 export { catalogRoutes };

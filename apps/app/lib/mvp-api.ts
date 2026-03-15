@@ -260,6 +260,28 @@ export async function fetchCatalogPrograms(filters: {
   return apiFetch<{ programs: ProgramRecord[] }>(`/api/catalog/programs${query}`);
 }
 
+export type CatalogClub = {
+  id: string;
+  name: string;
+  city: string | null;
+  subjects: string[];
+  programs: Array<{
+    id: string;
+    title: string;
+    subjectArea: string;
+    shortDescription: string;
+    ageMin: number | null;
+    ageMax: number | null;
+    gradeMin: number | null;
+    gradeMax: number | null;
+    programFileUrl: string | null;
+  }>;
+};
+
+export async function fetchCatalogClubs() {
+  return apiFetch<{ clubs: CatalogClub[] }>("/api/catalog/clubs");
+}
+
 // --- Children ---
 
 export async function fetchChildren() {

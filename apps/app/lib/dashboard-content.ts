@@ -52,6 +52,14 @@ export type FormField = {
   span?: "full" | "half";
 };
 
+export type FormSectionConfig = {
+  title: string;
+  description: string;
+  submitLabel: string;
+  fields: FormField[];
+  statusMessage?: string;
+};
+
 export type DashboardConfig = {
   roleLabel: string;
   heroTitle: string;
@@ -64,7 +72,9 @@ export type DashboardConfig = {
   formTitle: string;
   formDescription: string;
   formSubmitLabel: string;
+  formStatusMessage?: string;
   fields: FormField[];
+  groupSearchForm?: FormSectionConfig;
   aiAnalysis?: AiAnalysisConfig;
   insights: InsightCard[];
 };
@@ -111,6 +121,8 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
     formDescription:
       "Підготуйте короткий запит для школи з даними про програму та предмет, який потрібно замінити.",
     formSubmitLabel: "Надіслати запит",
+    formStatusMessage:
+      "Чернетку запиту збережено. Після підключення API її можна буде надіслати до школи.",
     fields: [
       {
         name: "childName",
@@ -141,6 +153,49 @@ export const dashboardConfigs: Record<ProfileRole, DashboardConfig> = {
         span: "full",
       },
     ],
+    groupSearchForm: {
+      title: "Обрати групу",
+      description:
+        "Оберіть дитину, напрям і формат занять, щоб надалі шукати в системі групи, які співпрацюють зі школою, де навчається учень.",
+      submitLabel: "Підібрати групи",
+      statusMessage:
+        "Критерії збережено. Наступним кроком тут можна буде виконати пошук партнерських груп у системі.",
+      fields: [
+        {
+          name: "groupChild",
+          label: "Дитина",
+          placeholder: "Оберіть дитину",
+          type: "select",
+          options: [
+            { value: "anna-petrova", label: "Анна Петрова, 9-Б" },
+            { value: "maksym-petrov", label: "Максим Петров, 6-А" },
+          ],
+        },
+        {
+          name: "direction",
+          label: "Напрям",
+          placeholder: "Оберіть напрям",
+          type: "select",
+          options: [
+            { value: "english", label: "Англійська мова" },
+            { value: "music", label: "Музика / фортепіано" },
+            { value: "swimming", label: "Плавання" },
+            { value: "robotics", label: "Робототехніка" },
+          ],
+        },
+        {
+          name: "format",
+          label: "Формат занять",
+          placeholder: "Оберіть формат",
+          type: "select",
+          options: [
+            { value: "offline", label: "Очні заняття" },
+            { value: "online", label: "Онлайн" },
+            { value: "hybrid", label: "Змішаний формат" },
+          ],
+        },
+      ],
+    },
     insights: [
       {
         title: "Найкращий AI-збіг",

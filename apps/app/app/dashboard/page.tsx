@@ -11,33 +11,46 @@ import {
   dashboardConfigs,
   type AiAnalysisConfig,
   type DashboardConfig,
+  type FormField,
 } from "../../lib/dashboard-content";
 import { createGuestProfile, parseProfileRole } from "../../lib/profile-utils";
 
-function DashboardForm({ config }: { config: DashboardConfig }) {
+function DashboardForm({
+  title,
+  description,
+  submitLabel,
+  fields,
+  statusMessage,
+}: {
+  title: string;
+  description: string;
+  submitLabel: string;
+  fields: FormField[];
+  statusMessage?: string;
+}) {
   const [formValues, setFormValues] = useState<Record<string, string>>(() =>
-    Object.fromEntries(config.fields.map((field) => [field.name, ""])),
+    Object.fromEntries(fields.map((field) => [field.name, ""])),
   );
   const [status, setStatus] = useState("");
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatus("Чернетку збережено. Інтеграцію відправлення можна підключити до API.");
+    setStatus(statusMessage ?? "Чернетку збережено. Інтеграцію відправлення можна підключити до API.");
   };
 
   return (
     <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
       <div>
         <h3 className="text-xl font-semibold tracking-[-0.03em] text-slate-950">
-          {config.formTitle}
+          {title}
         </h3>
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          {config.formDescription}
+          {description}
         </p>
       </div>
 
       <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
-        {config.fields.map((field) => {
+        {fields.map((field) => {
           const wrapperClass =
             field.span === "full" ? "sm:col-span-2 grid gap-2" : "grid gap-2";
 
@@ -126,7 +139,7 @@ function DashboardForm({ config }: { config: DashboardConfig }) {
           className="sm:col-span-2 inline-flex h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(37,99,255,0.22)] transition hover:bg-blue-700"
           type="submit"
         >
-          {config.formSubmitLabel}
+          {submitLabel}
         </button>
       </form>
     </div>
@@ -447,8 +460,58 @@ function DashboardPageLayout({
               </div>
             </div>
 
-            <DashboardForm config={config} />
+            <DashboardForm
+              description={config.formDescription}
+              fields={config.fields}
+              statusMessage={config.formStatusMessage}
+              submitLabel={config.formSubmitLabel}
+              title={config.formTitle}
+            />
           </section>
+
+          {config.groupSearchForm ? (
+            <section className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
+              <DashboardForm
+                description={config.groupSearchForm.description}
+                fields={config.groupSearchForm.fields}
+                statusMessage={config.groupSearchForm.statusMessage}
+                submitLabel={config.groupSearchForm.submitLabel}
+                title={config.groupSearchForm.title}
+              />
+
+              <article className="rounded-[1.75rem] border border-blue-100 bg-[linear-gradient(180deg,#f8fbff,#eef5ff)] p-6 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
+                <div className="inline-flex rounded-full border border-blue-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                  Group Search
+                </div>
+                <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                  Пошук партнерських груп за фільтрами
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  Після вибору дитини, напряму та формату тут можна буде
+                  знаходити лише ті групи, які співпрацюють зі школою учня та
+                  вже доступні для подання заявки.
+                </p>
+
+                <div className="mt-6 grid gap-4">
+                  {[
+                    "Система враховуватиме школу, до якої прив'язана обрана дитина.",
+                    "У видачі відображатимуться тільки партнерські групи з потрібним напрямом.",
+                    "Формат занять допоможе швидко відсіяти невідповідні варіанти до початку пошуку.",
+                  ].map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-start gap-3 rounded-[1.4rem] border border-white bg-white/80 px-4 py-4 text-sm leading-6 text-slate-700"
+                    >
+                      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+                        <CircleCheck className="h-4 w-4" strokeWidth={2.1} />
+                      </span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </section>
+          ) : null}
 
           {config.aiAnalysis ? <DashboardAiPreview analysis={config.aiAnalysis} /> : null}
 

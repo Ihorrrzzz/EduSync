@@ -122,9 +122,10 @@ export default function SiteHomePage() {
 
               <div className="stats">
                 {heroStats.map((item) => (
-                  <div key={item.value} className="stat">
+                  <div key={item.label} className={`stat stat-${item.tone}`}>
                     <strong>{item.value}</strong>
-                    {item.label ? <span>{item.label}</span> : null}
+                    <span>{item.label}</span>
+                    <small>{item.note}</small>
                   </div>
                 ))}
               </div>
@@ -610,9 +611,9 @@ export default function SiteHomePage() {
                 <div key={column.title} className="footer-col">
                   <h4>{column.title}</h4>
                   {column.links.map((link) => (
-                    <a key={link.label} href={link.href}>
+                    <Link key={link.label} href={link.href}>
                       {link.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               ))}

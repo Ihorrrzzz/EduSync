@@ -1,5 +1,4 @@
 import {
-  ArrowLeftRight,
   BadgeCheck,
   Blocks,
   BookOpenCheck,
@@ -12,9 +11,7 @@ import {
   GraduationCap,
   HeartHandshake,
   LibraryBig,
-  LockKeyhole,
   School,
-  ShieldCheck,
   Sparkles,
   TriangleAlert,
   UserRound,
@@ -31,9 +28,24 @@ export const navLinks = [
 ];
 
 export const heroStats = [
-  { value: "підключені школи", label: "" },
-  { value: "підключені батьки", label: "" },
-  { value: "підключені гуртки", label: "" },
+  {
+    value: "0",
+    label: "підключених шкіл",
+    note: "Поточна кількість шкіл у системі",
+    tone: "primary",
+  },
+  {
+    value: "0",
+    label: "підключених батьків",
+    note: "Публічне підключення ще не розпочато",
+    tone: "neutral",
+  },
+  {
+    value: "0",
+    label: "підключених гуртків",
+    note: "Провайдери додаватимуться після старту",
+    tone: "neutral",
+  },
 ];
 
 export const processSteps = [
@@ -192,31 +204,6 @@ export const trustGroups = [
       },
     ],
   },
-  {
-    title: "Безпечна MVP-архітектура",
-    description:
-      "Хакатонний MVP працює на рольовому доступі, збереженні даних у PostgreSQL і server-side AI викликах з fallback-логікою.",
-    cards: [
-      {
-        icon: ArrowLeftRight,
-        title: "Постійне збереження даних",
-        description:
-          "Діти, програми, запити, AI-аналіз і рішення школи зберігаються через Prisma та PostgreSQL.",
-      },
-      {
-        icon: ShieldCheck,
-        title: "Рольовий доступ",
-        description:
-          "Батьки, гуртки і школи бачать тільки власні сутності та пов'язані з ними запити.",
-      },
-      {
-        icon: LockKeyhole,
-        title: "Fallback для демо-режиму",
-        description:
-          "Якщо OpenAI ключ відсутній, рекомендаційний рівень формується детермінованою серверною евристикою.",
-      },
-    ],
-  },
 ];
 
 export const footerColumns = [
@@ -250,13 +237,32 @@ export const footerColumns = [
   {
     title: "Юридичне",
     links: [
-      { href: "#footer", label: "Політика конфіденційності" },
-      { href: "#footer", label: "Умови використання" },
-      { href: "#footer", label: "Документи" },
-      { href: "#footer", label: "Відповідність вимогам" },
+      { href: "/legal", label: "Політика конфіденційності" },
+      { href: "/legal", label: "Умови використання" },
+      { href: "/legal", label: "Документи" },
+      { href: "/legal", label: "Відповідність вимогам" },
     ],
   },
 ];
+
+export const legalResources = [
+  {
+    title: "Закон України «Про освіту»",
+    meta: "Закон України від 5 вересня 2017 року № 2145-VIII",
+    description:
+      "Базовий закон, який визначає правові засади організації освітнього процесу та форми здобуття освіти.",
+    href: "https://zakon.rada.gov.ua/laws/show/2145-19#Text",
+  },
+  {
+    title:
+      "Положення про інституційну та дуальну форми здобуття повної загальної середньої освіти",
+    meta:
+      "Наказ МОН України від 10 лютого 2021 року № 160, зареєстрований у Мін'юсті 19 квітня 2021 року за № 529/36151",
+    description:
+      "Нормативний акт МОН, який деталізує організацію форм здобуття повної загальної середньої освіти.",
+    href: "https://zakon.rada.gov.ua/laws/show/z0529-21#Text",
+  },
+] as const;
 
 export const registerRoles = [
   {

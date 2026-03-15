@@ -161,7 +161,7 @@ export default function DashboardProgramsPage() {
 
       {/* Create Dialog */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60">
           <div className="w-full max-w-lg rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.15)]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-slate-950">Нова програма</h2>
@@ -217,7 +217,7 @@ export default function DashboardProgramsPage() {
 
       {/* Review Dialog */}
       {showReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60">
           <div className="w-full max-w-lg rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.15)]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-slate-950">Надіслати на розгляд</h2>

@@ -132,7 +132,7 @@ export default function DashboardStandardsPage() {
 
       {/* Upload dialog */}
       {dialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60">
           <div className="mx-4 w-full max-w-lg rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_18px_42px_rgba(15,23,42,0.15)]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-[-0.04em] text-slate-950">

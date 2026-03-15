@@ -13,26 +13,73 @@ enum UserRole {
   club
 }
 
+enum RecognitionScope {
+  FULL
+  PARTIAL
+}
+
+enum RecognitionRequestStatus {
+  DRAFT
+  SUBMITTED
+  AI_READY
+  UNDER_REVIEW
+  APPROVED
+  PARTIALLY_APPROVED
+  CHANGES_REQUESTED
+  REJECTED
+}
+
+enum RecommendationBand {
+  strong
+  possible
+  weak
+}
+
+enum RecommendedSchoolAction {
+  full_candidate
+  partial_candidate
+  manual_review
+}
+
+enum AnalysisConfidence {
+  high
+  medium
+  low
+}
+
+enum SchoolDecision {
+  APPROVE
+  PARTIAL
+  REQUEST_CHANGES
+  REJECT
+}
+
 model Profile {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  passwordHash String         @map("password_hash")
-  role         UserRole
-  fullName     String?        @map("full_name")
-  createdAt    DateTime       @default(now()) @map("created_at")
-  school       School?
-  club         Club?
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  role          UserRole
+  fullName      String?        @map("full_name")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
+  parentProfile ParentProfile?
+  school        School?
+  club          Club?
   refreshTokens RefreshToken[]
 
   @@map("profiles")
 }
 
 model School {
-  id        String   @id @default(uuid())
-  profileId String   @unique @map("profile_id")
-  name      String
-  city      String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id                   String                @id @default(uuid())
+  profileId            String                @unique @map("profile_id")
+  name                 String
+  city                 String?
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @default(now()) @updatedAt @map("updated_at")
+  children             Child[]
+  recognitionRequests  RecognitionRequest[]
+  recognitionDecisions RecognitionDecision[]
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
@@ -40,16 +87,156 @@ model School {
 }
 
 model Club {
-  id        String   @id @default(uuid())
-  profileId String   @unique @map("profile_id")
-  name      String
-  city      String?
-  subjects  String[]
-  createdAt DateTime @default(now()) @map("created_at")
+  id                  String               @id @default(uuid())
+  profileId           String               @unique @map("profile_id")
+  name                String
+  city                String?
+  subjects            String[]
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
+  programs            ClubProgram[]
+  recognitionRequests RecognitionRequest[]
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@map("clubs")
+}
+
+model ParentProfile {
+  id                  String               @id @default(uuid())
+  profileId           String               @unique @map("profile_id")
+  displayName         String               @map("display_name")
+  city                String?
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  children            Child[]
+  recognitionRequests RecognitionRequest[]
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("parent_profiles")
+}
+
+model Child {
+  id                  String               @id @default(uuid())
+  parentProfileId     String               @map("parent_profile_id")
+  fullName            String               @map("full_name")
+  age                 Int
+  grade               Int
+  schoolId            String?              @map("school_id")
+  schoolNameSnapshot  String?              @map("school_name_snapshot")
+  notes               String?
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  recognitionRequests RecognitionRequest[]
+
+  parentProfile ParentProfile @relation(fields: [parentProfileId], references: [id], onDelete: Cascade)
+  school        School?       @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+
+  @@index([parentProfileId])
+  @@index([schoolId])
+  @@map("children")
+}
+
+model ClubProgram {
+  id                  String               @id @default(uuid())
+  clubId              String               @map("club_id")
+  title               String
+  subjectArea         String               @map("subject_area")
+  shortDescription    String               @map("short_description")
+  fullDescription     String               @map("full_description")
+  ageMin              Int?                 @map("age_min")
+  ageMax              Int?                 @map("age_max")
+  gradeMin            Int?                 @map("grade_min")
+  gradeMax            Int?                 @map("grade_max")
+  modules             Json
+  learningOutcomes    Json                 @map("learning_outcomes")
+  evaluationMethod    String               @map("evaluation_method")
+  reportFormatSummary String?              @map("report_format_summary")
+  isPublished         Boolean              @default(false) @map("is_published")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  recognitionRequests RecognitionRequest[]
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId])
+  @@index([subjectArea])
+  @@map("club_programs")
+}
+
+model RecognitionRequest {
+  id                      String                   @id @default(uuid())
+  parentProfileId         String                   @map("parent_profile_id")
+  childId                 String                   @map("child_id")
+  schoolId                String                   @map("school_id")
+  clubId                  String                   @map("club_id")
+  clubProgramId           String                   @map("club_program_id")
+  targetSubject           String                   @map("target_subject")
+  targetGrade             Int                      @map("target_grade")
+  recognitionScope        RecognitionScope         @map("recognition_scope")
+  parentNote              String?                  @map("parent_note")
+  clubEvidenceSummary     String?                  @map("club_evidence_summary")
+  attendanceRate          Int?                     @map("attendance_rate")
+  externalPerformanceBand String?                  @map("external_performance_band")
+  status                  RecognitionRequestStatus @default(DRAFT)
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
+  aiAnalysis              RecognitionAiAnalysis?
+  decision                RecognitionDecision?
+
+  parentProfile ParentProfile @relation(fields: [parentProfileId], references: [id], onDelete: Cascade)
+  child         Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  school        School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  club          Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubProgram   ClubProgram   @relation(fields: [clubProgramId], references: [id], onDelete: Cascade)
+
+  @@index([parentProfileId])
+  @@index([schoolId, status])
+  @@index([clubId, status])
+  @@index([childId])
+  @@index([clubProgramId])
+  @@map("recognition_requests")
+}
+
+model RecognitionAiAnalysis {
+  id                      String                  @id @default(uuid())
+  requestId               String                  @unique @map("request_id")
+  provider                String?
+  modelName               String?                 @map("model_name")
+  compatibilityScore      Int                     @map("compatibility_score")
+  recommendationBand      RecommendationBand      @map("recommendation_band")
+  recommendedSchoolAction RecommendedSchoolAction @map("recommended_school_action")
+  confidence              AnalysisConfidence
+  summary                 String
+  matchedOutcomes         Json                    @map("matched_outcomes")
+  gaps                    Json
+  suggestedEvidence       Json                    @map("suggested_evidence")
+  safeBandExplanation     String                  @map("safe_band_explanation")
+  rawResponse             Json?                   @map("raw_response")
+  createdAt               DateTime                @default(now()) @map("created_at")
+
+  request RecognitionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("recognition_ai_analyses")
+}
+
+model RecognitionDecision {
+  id               String         @id @default(uuid())
+  requestId        String         @unique @map("request_id")
+  schoolId         String         @map("school_id")
+  decision         SchoolDecision
+  comment          String
+  recognizedTopics Json?          @map("recognized_topics")
+  decidedAt        DateTime       @map("decided_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  request RecognitionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  school  School             @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@map("recognition_decisions")
 }
 
 model RefreshToken {
@@ -65,59 +252,61 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+// Legacy institutional reference tables kept for future research/import work.
+// The hackathon MVP recognition flow intentionally does not depend on them.
 model EducationalInstitution {
-  institutionId         Int                   @id @map("Institution_ID")
-  createdAt             DateTime?             @map("created_at") @db.Timestamp(6)
-  city                  String?               @db.VarChar(50)
-  address               String?               @db.VarChar(200)
-  postalCode            String?               @map("postal_code") @db.VarChar(5)
-  phoneNumber           String?               @unique @map("phone_number") @db.VarChar(10)
-  email                 String?               @unique @db.VarChar(50)
-  formalInstitution     FormalInstitution?
-  nonFormalInstitution  NonFormalInstitution?
+  institutionId        Int                   @id @map("Institution_ID")
+  createdAt            DateTime?             @map("created_at") @db.Timestamp(6)
+  city                 String?               @db.VarChar(50)
+  address              String?               @db.VarChar(200)
+  postalCode           String?               @map("postal_code") @db.VarChar(5)
+  phoneNumber          String?               @unique @map("phone_number") @db.VarChar(10)
+  email                String?               @unique @db.VarChar(50)
+  formalInstitution    FormalInstitution?
+  nonFormalInstitution NonFormalInstitution?
 
   @@map("Educational_Institutions")
 }
 
 model FormalInstitution {
-  institutionId                 Int                  @id @map("F_Institution_ID")
-  schoolName                    String?              @map("school_name") @db.VarChar(100)
+  institutionId                 Int                    @id @map("F_Institution_ID")
+  schoolName                    String?                @map("school_name") @db.VarChar(100)
   educationalInstitution        EducationalInstitution @relation(fields: [institutionId], references: [institutionId])
-  firstFormalCooperations       F2FCooperation[]     @relation("FirstFormalInstitution")
-  secondFormalCooperations      F2FCooperation[]     @relation("SecondFormalInstitution")
-  formalToNonFormalCooperations F2NFCooperation[]    @relation("FormalInstitutionToNonFormal")
+  firstFormalCooperations       F2FCooperation[]       @relation("FirstFormalInstitution")
+  secondFormalCooperations      F2FCooperation[]       @relation("SecondFormalInstitution")
+  formalToNonFormalCooperations F2NFCooperation[]      @relation("FormalInstitutionToNonFormal")
   students                      Student[]
 
   @@map("Formal_Institutions")
 }
 
 model NonFormalInstitution {
-  institutionId                 Int                         @id @map("NF_Institution_ID")
-  institutionName               String?                     @map("institution_name") @db.VarChar(100)
-  educationalInstitution        EducationalInstitution      @relation(fields: [institutionId], references: [institutionId])
-  formalToNonFormalCooperations F2NFCooperation[]           @relation("NonFormalInstitutionToFormal")
+  institutionId                 Int                           @id @map("NF_Institution_ID")
+  institutionName               String?                       @map("institution_name") @db.VarChar(100)
+  educationalInstitution        EducationalInstitution        @relation(fields: [institutionId], references: [institutionId])
+  formalToNonFormalCooperations F2NFCooperation[]             @relation("NonFormalInstitutionToFormal")
   studentEnrollments            StudentNonFormalInstitution[]
 
   @@map("Non_Formal_Institutions")
 }
 
 model Agreement {
-  agreementCode               String           @id @map("Agreement_code") @db.VarChar(10)
-  validFrom                   DateTime?        @map("valid_from") @db.Timestamp(6)
-  validTo                     DateTime?        @map("valid_to") @db.Timestamp(6)
-  formalToFormalCooperation   F2FCooperation?
+  agreementCode                String           @id @map("Agreement_code") @db.VarChar(10)
+  validFrom                    DateTime?        @map("valid_from") @db.Timestamp(6)
+  validTo                      DateTime?        @map("valid_to") @db.Timestamp(6)
+  formalToFormalCooperation    F2FCooperation?
   formalToNonFormalCooperation F2NFCooperation?
 
   @@map("Agreements")
 }
 
 model F2FCooperation {
-  agreementCode String             @id @map("FF_agreement_code") @db.VarChar(10)
-  firstSchoolId Int?               @map("f_school_1_id")
-  secondSchoolId Int?              @map("f_school_2_id")
-  agreement     Agreement          @relation(fields: [agreementCode], references: [agreementCode])
-  firstSchool   FormalInstitution? @relation("FirstFormalInstitution", fields: [firstSchoolId], references: [institutionId])
-  secondSchool  FormalInstitution? @relation("SecondFormalInstitution", fields: [secondSchoolId], references: [institutionId])
+  agreementCode  String             @id @map("FF_agreement_code") @db.VarChar(10)
+  firstSchoolId  Int?               @map("f_school_1_id")
+  secondSchoolId Int?               @map("f_school_2_id")
+  agreement      Agreement          @relation(fields: [agreementCode], references: [agreementCode])
+  firstSchool    FormalInstitution? @relation("FirstFormalInstitution", fields: [firstSchoolId], references: [institutionId])
+  secondSchool   FormalInstitution? @relation("SecondFormalInstitution", fields: [secondSchoolId], references: [institutionId])
 
   @@map("F2F_Cooperations")
 }
@@ -134,25 +323,25 @@ model F2NFCooperation {
 }
 
 model Student {
-  studentId             Int                         @id @map("Student_ID")
-  formalSchoolId        Int?                        @map("f_school_id")
-  firstName             String?                     @map("first_name") @db.VarChar(20)
-  lastName              String?                     @map("last_name") @db.VarChar(40)
-  grade                 Int?
-  formalInstitution     FormalInstitution?          @relation(fields: [formalSchoolId], references: [institutionId])
-  nonFormalEnrollments  StudentNonFormalInstitution[]
+  studentId            Int                           @id @map("Student_ID")
+  formalSchoolId       Int?                          @map("f_school_id")
+  firstName            String?                       @map("first_name") @db.VarChar(20)
+  lastName             String?                       @map("last_name") @db.VarChar(40)
+  grade                Int?
+  formalInstitution    FormalInstitution?            @relation(fields: [formalSchoolId], references: [institutionId])
+  nonFormalEnrollments StudentNonFormalInstitution[]
 
   @@map("Students")
 }
 
 model StudentNonFormalInstitution {
-  studentId             Int                  @map("student_id")
-  nonFormalInstitutionId Int                 @map("nf_institution_id")
-  startedAt             DateTime?            @map("started_at") @db.Timestamp(6)
-  endedAt               DateTime?            @map("ended_at") @db.Timestamp(6)
-  studyLoad             Int?                 @map("study_load")
-  student               Student              @relation(fields: [studentId], references: [studentId])
-  nonFormalInstitution  NonFormalInstitution @relation(fields: [nonFormalInstitutionId], references: [institutionId])
+  studentId              Int                  @map("student_id")
+  nonFormalInstitutionId Int                  @map("nf_institution_id")
+  startedAt              DateTime?            @map("started_at") @db.Timestamp(6)
+  endedAt                DateTime?            @map("ended_at") @db.Timestamp(6)
+  studyLoad              Int?                 @map("study_load")
+  student                Student              @relation(fields: [studentId], references: [studentId])
+  nonFormalInstitution   NonFormalInstitution @relation(fields: [nonFormalInstitutionId], references: [institutionId])
 
   @@id([studentId, nonFormalInstitutionId])
   @@map("Students_NF_institutions")

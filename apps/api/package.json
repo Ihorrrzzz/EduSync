@@ -9,8 +9,12 @@
     "start": "node --env-file=.env dist/index.js",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "node --env-file=.env --import tsx prisma/seed.ts",
     "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node --env-file=.env --import tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",

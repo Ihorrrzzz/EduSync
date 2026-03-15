@@ -16,6 +16,7 @@ import { createRateLimitMiddleware } from "../middleware/rate-limit.js";
 const authRoutes = new Hono();
 
 const SUBJECT_OPTIONS = [
+  "Англійська мова",
   "Мистецтво",
   "Фізична культура",
   "Інформатика",
@@ -241,6 +242,16 @@ authRoutes.post("/register", async (c) => {
         fullName: resolvedFullName,
       },
     });
+
+    if (role === UserRole.parent) {
+      await tx.parentProfile.create({
+        data: {
+          profileId: profile.id,
+          displayName: resolvedFullName ?? email.split("@")[0] ?? "Батьківський профіль",
+          city: city ?? null,
+        },
+      });
+    }
 
     if (role === UserRole.school) {
       await tx.school.create({

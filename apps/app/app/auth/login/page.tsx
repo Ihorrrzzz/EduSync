@@ -16,8 +16,8 @@ type LoginResponse = {
 
 const loginHighlights = [
   "Один кабінет для школи, родини та гуртка",
-  "Прозорі статуси заявок і погоджень",
-  "AI-порівняння програм та цифрові звіти",
+  "Прозорі статуси запитів на врахування",
+  "AI-порівняння програм як підтримка рішення школи",
 ];
 
 export default function LoginPage() {
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 <span>EduSync</span>
               </Link>
               <span className="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/84">
-                Sign in
+                Вхід
               </span>
             </div>
 
@@ -95,11 +95,11 @@ export default function LoginPage() {
                 Повернення в кабінет
               </p>
               <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.05em] sm:text-5xl">
-                Усі маршрути, погодження та звіти в одному місці.
+                Запити, докази та рішення школи в одному місці.
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/82 sm:text-lg">
-                Увійдіть до свого кабінету, щоб керувати заявками, цифровими
-                угодами та прогресом навчання без перемикань між системами.
+                Увійдіть до кабінету, щоб працювати із запитами на врахування,
+                пакетом доказів від гуртка та AI-рекомендацією.
               </p>
             </div>
 
@@ -129,13 +129,13 @@ export default function LoginPage() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
-                  Auth
+                  Доступ
                 </p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-slate-950">
                   Вхід до EduSync
                 </h2>
                 <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">
-                  Вкажіть email та пароль, щоб перейти до власного дашборду.
+                  Вкажіть email та пароль, щоб перейти до власного кабінету.
                 </p>
               </div>
 
@@ -213,7 +213,7 @@ export default function LoginPage() {
               <div className="font-semibold text-slate-900">Ще не маєте акаунту?</div>
               <p className="leading-6">
                 Створіть профіль для школи, родини або гуртка та одразу отримайте
-                дашборд із потрібними інструментами.
+                кабінет із потрібними інструментами.
               </p>
               <Link className="font-semibold text-blue-700" href="/auth/register">
                 Перейти до реєстрації →

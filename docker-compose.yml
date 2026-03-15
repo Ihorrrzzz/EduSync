@@ -37,6 +37,8 @@ services:
       HOST: 0.0.0.0
       NODE_ENV: ${NODE_ENV:-production}
       CORS_ORIGIN: ${CORS_ORIGIN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
     ports:
       - "127.0.0.1:3001:3001"
     depends_on:

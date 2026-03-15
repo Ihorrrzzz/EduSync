@@ -33,7 +33,14 @@ Recommended `.env` values for the production deployment:
 ```dotenv
 NODE_ENV=production
 CORS_ORIGIN=https://educationsync.org,https://dashboard.educationsync.org
+JWT_SECRET=replace-with-a-random-secret-at-least-16-characters
+JWT_REFRESH_SECRET=replace-with-a-different-random-secret-at-least-16-characters
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
 ```
 
 This bundle is intended to expose the API through `https://api.educationsync.org`
 with the application server bound only to `127.0.0.1:3001`.
+
+If `OPENAI_API_KEY` is not provided, the backend keeps working and generates the
+AI recommendation band with the built-in deterministic fallback heuristic.

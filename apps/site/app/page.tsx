@@ -116,18 +116,18 @@ export default function SiteHomePage() {
         <section className="hero" id="home">
           <div className="container hero-grid">
             <div className="hero-copy">
-              <span className="eyebrow">Офіційне визнання позакласного навчання</span>
+              <span className="eyebrow">Процес для шкільного розгляду позашкільного навчання</span>
               <h1>
-                Платформа для <span className="accent">зарахування</span>
+                Платформа для <span className="accent">запитів</span>
                 <br />
-                позакласної освіти як частини
+                на врахування позашкільного
                 <br />
-                шкільної програми
+                навчання школою
               </h1>
               <p>
-                Школи, батьки та гуртки працюють в одній системі: порівнюють
-                програми за допомогою AI, укладають угоди, ведуть оцінювання та
-                прозоро переносять результати навчання.
+                Школи, батьки та гуртки працюють в одному процесі: готують
+                структуровані докази, порівнюють програму за допомогою AI і
+                фіксують фінальне рішення школи.
               </p>
 
               <div className="hero-actions">
@@ -159,11 +159,11 @@ export default function SiteHomePage() {
                 <div className="dashboard-preview">
                   <div className="preview-header">
                     <div>
-                      <span className="preview-kicker">Запит на зарахування №241</span>
-                      <h3>Заміна предмета «Англійська мова» для 9-Б класу</h3>
+                      <span className="preview-kicker">Запит на врахування №241</span>
+                      <h3>Розгляд програми «Англійська мова» для 9-Б класу</h3>
                       <p>
-                        Ліцей №127, мовний центр «Горизонт» та родина учня працюють у
-                        спільному цифровому маршруті без дублювання документів.
+                        Ліцей №127, мовний центр «Горизонт» та родина учня
+                        працюють з одним пакетом доказів і прозорим шкільним розглядом.
                       </p>
                     </div>
                     <div className="preview-pill">
@@ -197,7 +197,7 @@ export default function SiteHomePage() {
                           </div>
                         </div>
                         <ul className="check-list">
-                          <li>AI-збіг програми: 92%</li>
+                          <li>AI-рекомендація: сильна</li>
                         </ul>
                       </div>
                     </div>
@@ -300,9 +300,9 @@ export default function SiteHomePage() {
               </span>
               <h2>Розумне зіставлення освітніх програм</h2>
               <p>
-                AI порівнює програму гуртка з офіційною шкільною програмою та
-                пояснює, які компетентності покриті, які теми відсутні, і чи
-                можлива повна або часткова заміна предмета.
+                AI порівнює програму гуртка з обраним шкільним предметом і
+                пояснює, які результати навчання покриті, які теми потребують
+                ручної перевірки та який рекомендаційний рівень виглядає безпечним.
               </p>
 
               <div className="feature-stack">
@@ -327,7 +327,7 @@ export default function SiteHomePage() {
             <div className="report-card">
               <div className="report-head">
                 <h3>AI-звіт зіставлення програми</h3>
-                <div className="verified">Підтверджено</div>
+                <div className="verified">Лише рекомендація</div>
               </div>
 
               <div className="score-box">
@@ -380,24 +380,24 @@ export default function SiteHomePage() {
               <div className="recommendation">
                 <h4>Рекомендація</h4>
                 <p>
-                  <strong className="text-verified">Повна заміна схвалена.</strong>{" "}
-                  Програма відповідає ключовим компетентностям шкільного курсу
-                  англійської мови для 9 класу.
+                  <strong className="text-verified">Сильний кандидат для розгляду.</strong>{" "}
+                  Програма виглядає близькою до шкільного курсу англійської мови,
+                  але фінальне рішення все одно приймає школа.
                 </p>
               </div>
 
               <div className="explain-grid">
                 <div className="explain-card">
                   <span>Чому рекомендовано</span>
-                  <strong>Покрито основні мовні компетентності, регулярне оцінювання та практика.</strong>
+                  <strong>Покрито основні мовні компетентності, регулярну практику та частину письма.</strong>
                 </div>
                 <div className="explain-card warning">
                   <span>Що відсутнє</span>
-                  <strong>Потрібна перевірка письмових робіт та відповідності шкільним критеріям оцінювання.</strong>
+                  <strong>Потрібна перевірка письмових робіт та шкільних критеріїв оцінювання.</strong>
                 </div>
                 <div className="explain-card neutral">
-                  <span>Формат заміни</span>
-                  <strong>AI рекомендує повну заміну, якщо школа підтвердить модуль письма.</strong>
+                  <span>Безпечний висновок</span>
+                  <strong>AI радить розглядати програму як сильного кандидата, а не автоматично її зараховувати.</strong>
                 </div>
               </div>
             </div>
@@ -585,11 +585,11 @@ export default function SiteHomePage() {
         <section className="section" id="testimonials">
           <div className="container">
             <div className="section-head">
-              <span className="eyebrow">ВІДГУКИ</span>
-              <h2>Платформі довіряють школи, батьки й гуртки</h2>
+              <span className="eyebrow">DEMO SCENARIOS</span>
+              <h2>Три демо-сценарії для хакатонного MVP</h2>
               <p>
-                Короткі історії від користувачів, для яких процес зарахування
-                позакласної освіти став простішим і прозорішим.
+                Це не рекламні відгуки, а приклади реальних сценаріїв, які можна
+                показати у демо після seed бази.
               </p>
             </div>
 
@@ -633,7 +633,6 @@ export default function SiteHomePage() {
                       <span>{item.role}</span>
                     </div>
                   </div>
-                  <div className="stars">★★★★★</div>
                   <p>{item.quote}</p>
                   <h4>{item.name}</h4>
                   <span>{item.organization}</span>
@@ -646,11 +645,10 @@ export default function SiteHomePage() {
         <section className="cta" id="cta">
           <div className="container">
             <div className="cta-card">
-              <h2>Побудуйте прозорий освітній маршрут для кожної дитини</h2>
+              <h2>Запустіть прозорий процес для шкільного розгляду</h2>
               <p>
-                Приєднуйтесь до платформи, яка поєднує школи, батьків та освітніх
-                провайдерів і дозволяє офіційно зараховувати позакласні програми
-                як частину шкільного навчання.
+                Платформа поєднує школу, родину та гурток навколо одного запиту,
+                пакета доказів і фінального рішення школи без фейкових обіцянок.
               </p>
               <div className="cta-actions">
                 <button className="btn btn-cta-primary" type="button" onClick={showRegisterPage}>
@@ -662,8 +660,8 @@ export default function SiteHomePage() {
               </div>
               <div className="cta-meta">
                 <span>◉ Для шкіл, родин і гуртків</span>
-                <span>◉ Прозорий цифровий процес</span>
-                <span>◉ Підтримка впровадження</span>
+                <span>◉ AI тільки як дорадчий шар</span>
+                <span>◉ Фінальне слово за школою</span>
               </div>
             </div>
           </div>
@@ -680,8 +678,8 @@ export default function SiteHomePage() {
                   <span>EduSync</span>
                 </button>
                 <p>
-                  Офіційне визнання позакласної освіти як частини шкільної
-                  програми.
+                  Платформа підтримки рішень для шкільного розгляду доказів від
+                  позашкільних програм.
                 </p>
               </div>
 
@@ -743,8 +741,8 @@ export default function SiteHomePage() {
           <div className="register-hero">
             <h1>Почніть роботу з EduSync</h1>
             <p>
-              Оберіть роль, щоб створити акаунт і підключити школу, родину або
-              гурток до спільного цифрового процесу.
+              Оберіть роль, щоб створити кабінет для запиту на врахування,
+              пакета доказів та шкільного розгляду.
             </p>
             <div className="register-helper">
               Оберіть роль, яка найточніше відповідає вашим потребам, щоб побачити

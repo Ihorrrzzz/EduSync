@@ -20,7 +20,8 @@
     "audit": "npm audit",
     "verify": "npm run typecheck && npm run build && npm run audit",
     "prisma:generate": "npm run prisma:generate --workspace @edusync/api",
-    "prisma:migrate": "npm run prisma:migrate --workspace @edusync/api"
+    "prisma:migrate": "npm run prisma:migrate --workspace @edusync/api",
+    "prisma:seed": "npm run prisma:seed --workspace @edusync/api"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

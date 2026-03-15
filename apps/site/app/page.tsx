@@ -696,12 +696,6 @@ export default function SiteHomePage() {
                         >
                           {item.actionLabel} →
                         </Link>
-                        <Link
-                          className="btn-role btn-role-ghost"
-                          href={`${appUrl}/dashboard?guest=${item.role}`}
-                        >
-                          {item.guestLabel}
-                        </Link>
                       </div>
                     </div>
                   </div>

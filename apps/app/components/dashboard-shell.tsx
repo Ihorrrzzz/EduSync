@@ -238,8 +238,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen px-3 py-4 sm:px-4 md:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl grid-cols-[88px_minmax(0,1fr)] items-start gap-4 sm:grid-cols-[220px_minmax(0,1fr)] md:gap-6">
-        <aside className="sticky top-4 flex min-h-[calc(100vh-2rem)] flex-col rounded-[1.9rem] border border-slate-200 bg-white p-3 shadow-[0_18px_42px_rgba(15,23,42,0.05)] sm:p-4">
+      <div className="mx-auto flex max-w-7xl items-start gap-4 md:gap-6">
+        <aside className="sticky top-4 flex min-h-[calc(100vh-2rem)] w-20 shrink-0 flex-col rounded-[1.9rem] border border-slate-200 bg-white p-3 shadow-[0_18px_42px_rgba(15,23,42,0.05)] sm:w-56 sm:p-4">
           <nav className="flex flex-1 flex-col gap-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
@@ -275,7 +275,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </button>
         </aside>
 
-        <main className="min-w-0">{children}</main>
+        <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
   );

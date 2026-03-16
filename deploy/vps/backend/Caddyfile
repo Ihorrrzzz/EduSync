@@ -1,4 +1,0 @@
-api.educationsync.org {
-  encode gzip zstd
-  reverse_proxy api:3001
-}

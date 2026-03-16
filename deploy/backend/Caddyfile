@@ -1,0 +1,5 @@
+# Replace this hostname before using the restore scaffold on a public host.
+api.example.com {
+  encode gzip zstd
+  reverse_proxy api:3001
+}

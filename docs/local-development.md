@@ -2,6 +2,8 @@
 
 This document describes how to run the current monorepo locally, what each env file does, and which scripts are actually wired up today.
 
+For the full end-to-end restore path, including hosted recovery guidance, start with [`docs/restore-guide.md`](restore-guide.md).
+
 ## Prerequisites
 
 Required:
@@ -25,6 +27,8 @@ cp apps/app/.env.example apps/app/.env
 cp apps/site/.env.example apps/site/.env
 ```
 
+These generated `.env` files are local runtime files and should stay untracked.
+
 ### Root `.env`
 
 Used by root `docker-compose.yml`.
@@ -36,8 +40,8 @@ DB_USER=postgres
 DB_PASSWORD=change-me
 JWT_SECRET=replace-with-a-long-random-secret-at-least-16-characters
 JWT_REFRESH_SECRET=replace-with-a-different-long-random-secret-at-least-16-characters
-NODE_ENV=production
-CORS_ORIGIN=https://educationsync.org,https://dashboard.educationsync.org
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000,http://localhost:3002
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-mini
 ```
@@ -268,7 +272,7 @@ Important notes:
 
 - both Next apps use `output: "export"`
 - frontend environment values are embedded at build time
-- the backend VPS bundle in this repository deploys only the API stack, not these frontend exports
+- the repo includes a generic backend restore scaffold in `deploy/backend`, but no active hosted environment is documented here
 
 ## Troubleshooting
 
@@ -325,4 +329,4 @@ The repo does not currently include:
 - a test suite
 - a lint script
 - a full local Docker stack for the public site and dashboard app
-- a frontend deployment bundle comparable to the backend VPS bundle
+- a turnkey full-stack hosted deployment preset

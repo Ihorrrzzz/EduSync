@@ -2,6 +2,10 @@
 
 **EduSync** is a platform that bridges formal (school) and non-formal (club/extracurricular) education in Ukraine. It lets parents request official school recognition for what their children learn in clubs, while giving schools the AI-powered tools to evaluate those programs against government standards.
 
+## Current Status
+
+EduSync is currently maintained as a repository-first project. There is no supported live backend deployment documented in this repo anymore; the source code, example env files, and restore instructions are the source of truth. Static frontend deployments may still exist as unsupported archives, but anyone resuming work should follow the restore docs and configure their own hostnames, secrets, and infrastructure.
+
 ---
 
 ## The Problem
@@ -85,8 +89,8 @@ If no OpenAI API key is configured, the system falls back to a deterministic heu
 | **Auth** | jose (JWT), bcrypt | Access tokens (15min) + refresh tokens (7d, HTTP-only cookie) |
 | **Validation** | Zod | Request/response schema validation |
 | **AI** | OpenAI API (GPT) | Program comparison and recommendation analysis |
-| **Containerization** | Docker, Docker Compose | Local dev and production deployment |
-| **Reverse Proxy** | Caddy 2 | TLS termination and routing in production |
+| **Containerization** | Docker, Docker Compose | Local dev and optional self-hosted restore workflows |
+| **Reverse Proxy** | Caddy 2 | Optional reverse proxy in the generic backend restore scaffold |
 | **Icons** | lucide-react | UI icons |
 | **Build** | tsup, Next.js | API bundling and static site generation |
 
@@ -118,7 +122,7 @@ EduSync/
 │   │   └── lib/      # API client, auth context, utilities
 │   └── site/         # Next.js marketing site (port 3000)
 ├── deploy/
-│   └── vps/backend/  # Docker production deployment bundle
+│   └── backend/      # Generic backend restore scaffold
 ├── docs/             # Detailed documentation
 ├── docker-compose.yml
 └── package.json      # npm workspaces root
@@ -169,26 +173,32 @@ npm run dev
 
 ### Test Accounts
 
-All test accounts use password: **`12345678`**
+All seeded demo accounts use password: **`Demo12345!`**
 
 | Role | Email | What you can do |
 |------|-------|-----------------|
-| Parent | `parents@test.com` | Manage children, browse clubs & programs, enroll, submit requests |
-| School | `school@test.com` | Upload standards, review programs & requests, manage students |
-| Club | `club@test.com` | Create programs, upload PDF, manage enrollments, track student marks |
-
-Production dashboard: **https://dashboard.educationsync.org**
+| Parent | `parent.olena@example.com` | Manage children, browse clubs & programs, enroll, submit requests |
+| Parent | `parent.andriy@example.com` | Browse existing requests and seeded child records |
+| School | `school.lyceum127@example.com` | Upload standards, review programs & requests, manage students |
+| School | `school.constellation@example.com` | Review seeded request/decision examples |
+| Club | `club.crescendo@example.com` | Manage music programs and evidence |
+| Club | `club.horizon@example.com` | Review the English program workflow |
+| Club | `club.vector@example.com` | Review robotics and sports program flows |
 
 ---
 
-## Environment Configuration
+## Environment Templates
+
+Versioned env templates in the repo:
 
 | File | Used By | Key Variables |
 |------|---------|--------------|
-| `.env` | Docker Compose | `POSTGRES_*`, `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET` |
-| `apps/api/.env` | API server | `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `OPENAI_API_KEY` |
-| `apps/app/.env` | Dashboard | `NEXT_PUBLIC_API_URL` |
-| `apps/site/.env` | Marketing site | `NEXT_PUBLIC_APP_URL` |
+| `.env.example` | Root Docker-backed local stack | `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN` |
+| `apps/api/.env.example` | API server | `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `OPENAI_API_KEY` |
+| `apps/app/.env.example` | Dashboard | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL` |
+| `apps/site/.env.example` | Marketing site | `NEXT_PUBLIC_APP_URL` |
+
+Create local `.env` files from these templates and keep them untracked.
 
 - `OPENAI_API_KEY` is **optional** — without it, AI falls back to heuristic analysis
 - `CORS_ORIGIN` supports comma-separated origins
@@ -241,14 +251,17 @@ Build outputs:
 
 ---
 
-## Deployment
+## Restore Guide
 
-The production deployment bundle is in [`deploy/vps/backend/`](deploy/vps/backend/README.md). It includes:
-- `docker-compose.yml` — PostgreSQL + API + Caddy reverse proxy
-- `Caddyfile` — automatic TLS with Let's Encrypt
-- Step-by-step setup instructions
+Use [`docs/restore-guide.md`](docs/restore-guide.md) as the canonical guide for bringing EduSync back to a working state. It covers:
 
-Frontend apps are static exports and can be hosted on any CDN/static hosting (Vercel, Netlify, Cloudflare Pages, etc.).
+- local restore from a fresh clone
+- env template usage and verification
+- seeded test logins
+- static frontend export flow
+- a generic hosted restore blueprint without any committed live infrastructure details
+
+If you need only the backend stack on a self-managed Docker host, use the generic scaffold in [`deploy/backend/README.md`](deploy/backend/README.md).
 
 ---
 
@@ -256,10 +269,11 @@ Frontend apps are static exports and can be hosted on any CDN/static hosting (Ve
 
 | Document | Contents |
 |----------|----------|
+| [`docs/restore-guide.md`](docs/restore-guide.md) | Full restore guide for local and hosted recovery |
 | [`docs/project-structure.md`](docs/project-structure.md) | Complete directory map and file descriptions |
 | [`docs/local-development.md`](docs/local-development.md) | Setup, env files, scripts, troubleshooting |
 | [`docs/backend-api.md`](docs/backend-api.md) | All API routes, auth model, data model, rate limits |
-| [`deploy/vps/backend/README.md`](deploy/vps/backend/README.md) | Production deployment guide |
+| [`deploy/backend/README.md`](deploy/backend/README.md) | Generic backend-only Docker restore scaffold |
 
 ---
 

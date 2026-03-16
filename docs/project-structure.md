@@ -11,7 +11,7 @@ This document describes the repository as it exists in the current workspace, wi
 │   ├── app/
 │   └── site/
 ├── deploy/
-│   └── vps/backend/
+│   └── backend/
 ├── docs/
 ├── docker-compose.yml
 ├── package.json
@@ -23,7 +23,7 @@ This document describes the repository as it exists in the current workspace, wi
 Top-level responsibilities:
 
 - `apps/`: all application code
-- `deploy/vps/backend/`: production bundle for the backend only
+- `deploy/backend/`: generic backend-only restore scaffold
 - `docs/`: detailed project documentation
 - `docker-compose.yml`: local Docker stack for Postgres plus the API container
 - `package.json`: npm workspaces and root scripts
@@ -342,9 +342,9 @@ apps/site/
 
 `apps/site/lib/public-env.ts` resolves `NEXT_PUBLIC_APP_URL`, defaulting to `http://localhost:3002` in local development.
 
-## `deploy/vps/backend`
+## `deploy/backend`
 
-Purpose: backend-only VPS deployment bundle for the API, PostgreSQL, and Caddy.
+Purpose: backend-only Docker restore scaffold for the API, PostgreSQL, and optional Caddy reverse proxy.
 
 Files in this folder:
 
@@ -352,14 +352,14 @@ Files in this folder:
 - `Caddyfile`
 - `README.md`
 
-The bundle expects additional files copied from the repo root, especially:
+The scaffold expects additional files copied from the repo root, especially:
 
 - `package.json`
 - `package-lock.json`
 - `.dockerignore`
 - `apps/api/`
 
-The folder does not deploy the static frontends. Those must be built from `apps/site` and `apps/app` and hosted separately.
+The folder does not deploy the static frontends. Those must be built from `apps/site` and `apps/app` and hosted separately. No live hostnames, IPs, or committed secrets are meant to live in this folder.
 
 ## Root Runtime Files
 
@@ -404,7 +404,7 @@ The folder does not deploy the static frontends. Those must be built from `apps/
 ## Current Structural Constraints
 
 - frontend apps are static exports, not Node-rendered deployments
-- backend deployment instructions are included only for the API stack
+- backend restore scaffolding is included only for the API stack
 - rate limiting is in-memory, not shared across instances
 - the dashboard relies on direct browser-to-API calls, so CORS and cookie configuration matter
 - several build output directories already exist in the workspace and should not be mistaken for source directories
